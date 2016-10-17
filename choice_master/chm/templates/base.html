@@ -33,9 +33,12 @@
         <div id="navbar">
           <ul class="nav navbar-nav">
 
+            <!-- Home, About and Contact removed.
+
             <li class="active"><a href="#">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>
+             <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li> -->
+
 
             <!-- This is a dropdown, it might be useful later>
 
@@ -61,12 +64,12 @@
           <ul class="nav navbar-nav navbar-right">
             {% if user.is_authenticated %}
 
-            <li><a href="{% url 'account_logout' %}">Sign Out</a></li>
+            <li><a href="{% url 'account_logout' %}">Cerrar Sesión</a></li>
 
             {% else %}
 
-            <li><a href="{% url 'account_login' %}">Sign In</a></li>
-            <li><a href="{% url 'account_signup' %}">Sign Up</a></li>
+            <li><a href="{% url 'account_login' %}">Iniciar Sesión</a></li>
+            <li><a href="{% url 'account_signup' %}">Registrar</a></li>
 
             {% endif %}
           </ul>
