@@ -28,6 +28,14 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Determines the e-mail verification method during signup – choose one of
+# “mandatory”, “optional”, or “none”. When set to “mandatory” the user is
+# blocked from logging in until the email address is verified. Choose
+# “optional” or “none” to allow logins with an unverified e-mail address. In
+# case of “optional”, the e-mail verification mail is still sent, whereas in
+# case of “none” no e-mail verification mails are sent.
+
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
 # Application definition
 
@@ -47,7 +55,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     # include the providers you want to enable:
 
-    'allauth.socialaccount.providers.google',
+    # 'allauth.socialaccount.providers.google',
     # 'allauth.socialaccount.providers.github',
 ]
 
@@ -148,14 +156,14 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-SOCIALACCOUNT_PROVIDERS = {
-    'google': {
-        'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {
-            'access_type': 'online'
-        }
-    }
-}
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'SCOPE': ['profile', 'email'],
+#         'AUTH_PARAMS': {
+#             'access_type': 'online'
+#         }
+#     }
+# }
 
 # see more `allauth` configurations on
 # http://django-allauth.readthedocs.io/en/latest/configuration.html
