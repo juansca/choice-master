@@ -5,7 +5,7 @@ from allauth.account.views import login
 
 def index(request):
     """
-        If the user is authenticated redirect to login, otherwise display index.
+        If the user is authenticated redirect to login, otherwise display index
     """
     # context = {'request': request}
     if not request.user.is_authenticated:
