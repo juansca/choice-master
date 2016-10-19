@@ -28,6 +28,14 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Determines the e-mail verification method during signup – choose one of
+# “mandatory”, “optional”, or “none”. When set to “mandatory” the user is
+# blocked from logging in until the email address is verified. Choose
+# “optional” or “none” to allow logins with an unverified e-mail address. In
+# case of “optional”, the e-mail verification mail is still sent, whereas in
+# case of “none” no e-mail verification mails are sent.
+
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
 # Application definition
 
@@ -38,7 +46,21 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'chm.apps.ChmConfig',
+
+    # needed for `allauth`
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    # include the providers you want to enable:
+
+    # 'allauth.socialaccount.providers.google',
+    # 'allauth.socialaccount.providers.github',
 ]
+
+# required for `allauth`
+SITE_ID = 2
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -63,6 +85,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                # `allauth` needs this from django
+                'django.template.context_processors.request',
             ],
         },
     },
@@ -87,24 +112,40 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+                'UserAttributeSimilarityValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+                'MinimumLengthValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+                'CommonPasswordValidator',
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        'NAME': 'django.contrib.auth.password_validation.'
+                'NumericPasswordValidator',
     },
 ]
 
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-ar'
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'choice_master', 'locale'),
+]
+print(LOCALE_PATHS)
+print(os.path.exists(LOCALE_PATHS[0]))
 
 TIME_ZONE = 'UTC'
 
@@ -119,12 +160,30 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+ os.path.join(BASE_DIR, "static"),
+]
+
+# SOCIALACCOUNT_PROVIDERS = {
+#     'google': {
+#         'SCOPE': ['profile', 'email'],
+#         'AUTH_PARAMS': {
+#             'access_type': 'online'
+#         }
+#     }
+# }
+
+# see more `allauth` configurations on
+# http://django-allauth.readthedocs.io/en/latest/configuration.html
+ACCOUNT_EMAIL_REQUIRED = True
+LOGIN_REDIRECT_URL = "/"
+
 
 try:
     from .local_settings import *
 except ImportError:
     missing_file = os.path.abspath('local_settings.py')
     print('You must create a config file on {}'.format(missing_file))
-    print('You can use the template provided in {}.template'.format(missing_file))
+    print('You can use the template provided in {}.template'
+          .format(missing_file))
     sys.exit(1)
-
