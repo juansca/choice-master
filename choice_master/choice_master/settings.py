@@ -141,6 +141,11 @@ AUTHENTICATION_BACKENDS = (
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
 LANGUAGE_CODE = 'es-ar'
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'choice_master', 'locale'),
+]
+print(LOCALE_PATHS)
+print(os.path.exists(LOCALE_PATHS[0]))
 
 TIME_ZONE = 'UTC'
 
