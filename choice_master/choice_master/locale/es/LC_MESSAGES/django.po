@@ -183,6 +183,7 @@ msgstr ""
 
 #: chm/templates/account/login.html:6 chm/templates/account/login.html:10
 #: chm/templates/account/login.html:42
+#: chm/templates/base.html:67
 msgid "Sign In"
 msgstr "Ingresar"
 
@@ -205,11 +206,12 @@ msgid ""
 "If you have not created an account yet, then please\n"
 "<a href=\"%(signup_url)s\">sign up</a> first."
 msgstr ""
-"¿Aún no tiene cuenta?\n"
-"<a href=\"%(signup_url)s\">Regístrese</a> primero."
+"¿Aún no tienes cuenta?\n"
+"<a href=\"%(signup_url)s\">Regístrate</a> primero."
 
 #: chm/templates/account/logout.html:5 chm/templates/account/logout.html:8
 #: chm/templates/account/logout.html:17
+#: chm/templates/base.html:67
 msgid "Sign Out"
 msgstr "Cerrar sesión"
 
@@ -313,7 +315,7 @@ msgstr ""
 
 #: chm/templates/account/password_reset_from_key.html:17
 msgid "change password"
-msgstr ""
+msgstr "Cambiar"
 
 #: chm/templates/account/password_reset_from_key.html:20
 #: chm/templates/account/password_reset_from_key_done.html:8
@@ -329,19 +331,21 @@ msgstr ""
 #: chm/templates/account/signup.html:5
 #: chm/templates/socialaccount/signup.html:5
 msgid "Signup"
-msgstr ""
+msgstr "Registrarse"
 
 #: chm/templates/account/signup.html:8 chm/templates/account/signup.html:18
 #: chm/templates/socialaccount/signup.html:8
 #: chm/templates/socialaccount/signup.html:19
+#: chm/templates/base.html:68
 msgid "Sign Up"
-msgstr ""
+msgstr "Registrarse"
 
 #: chm/templates/account/signup.html:10
 #, python-format
 msgid ""
 "Already have an account? Then please <a href=\"%(login_url)s\">sign in</a>."
 msgstr ""
+"¿Ya tiene una cuenta? Por favor <a href=\"%(login_url)s\">inicie sesión</a>."
 
 #: chm/templates/account/signup_closed.html:5
 #: chm/templates/account/signup_closed.html:8
@@ -433,7 +437,7 @@ msgstr ""
 #: chm/templates/socialaccount/login_cancelled.html:5
 #: chm/templates/socialaccount/login_cancelled.html:9
 msgid "Login Cancelled"
-msgstr ""
+msgstr "Ingreso cancelado"
 
 #: chm/templates/socialaccount/login_cancelled.html:13
 #, python-format
