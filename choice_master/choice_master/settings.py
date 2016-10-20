@@ -55,12 +55,12 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     # include the providers you want to enable:
 
-    # 'allauth.socialaccount.providers.google',
-    # 'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
 ]
 
 # required for `allauth`
-SITE_ID = 2
+SITE_ID = 3
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -164,14 +164,14 @@ STATICFILES_DIRS = [
  os.path.join(BASE_DIR, "static"),
 ]
 
-# SOCIALACCOUNT_PROVIDERS = {
-#     'google': {
-#         'SCOPE': ['profile', 'email'],
-#         'AUTH_PARAMS': {
-#             'access_type': 'online'
-#         }
-#     }
-# }
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {
+            'access_type': 'online'
+        }
+    }
+}
 
 # see more `allauth` configurations on
 # http://django-allauth.readthedocs.io/en/latest/configuration.html

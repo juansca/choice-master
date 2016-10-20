@@ -21,12 +21,5 @@ from allauth.account import views
 urlpatterns = [
     url(r'^', include('chm.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^signup/$', views.signup, name="account_signup"),
-    url(r'^login/$', views.login, name="account_login"),
-    url(r'^logout/$', views.logout, name="account_logout"),
-
-    # Uncomment this in case we need to support password change
-    # url(r"^password/change/$", views.password_change,
-    #     name="account_change_password"),
-    # url(r"^password/set/$", views.password_set, name="account_set_password"),
+    url(r'^account/', include('allauth.urls')),
 ]
