@@ -1,6 +1,7 @@
 # NyP
 
-## installation and deploy
+## install and deploy
+
 
 ### make virtual environment and install dependendencies
 
@@ -10,18 +11,56 @@
 - make virtualenv with `mkvirtualenv --python=$(which python3) ingsoft`
 - install required python packages: `pip install -r requirements`
 
-### configure
+### configure and run project
 
-- provide local settings: `cp choice_master/local_settings.py.template choice_master/local_settings.py && nano choice_master/local_settings.py`
+- provide local settings: `cp choice_master/local_settings.py.template choice_master/local_settings.py`
 - synchronize database: `python manage.py migrate`
-- create super-user: `python manage.py createsuperuser`
+- start enjoing ChoiceMaster on your browser: `python manage.py runserver`
 
-### `allauth` configuration
-- we are using [django-allauth](http://django-allauth.readthedocs.io/)
-- run server `python manage.py runserver`
-- go to admin page at http://127.0.0.1:8000/admin and log in as superuser
-- create a site and put its id on settings.SITE_ID (probably it receives id = 2)
-- For each OAuth based provider, add a Social App (socialaccount app).
-- Fill in the site and the OAuth app credentials obtained from the provider.
-- For example, if you want to set up login using google, read [this](http://django-allauth.readthedocs.io/en/latest/providers.html#google)
+
+### Pasos a seguir luego de hacer un pull en limpio.
+
+rm db.sqlite3;
+
+cp choice_master/local_settings.py.template choice_master/local_settings.py;
+
+workon ingsoft;
+
+python manage.py migrate;
+
+python manage.py createsuperuser;
+
+python manage.py runserver;
+
+- Ir a http://127.0.0.1:8000/admin e ingresar como superusuario
+
+- modificar el sitio example.com:
+  Nombre de dominio: 127.0.0.1:8000
+  Nombre para visualizar: Choice Master
+
+- Mientras se lo modifica mirar la url.
+  Tiene que ser de la forma: http://localhost:8000/admin/sites/site/n/change/
+  Donde n es un número. Ese número es el SITE_ID. Ir a configure.py en el
+  directorio choice_master/choice_master y modificar ese valor a n
+  (probablemente n sea 3).
+- Agregar una social application de google con los siguientes datos (sin comillas):
+
+Nombre: "Google"
+
+Client id: "576052722164-tdkaff0p8ocuj3698nf7v069q6lplrt7.apps.googleusercontent.com"
+
+Secret Key: "B76ysRJpfdQOHyfBiPK_xvxK"
+
+Agregar el único sitio a la lista de sitios seleccionados.
+
+- Agregar otra social application de Github con los siguientes datos (sin comillas):
+
+Nombre: "Github"
+
+Client id: "6e895d85a935398a924e"
+
+Secret Key: "8b0e4e46b7283e6478351aeb042a2690b5aea3f4"
+
+Agregar el único sitio a la lista de sitios seleccionados.
+
 
