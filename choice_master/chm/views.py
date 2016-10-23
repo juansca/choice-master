@@ -46,15 +46,16 @@ def upload(request):
                     context['questions_errors'].append(question)
 
     else:
-        form = DocumentForm()
-
+        form = XMLFileForm()
 
     context['form'] = form
     # Load documents for the list page
     return render(request, 'upload.html', context)
 
+### JUANSCA Y TRUCCO: linkear acá
 def f(*args):
     return '42'
 
+### JUANSCA Y TRUCCO: linkear acá
 def not_repeated(*args):
     return True
