@@ -1,0 +1,60 @@
+[
+   {
+      "model":"sites.site",
+      "pk":3,
+      "fields":{
+         "domain":"127.0.0.1:8000",
+         "name":"Choice Master"
+      }
+   },
+   {
+      "model":"socialaccount.socialapp",
+      "pk":1,
+      "fields":{
+         "provider":"github",
+         "name":"Github",
+         "client_id":"6e895d85a935398a924e",
+         "secret":"8b0e4e46b7283e6478351aeb042a2690b5aea3f4",
+         "key":"",
+         "sites":[
+            3
+         ]
+      }
+   },
+   {
+      "model":"socialaccount.socialapp",
+      "pk":2,
+      "fields":{
+         "provider":"google",
+         "name":"Google",
+         "client_id":"576052722164-tdkaff0p8ocuj3698nf7v069q6lplrt7.apps.googleusercontent.com",
+         "secret":"B76ysRJpfdQOHyfBiPK_xvxK",
+         "key":"",
+         "sites":[
+            3
+         ]
+      }
+   },
+   {
+      "model":"auth.user",
+      "pk":1,
+      "fields":{
+         "password":"pbkdf2_sha256$30000$ojiKMZ3aUCL2$J/VICX/rhSO4S0shYZU0XP7WpVuvEKwg17uhti7sXyA=",
+         "last_login":"2016-10-23T13:50:11.751Z",
+         "is_superuser":true,
+         "username":"admin",
+         "first_name":"",
+         "last_name":"",
+         "email":"",
+         "is_staff":true,
+         "is_active":true,
+         "date_joined":"2016-10-23T13:49:39.258Z",
+         "groups":[
+
+         ],
+         "user_permissions":[
+
+         ]
+      }
+   }
+]
