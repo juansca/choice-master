@@ -1,0 +1,28 @@
+{% extends "account/base.html" %}
+
+
+
+    {% block content %}
+        <form action="{% url 'upload' %}" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <p>{{ form.non_field_errors }}</p>
+
+            {{ form.as_p }}
+
+            <p><input type="submit" value="Subir"/></p>
+        </form>
+
+    {% if question_added %}
+        <p>Preguntas agregadas:</p>
+        {% for qa in questions_added %}
+            {{ qa }}
+        {% endfor %}
+    {% endif %}
+
+    {% if question_errors %}
+        <p>Preguntas con errores:</p>
+        {% for qa in questions_added %}
+            {{ qa }}
+        {% endfor %}
+    {% endif %}
+    {% endblock %}
