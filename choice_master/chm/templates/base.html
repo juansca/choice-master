@@ -41,24 +41,23 @@
             <li><a href="#contact">Contact</a></li> -->
 
 
-            <!-- This is a dropdown, it might be useful later>
-
+            {% if user.is_staff %}
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tareas de Administración <span class="caret"></span></a>
 
               <ul class="dropdown-menu">
 
-                <li><a href="#">Action</a></li>
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
+				<li><a href="/admin">Admin</a></li>
                 <li role="separator" class="divider"></li>
-                <li class="dropdown-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
+                <li class="dropdown-header">Opciones</li>
+                <li><a href="/admin/chm/subject/">Materias</a></li>
+                <li><a href="/admin/chm/topic/">Temas</a></li>
+                <li><a href="/admin/chm/question/">Preguntas</a></li>
+                <li><a href="#">Preguntas denunciadas</a></li>
 
               </ul>
             </li>
-            <-->
+            {% endif %}
 
           </ul>
 

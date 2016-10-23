@@ -11,12 +11,18 @@ class Subject(models.Model):
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=500)
 
+    def __str__(self):
+        return self.name
+
 
 class Topic(models.Model):
     """
     """
     name = models.CharField(max_length=200)
     subject = models.ForeignKey('Subject')
+
+    def __str__(self):
+        return '{} ({})'.format(self.name, self.subject)
 
 
 class Question(models.Model):
@@ -25,6 +31,9 @@ class Question(models.Model):
     topic = models.ForeignKey('Topic')
     text = models.CharField(max_length=300)
 
+    def __str__(self):
+        return self.text
+
 
 class Answer(models.Model):
     """
@@ -32,6 +41,9 @@ class Answer(models.Model):
     text = models.CharField(max_length=300)
     question = models.ForeignKey('Question')
     is_correct = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.text
 
 
 class Flag(models.Model):
