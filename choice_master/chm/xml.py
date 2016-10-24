@@ -8,7 +8,7 @@ xmlschema_path = path.join(BASE_DIR, 'static', 'xml_files', 'question.xml')
 
 def get_schema():
     with open(xmlschema_path, "r") as g:
-        xmlschema_doc = parse(g)
+        xmlschema_doc = etree.parse(g)
     xmlschema = etree.XMLSchema(xmlschema_doc)
     return xmlschema
 

@@ -30,7 +30,7 @@ def index(request):
 def extract_topic_and_subject_from_data(data):
     topic_and_subject = str(data['topic'])
     subject = ' (' + str(data['subject']) + ')'
-    topic = topic.replace(subject, '')
+    topic = topic_and_subject.replace(subject, '')
     return topic, subject
 
 
