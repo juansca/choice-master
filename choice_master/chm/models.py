@@ -50,10 +50,18 @@ class Flag(models.Model):
     """
     A question flagged by a user
     """
-    question = models.ForeignKey('Question')
+    question = models.ForeignKey('Question', related_name='flags')
     datetime = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User)
     description = models.TextField()
+
+
+class FlaggedQuestion(Question):
+    """Proxy model used to manage
+    flagged questions"""
+
+    class Meta:
+        proxy = True
 
 
 @receiver(user_signed_up)
