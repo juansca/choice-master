@@ -13,11 +13,17 @@ from chm import similarity
 
 def index(request):
     """
-        If the user is authenticated redirect to login, otherwise display index
+        If the user is authenticated redirect to login, otherwise display index page.
     """
+
     if not request.user.is_authenticated:
         return redirect(login)
-    return render(request, 'index.html')
+    else:
+        context = {}
+        if request.user.is_staff:
+            nfq = Question.objects.filter(flags__isnull=False).count()
+            context['n_flagged_questions'] = nfq
+    return render(request, 'index.html', context)
 
 
 def extract_topic_and_subject_from_data(data):
@@ -28,6 +34,8 @@ def extract_topic_and_subject_from_data(data):
 
 
 def upload(request):
+    if not request.user.is_staff:
+        raise PermissionDenied
     context = {'added': [],
                'repeated': [],
                'similar_exists': []}
@@ -61,5 +69,7 @@ def upload(request):
         form = XMLFileForm()
 
     context['form'] = form
-    # Load documents for the list page
+    if request.user.is_staff:
+        nfq = Question.objects.filter(flags__isnull=False).count()
+        context['n_flagged_questions'] = nfq
     return render(request, 'upload.html', context)
