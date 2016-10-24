@@ -1,14 +1,16 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
 from allauth.account.views import login
-from django.contrib import messages
+from django.core.exceptions import PermissionDenied
 
 from lxml.etree import XMLSyntaxError
 from chm.forms import XMLFileForm
 from chm.models import Topic
+from chm.models import Question
 from chm.xml import parse_questions
-
 from chm import similarity
+
+
 
 
 def index(request):
