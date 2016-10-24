@@ -7,15 +7,22 @@ from allauth.account.views import login
 from django.core.exceptions import PermissionDenied
 
 from chm.forms import XMLFileForm
+from chm.models import Question
 
 
 def index(request):
     """ If the user is authenticated redirect to login,
     otherwise display index page.
     """
+
     if not request.user.is_authenticated:
         return redirect(login)
-    return render(request, 'index.html')
+    else:
+        context = {}
+        if request.user.is_staff:
+            nfq = Question.objects.filter(flags__isnull=False).count()
+            context['n_flagged_questions'] = nfq
+    return render(request, 'index.html', context)
 
 
 def upload(request):
@@ -37,6 +44,9 @@ def upload(request):
         form = XMLFileForm()
 
     context['form'] = form
+    if request.user.is_staff:
+        nfq = Question.objects.filter(flags__isnull=False).count()
+        context['n_flagged_questions'] = nfq
     # Load documents for the list page
     return render(request, 'upload.html', context)
 
