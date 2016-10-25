@@ -14,7 +14,6 @@ from chm.models import Subject
 from chm.models import Topic
 from chm.models import XMLFile
 
-from chm.similarity import repeated
 from chm.similarity import similar_exists
 
 from chm.xml import parse_questions
