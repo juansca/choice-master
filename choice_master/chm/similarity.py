@@ -2,6 +2,12 @@ from chm.models import Question
 
 
 def distance(str1, str2):
+    """
+
+    :param str1: String to compute distance
+    :param str2: String to compute distance
+    :return: the Lehvenstein distance between str1 and str2
+    """
     distance_table = dict()
 
     for i in range(len(str1) + 1):
@@ -21,15 +27,31 @@ def distance(str1, str2):
 
 
 def is_similar(str1, str2):
+    """
+
+    :param str1: String to verify the similarity
+    :param str2: String to verify the similarity
+    :return: If the distance between str1 and str2 is short enough, we consider that are similar
+    """
     return distance(str1, str2) < 5
 
 
 def repeated(pquestion):
+    """
+
+    :param pquestion: a Question model object to verify if exists in the db
+    :return: verify if pquestion is in the db
+    """
     return Question.objects.filter(text=pquestion.text,
                                    topic=pquestion.topic).exists()
 
 
 def similar_exists(pquestion):
+    """
+
+    :param pquestion: a Question model object to verify if a similar question is in the db
+    :return: True if a similar question exists
+    """
     topic_questions = Question.objects.filter(topic=pquestion.topic)
     some_similar = False
     for db_question in topic_questions.values('text'):

@@ -8,6 +8,7 @@ from choice_master import settings
 
 class XMLFile(models.Model):
     """
+    The option to upload questions from files
     """
     name = models.CharField(max_length=200)
     topic = models.ForeignKey('Topic')
@@ -16,6 +17,7 @@ class XMLFile(models.Model):
 
 class Subject(models.Model):
     """
+    A subject that is mandatory to load a question
     """
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=500)
@@ -26,6 +28,7 @@ class Subject(models.Model):
 
 class Topic(models.Model):
     """
+    A specidic topic related to the subject
     """
     name = models.CharField(max_length=200)
     subject = models.ForeignKey('Subject')
@@ -36,6 +39,7 @@ class Topic(models.Model):
 
 class Question(models.Model):
     """
+    A topic's question
     """
     topic = models.ForeignKey('Topic')
     text = models.CharField(max_length=300)
@@ -46,6 +50,7 @@ class Question(models.Model):
 
 class Answer(models.Model):
     """
+    An answer for a question
     """
     text = models.CharField(max_length=300)
     question = models.ForeignKey('Question')
@@ -66,8 +71,9 @@ class Flag(models.Model):
 
 
 class FlaggedQuestion(Question):
-    """Proxy model used to manage
-    flagged questions"""
+    """
+    Proxy model used to manage flagged questions
+    """
 
     class Meta:
         proxy = True

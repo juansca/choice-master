@@ -7,6 +7,9 @@ xmlschema_path = path.join(BASE_DIR, 'static', 'xml_files', 'question.xml')
 
 
 def get_schema():
+    """
+    Get the schema from a XML file
+    """
     with open(xmlschema_path, "r") as g:
         xmlschema_doc = etree.parse(g)
     xmlschema = etree.XMLSchema(xmlschema_doc)
@@ -14,6 +17,10 @@ def get_schema():
 
 
 def parse_questions(xmlfile):
+    """
+    Parse the XML File using a specific schema to obtain the questions and answers
+    :param xmlfile
+    """
     schema = get_schema()
     for _, question_data in etree.iterparse(xmlfile,
                                             tag='question',
