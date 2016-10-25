@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from chm.models import Answer
+from chm.models import Flag
 from chm.models import FlaggedQuestion
 from chm.models import Question
 from chm.models import Subject
@@ -35,6 +36,10 @@ class FlaggedQuestionAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+    def save_model(self, request, obj, form, change):
+        """Delete all flags for this question"""
+        Flag.objects.filter(question=obj).delete()
 
 
 admin.site.register(Question, QuestionAdmin)
