@@ -12,7 +12,7 @@
 
         {% if not syntax_error and not schema_error %}
             {% if added %}
-                <p>Las siguientes preguntas fueron agregadas correctamente:</p>
+				<div class="alert alert-danger" role="alert">Las siguientes preguntas fueron agregadas correctamente:</div>
                 <ul>
                     {% for qa in added %}
                     <li>{{ qa }} </li>
@@ -21,7 +21,7 @@
             {% endif %}
 
             {% if repeated %}
-                <p>Las siguientes preguntas no fueron cargadas porque ya existen:</p>
+			<div class="alert alert-danger" role="alert">Las siguientes preguntas no fueron cargadas porque ya existen:</div>
                 <ul>
                     {% for qa in repeated %}
                     <li>{{ qa }} </li>
@@ -30,7 +30,7 @@
             {% endif %}
 
             {% if similar_exists %}
-                <p>Las siguientes preguntas no fueron cargadas porque existen preguntas similares:</p>
+				<div class="alert alert-danger" role="alert">Las siguientes preguntas no fueron cargadas porque existen preguntas similares:</div>
                 <ul>
                     {% for qa in similar_exists %}
                     <li>{{ qa }} </li>
@@ -41,7 +41,7 @@
         {% endif %}
 
         {% if syntax_error %}
-            <p> Hubo en error de sintaxis. Por favor revise que el formato sea: </p>
+			<div class="alert alert-danger" role="alert"> Hubo en error de sintaxis. Por favor revise que el formato sea: </div>
             {% include "xmlformathelp.html" %}
         {% endif %}
 

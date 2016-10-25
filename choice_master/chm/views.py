@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from allauth.account.views import login
 from django.core.exceptions import PermissionDenied
 
+
 from lxml.etree import XMLSyntaxError
 from chm.forms import XMLFileForm
 from chm.models import Topic
@@ -27,45 +28,41 @@ def index(request):
     return render(request, 'index.html', context)
 
 
-def extract_topic_and_subject_from_data(data):
-    topic_and_subject = str(data['topic'])
-    subject = ' (' + str(data['subject']) + ')'
-    topic = topic_and_subject.replace(subject, '')
-    return topic, subject
-
 
 def upload(request):
     if not request.user.is_staff:
         raise PermissionDenied
-    context = {'added': [],
-               'repeated': [],
-               'similar_exists': []}
+
+    context = {
+        'added': [],
+        'repeated': [],
+        'similar_exists': []
+    }
 
     if request.method == 'POST':
         form = XMLFileForm(request.POST, request.FILES)
         if form.is_valid():
-            data = form.cleaned_data
+            topic = form.cleaned_data['topic']
+            xmlfile = request.FILES['XMLfile']
 
             try:
-                xmlfile = request.FILES['XMLfile']
-                for question, answers in parse_questions(xmlfile):
-                    topic, subject = extract_topic_and_subject_from_data(data)
-                    question.topic = Topic.objects.get(name=topic)
-
+                questions_gen = parse_questions(xmlfile)
+            except XMLSyntaxError as err:
+                context['syntax_error'] = err
+            else:
+                for question, answers in questions_gen:
                     if similarity.repeated(question):
                         context['repeated'].append(question)
                     elif similarity.similar_exists(question):
                         context['similar_exists'].append(question)
                     else:
                         context['added'].append(question)
+                        question.topic = topic
 
                         question.save()
                         for ans in answers:
                             ans.question = question
                             ans.save()
-
-            except XMLSyntaxError as err:
-                context['syntax_error'] = err
     else:
         form = XMLFileForm()
 
