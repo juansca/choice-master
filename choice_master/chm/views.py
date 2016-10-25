@@ -3,13 +3,14 @@ from django.shortcuts import redirect
 from allauth.account.views import login
 from django.core.exceptions import PermissionDenied
 
-
 from lxml.etree import XMLSyntaxError
+
 from chm.forms import XMLFileForm
 from chm.models import Topic
 from chm.models import Question
+from chm.similarity import repeated
+from chm.similarity import similar_exists
 from chm.xml import parse_questions
-from chm import similarity
 
 
 def index(request):
@@ -51,14 +52,13 @@ def upload(request):
                 context['syntax_error'] = err
             else:
                 for question, answers in questions_gen:
-                    if similarity.repeated(question):
+                    question.topic = topic
+                    if repeated(question):
                         context['repeated'].append(question)
-                    elif similarity.similar_exists(question):
+                    elif similar_exists(question):
                         context['similar_exists'].append(question)
                     else:
                         context['added'].append(question)
-                        question.topic = topic
-
                         question.save()
                         for ans in answers:
                             ans.question = question
