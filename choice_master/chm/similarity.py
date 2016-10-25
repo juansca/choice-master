@@ -15,7 +15,7 @@ def distance(str1, str2):
   return distance_table[len(str1)][len(str2)]
 
 def is_similar(str1, str2):
-    return distance(str1, str2) < 6
+    return distance(str1, str2) < 5
 
 
 def repeated(pquestion):
