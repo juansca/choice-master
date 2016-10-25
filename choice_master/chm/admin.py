@@ -17,6 +17,33 @@ class AnswerInline(admin.TabularInline):
 class QuestionAdmin(admin.ModelAdmin):
     model = Question
     inlines = (AnswerInline,)
+    list_display = ['get_text', 'get_topic_name', 'get_subject_name',]
+
+    def get_text(self, obj):
+        return obj.text
+    get_text.short_description = 'Pregunta'
+
+    def get_topic_name(self, obj):
+        return obj.topic.name
+    get_topic_name.admin_order_field = 'topic'
+    get_topic_name.short_description = 'Tema'
+
+    def get_subject_name(self, obj):
+        return obj.topic.subject.name
+    get_subject_name.short_description = 'Materia'
+
+class TopicAdmin(admin.ModelAdmin):
+    model = Topic
+    list_display = [ 'get_name', 'get_subject_name',]
+
+    def get_name(self, obj):
+        return obj.name
+    get_name.short_description = 'Tema'
+
+    def get_subject_name(self, obj):
+        return obj.subject.name
+    get_subject_name.admin_order_field = 'subject'
+    get_subject_name.short_description = 'Materia'
 
 
 class FlaggedQuestionAdmin(admin.ModelAdmin):
@@ -45,4 +72,4 @@ class FlaggedQuestionAdmin(admin.ModelAdmin):
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(FlaggedQuestion, FlaggedQuestionAdmin)
 admin.site.register(Subject)
-admin.site.register(Topic)
+admin.site.register(Topic, TopicAdmin)
