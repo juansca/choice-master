@@ -67,9 +67,10 @@ class XMLFileAdmin(admin.ModelAdmin):
             questions_gen = parse_questions(xmlfile)
             for question, answers in questions_gen:
                 question.topic = obj.topic
-                if repeated(question):
+                if Question.objects.filter(text=pquestion.text,
+                                   topic=pquestion.topic).exists():
                     repeated_count += 1
-                elif similar_exists(question):
+                elif similar_exists(question, Question.objects.filter(topic=question.topic)):
                     similar_count += 1
                 else:
                     added_count += 1

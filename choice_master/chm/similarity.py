@@ -36,25 +36,16 @@ def is_similar(str1, str2):
     return distance(str1, str2) < 5
 
 
-def repeated(pquestion):
-    """
 
-    :param pquestion: a Question model object to verify if exists in the db
-    :return: verify if pquestion is in the db
-    """
-    return Question.objects.filter(text=pquestion.text,
-                                   topic=pquestion.topic).exists()
-
-
-def similar_exists(pquestion):
+def similar_exists(pquestion, dbtopic_questions):
     """
 
     :param pquestion: a Question model object to verify if a similar question is in the db
+    :param dbtopic_questions: a QuerySet with all the questions that has the same topic that pquestion
     :return: True if a similar question exists
     """
-    topic_questions = Question.objects.filter(topic=pquestion.topic)
     some_similar = False
-    for db_question in topic_questions.values('text'):
+    for db_question in dbtopic_questions.values('text'):
         dbqtext = db_question['text']
         some_similar = some_similar or is_similar(pquestion.text, dbqtext)
         if some_similar:
