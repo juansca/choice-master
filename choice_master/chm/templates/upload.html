@@ -12,7 +12,7 @@
 
         {% if not syntax_error and not schema_error %}
             {% if added %}
-				<div class="alert alert-danger" role="alert">Las siguientes preguntas fueron agregadas correctamente:</div>
+				<div class="alert alert-success" role="alert">Las siguientes preguntas fueron agregadas correctamente:</div>
                 <ul>
                     {% for qa in added %}
                     <li>{{ qa }} </li>
