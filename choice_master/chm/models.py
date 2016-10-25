@@ -3,6 +3,14 @@ from allauth.account.signals import user_signed_up
 from django.dispatch import receiver
 from django.contrib import messages
 from django.contrib.auth.models import User
+from choice_master import settings
+
+
+class XMLFile(models.Model):
+    """
+    """
+    topic = models.ForeignKey('Topic')
+    file = models.FileField(upload_to=settings.MEDIA_ROOT)
 
 
 class Subject(models.Model):

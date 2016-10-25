@@ -6,13 +6,15 @@ from chm.models import FlaggedQuestion
 from chm.models import Question
 from chm.models import Subject
 from chm.models import Topic
+from chm.models import XMLFile
 
+class XMLFileAdmin(admin.ModelAdmin):
+    model = XMLFile
 
 class AnswerInline(admin.TabularInline):
     extra = 1
     model = Answer
     fields = ('is_correct', 'text',)
-
 
 class QuestionAdmin(admin.ModelAdmin):
     model = Question
@@ -72,4 +74,5 @@ class FlaggedQuestionAdmin(admin.ModelAdmin):
 admin.site.register(Question, QuestionAdmin)
 admin.site.register(FlaggedQuestion, FlaggedQuestionAdmin)
 admin.site.register(Subject)
+admin.site.register(XMLFile, XMLFileAdmin)
 admin.site.register(Topic, TopicAdmin)
