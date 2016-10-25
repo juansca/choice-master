@@ -9,6 +9,7 @@ from choice_master import settings
 class XMLFile(models.Model):
     """
     """
+    name = models.CharField(max_length=200)
     topic = models.ForeignKey('Topic')
     file = models.FileField(upload_to=settings.MEDIA_ROOT)
 

@@ -53,14 +53,13 @@
                 <li><a href="/admin/chm/subject/">Materias</a></li>
                 <li><a href="/admin/chm/topic/">Temas</a></li>
                 <li><a href="/admin/chm/question/">Preguntas</a></li>
+                <li><a href="/admin/chm/xmlfile/">Subir XML</a></li>
                 <li><a href="/admin/chm/flaggedquestion/">
 						Preguntas denunciadas
 						{% if n_flagged_questions %}
 							<span class="label label-danger">{{ n_flagged_questions }}</span>
-						
 						{% endif %}
 					</a></li>
-                <li><a href="{% url 'upload' %}">Subir XML con Preguntas</a></li>
 
               </ul>
             </li>
