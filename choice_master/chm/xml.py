@@ -22,9 +22,12 @@ def parse_questions(xmlfile):
     :param xmlfile
     """
     schema = get_schema()
+    topic = models.Topic()
+    topic.name = etree._Attrib
     for _, question_data in etree.iterparse(xmlfile,
                                             tag='question',
                                             schema=schema):
+
         answers = []
         question = models.Question()
         question.text = question_data[0].text
@@ -35,4 +38,4 @@ def parse_questions(xmlfile):
             answer = models.Answer(text=text, is_correct=is_correct)
             answers.append(answer)
 
-        yield question, answers
+        yield question, answers, topic
