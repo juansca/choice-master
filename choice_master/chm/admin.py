@@ -54,13 +54,13 @@ class XMLFileAdmin(admin.ModelAdmin):
 
         similar_count = 0
         message_similar = '%s The questions had not been added' \
-                          ' because there were alredy similiar question in the data base.'
+                          ' because there were  already similar questions in the data base.'
 
         repeated_count = 0
-        message_repeated = '%s The questions have not been added' \
-                          ' because they already had been question in the data base.'
-        message_syntax_error = 'There was an sintax error. Please,' \
-                               ' check the XML sintax.'
+        message_repeated = '%s The questions had not been added' \
+                          ' because they already exist in the data base.'
+        message_syntax_error = 'There was a syntax error. Please,' \
+                               ' check the XML syntax.'
 
         try:
             questions_gen = parse_questions(xmlfile)
