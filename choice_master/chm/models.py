@@ -1,8 +1,18 @@
-from django.db import models
+"""
+Models for app chm
+"""
+
+# python imports
 from allauth.account.signals import user_signed_up
+from model_utils import Choices
+
+# django imports
+from django.db import models
 from django.dispatch import receiver
 from django.contrib import messages
 from django.contrib.auth.models import User
+
+# project imports
 from choice_master import settings
 
 
@@ -28,7 +38,7 @@ class Subject(models.Model):
 
 class Topic(models.Model):
     """
-    A specidic topic related to the subject
+    A specific topic related to the subject
     """
     name = models.CharField(max_length=200)
     subject = models.ForeignKey('Subject')
@@ -72,11 +82,88 @@ class Flag(models.Model):
 
 class FlaggedQuestion(Question):
     """
-    Proxy model used to manage flagged questions
+    Proxy model used to manage flagged questions.
+
+    Its only purpose is to expose flagged questions
+    to the system administrator through admin interface.
+
+    See https://docs.djangoproject.com/es/1.10/ref/models/options/#proxy
     """
 
     class Meta:
         proxy = True
+
+
+class Quiz(models.Model):
+    """
+    When a user takes an exam,
+    an instance of Quiz is created.
+    """
+
+    # the user taking the exam
+    user = models.ForeignKey(User)
+
+    # when did the user ask to take an exam
+    datetime = models.DateTimeField(auto_now_add=True)
+
+    # selected topics
+    topics = models.ManyToManyField('Topic')
+
+    # user configuration: time available to
+    # answer each question (in seconds)
+    seconds_per_question = models.IntegerField()
+
+
+class QuestionQuiz(models.Model):
+    """
+    A question in a Quiz deserves its own table.
+    This way we can keep track of interesting
+    things like user answer, or time spent to answer it
+    """
+
+    STATUS = Choices(
+        'not_answered',  # the user didn't provide answer
+        'wrong',         # the user missed the question
+        'right'          # the user provided the right answer
+    )
+
+    # the question that become part of the exam
+    question = models.ManyToManyField('Question')
+    quiz = models.ForeignKey('Quiz')
+    state = models.CharField(choices=STATUS,
+                             default=STATUS.not_answered,
+                             max_length=20)
+
+
+class UserTopicScoring(models.Model):
+    """
+    To keep track of user performance
+    and on which topics he or she could
+    get better, we compute and save this
+    scoring.
+
+    Whenever a user misses a question about
+    some topic, the scoring lowers somehow.
+    On the other hand, if the user provides the
+    right answer, this score rises.
+
+    How the scoring is lowered or raised may
+    vary depending on different policies.
+    """
+
+    user = models.ForeignKey(User)
+    topic = models.ForeignKey(User)
+    score = models.FloatField(default=0)
+
+    class Meta:
+        # Do not allow duplicates {user x topic}
+        unique_together = ('user', 'topic')
+
+    def raise_score(self):
+        self.score += 1
+
+    def lower_score(self):
+        self.score -= 1.5
 
 
 @receiver(user_signed_up)
