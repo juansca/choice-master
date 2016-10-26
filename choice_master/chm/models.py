@@ -114,11 +114,21 @@ class Quiz(models.Model):
     seconds_per_question = models.IntegerField()
 
 
-class QuestionQuiz(models.Model):
+class QuestionOnQuiz(models.Model):
     """
-    A question in a Quiz deserves its own table.
+    A question on a Quiz deserves its own table.
     This way we can keep track of interesting
-    things like user answer, or time spent to answer it
+    things like user answers, e.g:
+
+        >>> user = User.objects.get(some_query)
+        >>> topic = Topic.objecs.filter(some_other_query)
+        >>> qq = QuestionOnQuiz.objects.filter(quiz__user=user,
+                                               question__topic=topic)
+        >>> right = qq.filter(status=QuestionOnQuiz.STATUS.right)
+        >>> score = right / float(qq.count())
+
+    We also could later add attributes to this relationship,
+    for example, time spent on giving the actual answer.
     """
 
     STATUS = Choices(
@@ -127,43 +137,11 @@ class QuestionQuiz(models.Model):
         'right'          # the user provided the right answer
     )
 
-    # the question that become part of the exam
     question = models.ManyToManyField('Question')
     quiz = models.ForeignKey('Quiz')
     state = models.CharField(choices=STATUS,
                              default=STATUS.not_answered,
                              max_length=20)
-
-
-class UserTopicScoring(models.Model):
-    """
-    To keep track of user performance
-    and on which topics he or she could
-    get better, we compute and save this
-    scoring.
-
-    Whenever a user misses a question about
-    some topic, the scoring lowers somehow.
-    On the other hand, if the user provides the
-    right answer, this score rises.
-
-    How the scoring is lowered or raised may
-    vary depending on different policies.
-    """
-
-    user = models.ForeignKey(User)
-    topic = models.ForeignKey(User)
-    score = models.FloatField(default=0)
-
-    class Meta:
-        # Do not allow duplicates {user x topic}
-        unique_together = ('user', 'topic')
-
-    def raise_score(self):
-        self.score += 1
-
-    def lower_score(self):
-        self.score -= 1.5
 
 
 @receiver(user_signed_up)
