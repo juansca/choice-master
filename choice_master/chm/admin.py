@@ -33,8 +33,8 @@ class XMLFileAdmin(admin.ModelAdmin):
         dest = reverse('admin:chm_load_questions_link',
                        kwargs={'pk': obj.pk})
         return format_html('<a href="{url}">{title}</a>',
-                           url=dest, title='Cargar Preguntas')
-    load_questions_link.short_description = 'Cargar preguntas'
+                           url=dest, title='Load Questions')
+    load_questions_link.short_description = 'Load Questions'
     load_questions_link.allow_tags = True
 
     def get_urls(self):
@@ -50,17 +50,17 @@ class XMLFileAdmin(admin.ModelAdmin):
         xmlfile = obj.file
 
         added_count = 0
-        message_added = '%s preguntas fueron agregadas'
+        message_added = '%s The questions had been added'
 
         similar_count = 0
-        message_similar = '%s preguntas no fueron agregadas pues ya existían' \
-                          ' similares en la base de datos.'
+        message_similar = '%s The questions had not been added' \
+                          ' because there were alredy similiar question in the data base.'
 
         repeated_count = 0
-        message_repeated = '%s preguntas no fueron agregadas pues ya' \
-                           ' existían en la base de datos.'
-        message_syntax_error = 'Hubo un error de sintaxis. Por favor,' \
-                               ' verifique la sintaxis del xml.'
+        message_repeated = '%s The questions have not been added' \
+                          ' because they already had been question in the data base.'
+        message_syntax_error = 'There was an sintax error. Please,' \
+                               ' check the XML sintax.'
 
         try:
             questions_gen = parse_questions(xmlfile)
@@ -108,11 +108,11 @@ class QuestionAdmin(admin.ModelAdmin):
     def get_topic_name(self, obj):
         return obj.topic.name
     get_topic_name.admin_order_field = 'topic'
-    get_topic_name.short_description = 'Tema'
+    get_topic_name.short_description = 'Topic'
 
     def get_subject_name(self, obj):
         return obj.topic.subject.name
-    get_subject_name.short_description = 'Materia'
+    get_subject_name.short_description = 'Subject'
 
 
 class TopicAdmin(admin.ModelAdmin):
@@ -121,12 +121,12 @@ class TopicAdmin(admin.ModelAdmin):
 
     def get_name(self, obj):
         return obj.name
-    get_name.short_description = 'Tema'
+    get_name.short_description = 'Topic'
 
     def get_subject_name(self, obj):
         return obj.subject.name
     get_subject_name.admin_order_field = 'subject'
-    get_subject_name.short_description = 'Materia'
+    get_subject_name.short_description = 'Subject'
 
 
 class FlaggedQuestionAdmin(admin.ModelAdmin):
@@ -139,7 +139,7 @@ class FlaggedQuestionAdmin(admin.ModelAdmin):
 
     def flags_count(self, request):
         return Question.objects.filter(flags__isnull=False).count()
-    flags_count.short_description = 'Cantidad de denuncias'
+    flags_count.short_description = 'Number of complains'
 
     def get_queryset(self, request):
         return Question.objects.filter(flags__isnull=False)

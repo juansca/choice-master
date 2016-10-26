@@ -43,19 +43,19 @@
 
             {% if user.is_staff %}
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Tareas de Administración <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Administration Menu <span class="caret"></span></a>
 
               <ul class="dropdown-menu">
 
 				<li><a href="/admin">Admin</a></li>
                 <li role="separator" class="divider"></li>
-                <li class="dropdown-header">Opciones</li>
-                <li><a href="/admin/chm/subject/">Materias</a></li>
-                <li><a href="/admin/chm/topic/">Temas</a></li>
-                <li><a href="/admin/chm/question/">Preguntas</a></li>
-                <li><a href="/admin/chm/xmlfile/">Subir XML</a></li>
+                <li class="dropdown-header">Options</li>
+                <li><a href="/admin/chm/subject/">Subjects</a></li>
+                <li><a href="/admin/chm/topic/">Topics</a></li>
+                <li><a href="/admin/chm/question/">Questions</a></li>
+                <li><a href="/admin/chm/xmlfile/">Upload XML</a></li>
                 <li><a href="/admin/chm/flaggedquestion/">
-						Preguntas denunciadas
+						Complains
 						{% if n_flagged_questions %}
 							<span class="label label-danger">{{ n_flagged_questions }}</span>
 						{% endif %}

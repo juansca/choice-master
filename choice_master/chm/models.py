@@ -81,4 +81,4 @@ class FlaggedQuestion(Question):
 
 @receiver(user_signed_up)
 def user_signed_up_callback(sender, request, user, **kwargs):
-    messages.success(request, 'Se ha registrado exitosamente!')
+    messages.success(request, 'You signed up succesfully !')
