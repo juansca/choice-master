@@ -1,8 +1,11 @@
-from django.contrib import admin
-from django.shortcuts import redirect
 from django.conf.urls import url
+from django.contrib import admin
+from django.core.exceptions import ValidationError
+from django.shortcuts import redirect
 from django.urls import reverse
 
+from chm.forms import XMLFileForm
+from chm.messages import LoadQuestionsMessageManager
 from chm.models import Answer
 from chm.models import Flag
 from chm.models import FlaggedQuestion
@@ -10,10 +13,8 @@ from chm.models import Question
 from chm.models import Subject
 from chm.models import Topic
 from chm.models import XMLFile
-from chm.forms import XMLFileForm
-from chm.messages import LoadQuestionsMessageManager
 
-from chm.xml import parse_questions
+from chm.xml import XMLParser
 from lxml.etree import XMLSyntaxError
 
 
@@ -33,51 +34,52 @@ class XMLFileAdmin(admin.ModelAdmin):
         ]
         return urls + super(XMLFileAdmin, self).get_urls()
 
-    def load_question(self, mm, topic_name, subject_name, question, answers):
+    def load_question(self, request, data, mm):
         try:
-            subject = Subject.objects.get(name=subject_name)
-            topic = Topic.objects.get(name=topic_name, subject=subject)
-            question.topic = topic
+            subject = Subject.objects.get(name=data['subject'])
+            topic = Topic.objects.get(name=data['topic'], subject=subject)
 
-            if question.is_repeated():
-                mm.repeated.append(question)
+            question = Question(text=data['question'], topic=topic)
+            question.full_clean()
+            question.save()
 
-            elif question.similar_exists():
-                mm.similar.append(question)
-
-            else:
-                mm.added.append(question)
-                question.save()
-                for ans in answers:
-                    ans.question = question
-                    ans.save()
+            for ans in data['answers']:
+                answer = Answer()
+                answer.question = question
+                answer.text = ans['text']
+                answer.is_correct = ans['is_correct']
+                answer.full_clean()
+                answer.save()
+            mm.added.append(question)
 
         except Subject.DoesNotExist:
-            mm.non_existent_subjects.append((subject_name, question))
+            mm.no_subject.append((data['subject'], data['question']))
 
         except Topic.DoesNotExist:
-            mm.non_existent_topics.append((topic_name, question))
+            mm.no_topic.append((data['topic'], data['question']))
+
+        except ValidationError as err:
+            mm.validation_errors.append((err, data['question']))
 
     def load_questions_view(self, request):
         mm = LoadQuestionsMessageManager()
+        try:
+            form = XMLFileForm(request.POST, request.FILES)
+            if form.is_valid():
+                xmlfile = request.FILES['file']
+                parser = XMLParser(xmlfile)
+                for data in parser.parse_questions():
+                    self.load_question(request, data, mm)
+            else:
+                mm.form_is_valid = False
+                mm.set_messages(request)
+                print(reverse('admin:chm_xmlfile_add'))
+                return redirect(reverse('admin:chm_xmlfile_add'))
 
-        form = XMLFileForm(request.POST, request.FILES)
-        mm.form_is_valid = form.is_valid()
-
-        if mm.form_is_valid:
-            xmlfile = request.FILES['file']
-            try:
-                for parsed_question in parse_questions(xmlfile):
-                    self.load_question(mm, *parsed_question)
-
-            except XMLSyntaxError as err:
-                mm.syntax_error = err
+        except XMLSyntaxError as err:
+            mm.syntax_error = err
 
         mm.set_messages(request)
-
-        if not mm.form_is_valid:
-            return redirect(reverse('admin:chm_xmlfile_add'))
-
         return redirect(reverse('admin:chm_question_changelist'))
 
 
@@ -94,7 +96,7 @@ class QuestionAdmin(admin.ModelAdmin):
 
     def get_text(self, obj):
         return obj.text
-    get_text.short_description = 'Pregunta'
+    get_text.short_description = 'Question'
 
     def get_topic_name(self, obj):
         return obj.topic.name
