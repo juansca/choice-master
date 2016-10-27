@@ -1,6 +1,3 @@
-from chm.models import Question
-
-
 def distance(str1, str2):
     """
 
@@ -31,17 +28,19 @@ def is_similar(str1, str2):
 
     :param str1: String to verify the similarity
     :param str2: String to verify the similarity
-    :return: If the distance between str1 and str2 is short enough, we consider that are similar
+    :return: If the distance between str1 and str2 is short enough, we consider
+             that are similar
     """
     return distance(str1, str2) < 5
-
 
 
 def similar_exists(pquestion, dbtopic_questions):
     """
 
-    :param pquestion: a Question model object to verify if a similar question is in the db
-    :param dbtopic_questions: a QuerySet with all the questions that has the same topic that pquestion
+    :param pquestion: a Question model object to verify if a similar question
+                      is in the db
+    :param dbtopic_questions: a QuerySet with all the questions that has the
+                              same topic that pquestion
     :return: True if a similar question exists
     """
     some_similar = False

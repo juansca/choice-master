@@ -11,9 +11,12 @@ from django.db import models
 from django.dispatch import receiver
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.utils.translation import ugettext_lazy as _
 
 # project imports
 from choice_master import settings
+from chm import similarity
 
 
 class XMLFile(models.Model):
@@ -58,6 +61,18 @@ class Question(models.Model):
     def is_repeated(self):
         return Question.objects.filter(text=self.text,
                                        topic=self.topic).exists()
+
+    def similar_exists(self):
+        queryset = Question.objects.filter(topic=self.topic)
+        return similarity.similar_exists(self, queryset)
+
+    def clean(self):
+        if self.is_repeated():
+            raise ValidationError(_('The question already exists'))
+
+        if self.similar_exists():
+            raise ValidationError(_('A similar question already exists'))
+
 
 class Answer(models.Model):
     """

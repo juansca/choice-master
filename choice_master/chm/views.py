@@ -4,6 +4,7 @@ from allauth.account.views import login
 
 from chm.models import Question
 
+
 def index(request):
     """
         If the user is authenticated redirect to login, otherwise display index
