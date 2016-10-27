@@ -1,10 +1,7 @@
 from django.contrib import admin
-from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.conf.urls import url
 from django.urls import reverse
-from django.utils.html import format_html
-from django.contrib import messages
 
 from chm.models import Answer
 from chm.models import Flag
@@ -13,8 +10,9 @@ from chm.models import Question
 from chm.models import Subject
 from chm.models import Topic
 from chm.models import XMLFile
-
+from chm.forms import XMLFileForm
 from chm.similarity import similar_exists
+from chm.messages import LoadQuestionsMessageManager
 
 from chm.xml import parse_questions
 from lxml.etree import XMLSyntaxError
@@ -22,72 +20,56 @@ from lxml.etree import XMLSyntaxError
 
 class XMLFileAdmin(admin.ModelAdmin):
     model = XMLFile
-    list_fields = ['load_questions_link']
-    list_display = ['get_name', 'load_questions_link']
+    change_form_template = 'change_XMLFile.html'
 
-    def get_name(self, obj):
-        return obj.name
-    get_name.short_description = 'File'
-
-    def load_questions_link(self, obj):
-        dest = reverse('admin:chm_load_questions_link',
-                       kwargs={'pk': obj.pk})
-        return format_html('<a href="{url}">{title}</a>',
-                           url=dest, title='Cargar Preguntas')
-    load_questions_link.short_description = 'Cargar preguntas'
-    load_questions_link.allow_tags = True
+    def add_view(self, request, form_url='', extra_context=None):
+        form_url = reverse('admin:chm_load_questions')
+        return super(XMLFileAdmin, self).add_view(request, form_url)
 
     def get_urls(self):
         urls = [
-            url('^(?P<pk>\d+)/loadquestions/?$',
+            url('^loadquestions/$',
                 self.admin_site.admin_view(self.load_questions_view),
-                name='chm_load_questions_link'),
+                name='chm_load_questions'),
         ]
         return urls + super(XMLFileAdmin, self).get_urls()
 
-    def load_questions_view(self, request, *args, **kwargs):
-        obj = get_object_or_404(XMLFile, pk=kwargs['pk'])
-        xmlfile = obj.file
+    def load_questions_view(self, request):
+        mm = LoadQuestionsMessageManager()
 
-        added_count = 0
-        message_added = '%s preguntas fueron agregadas'
+        form = XMLFileForm(request.POST, request.FILES)
+        mm.form_is_valid = form.is_valid()
 
-        similar_count = 0
-        message_similar = '%s preguntas no fueron agregadas pues ya existían' \
-                          ' similares en la base de datos.'
+        if mm.form_is_valid:
+            topic = Topic.objects.all()[0]
+            xmlfile = request.FILES['file']
 
-        repeated_count = 0
-        message_repeated = '%s preguntas no fueron agregadas pues ya' \
-                           ' existían en la base de datos.'
-        message_syntax_error = 'Hubo un error de sintaxis. Por favor,' \
-                               ' verifique la sintaxis del xml.'
+            try:
+                questions_gen = parse_questions(xmlfile)
+                for question, answers in questions_gen:
+                    question.topic = topic
+                    queryset = Question.objects.filter(topic=question.topic)
 
-        try:
-            questions_gen = parse_questions(xmlfile)
-            for question, answers in questions_gen:
-                question.topic = obj.topic
-                if Question.objects.filter(text=question.text,
-                                   topic=question.topic).exists():
-                    repeated_count += 1
-                elif similar_exists(question, Question.objects.filter(topic=question.topic)):
-                    similar_count += 1
-                else:
-                    added_count += 1
-                    question.save()
-                    for ans in answers:
-                        ans.question = question
-                        ans.save()
-        except XMLSyntaxError as err:
-            messages.error(request, message_syntax_error)
+                    if question.is_repeated():
+                        mm.repeated.append(question)
+                    elif similar_exists(question, queryset):
+                        mm.similar.append(question)
+                    else:
+                        mm.added.append(question)
+                        question.save()
+                        for ans in answers:
+                            ans.question = question
+                            ans.save()
 
-        if added_count:
-            messages.success(request, message_added % added_count)
-        if similar_count:
-            messages.error(request, message_similar % similar_count)
-        if repeated_count:
-            messages.error(request, message_repeated % repeated_count)
+            except XMLSyntaxError as err:
+                mm.syntax_error = err
 
-        return redirect(reverse('admin:chm_xmlfile_changelist'))
+        mm.set_messages(request)
+
+        if not mm.form_is_valid:
+            return redirect(reverse('admin:chm_xmlfile_add'))
+
+        return redirect(reverse('admin:chm_question_changelist'))
 
 
 class AnswerInline(admin.TabularInline):
@@ -108,11 +90,11 @@ class QuestionAdmin(admin.ModelAdmin):
     def get_topic_name(self, obj):
         return obj.topic.name
     get_topic_name.admin_order_field = 'topic'
-    get_topic_name.short_description = 'Tema'
+    get_topic_name.short_description = 'Topic'
 
     def get_subject_name(self, obj):
         return obj.topic.subject.name
-    get_subject_name.short_description = 'Materia'
+    get_subject_name.short_description = 'Subject'
 
 
 class TopicAdmin(admin.ModelAdmin):
@@ -121,12 +103,12 @@ class TopicAdmin(admin.ModelAdmin):
 
     def get_name(self, obj):
         return obj.name
-    get_name.short_description = 'Tema'
+    get_name.short_description = 'Topic'
 
     def get_subject_name(self, obj):
         return obj.subject.name
     get_subject_name.admin_order_field = 'subject'
-    get_subject_name.short_description = 'Materia'
+    get_subject_name.short_description = 'Subject'
 
 
 class FlaggedQuestionAdmin(admin.ModelAdmin):
@@ -139,7 +121,7 @@ class FlaggedQuestionAdmin(admin.ModelAdmin):
 
     def flags_count(self, request):
         return Question.objects.filter(flags__isnull=False).count()
-    flags_count.short_description = 'Cantidad de denuncias'
+    flags_count.short_description = 'Number of complains'
 
     def get_queryset(self, request):
         return Question.objects.filter(flags__isnull=False)

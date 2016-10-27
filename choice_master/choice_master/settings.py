@@ -141,7 +141,7 @@ AUTHENTICATION_BACKENDS = (
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'es-ar'
+LANGUAGE_CODE = 'en-Us'
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'choice_master', 'locale'),
 ]

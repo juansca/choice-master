@@ -20,8 +20,6 @@ class XMLFile(models.Model):
     """
     The option to upload questions from files
     """
-    name = models.CharField(max_length=200)
-    topic = models.ForeignKey('Topic')
     file = models.FileField(upload_to=settings.MEDIA_ROOT)
 
 
@@ -57,6 +55,9 @@ class Question(models.Model):
     def __str__(self):
         return self.text
 
+    def is_repeated(self):
+        return Question.objects.filter(text=self.text,
+                                       topic=self.topic).exists()
 
 class Answer(models.Model):
     """
@@ -146,4 +147,4 @@ class QuestionOnQuiz(models.Model):
 
 @receiver(user_signed_up)
 def user_signed_up_callback(sender, request, user, **kwargs):
-    messages.success(request, 'Se ha registrado exitosamente!')
+    messages.success(request, 'You signed up succesfully !')
