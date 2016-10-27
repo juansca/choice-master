@@ -11,7 +11,6 @@ from chm.models import Subject
 from chm.models import Topic
 from chm.models import XMLFile
 from chm.forms import XMLFileForm
-from chm.similarity import similar_exists
 from chm.messages import LoadQuestionsMessageManager
 
 from chm.xml import parse_questions
@@ -34,6 +33,31 @@ class XMLFileAdmin(admin.ModelAdmin):
         ]
         return urls + super(XMLFileAdmin, self).get_urls()
 
+    def load_question(self, mm, topic_name, subject_name, question, answers):
+        try:
+            subject = Subject.objects.get(name=subject_name)
+            topic = Topic.objects.get(name=topic_name, subject=subject)
+            question.topic = topic
+
+            if question.is_repeated():
+                mm.repeated.append(question)
+
+            elif question.similar_exists():
+                mm.similar.append(question)
+
+            else:
+                mm.added.append(question)
+                question.save()
+                for ans in answers:
+                    ans.question = question
+                    ans.save()
+
+        except Subject.DoesNotExist:
+            mm.non_existent_subjects.append((subject_name, question))
+
+        except Topic.DoesNotExist:
+            mm.non_existent_topics.append((topic_name, question))
+
     def load_questions_view(self, request):
         mm = LoadQuestionsMessageManager()
 
@@ -41,25 +65,10 @@ class XMLFileAdmin(admin.ModelAdmin):
         mm.form_is_valid = form.is_valid()
 
         if mm.form_is_valid:
-            topic = Topic.objects.all()[0]
             xmlfile = request.FILES['file']
-
             try:
-                questions_gen = parse_questions(xmlfile)
-                for question, answers in questions_gen:
-                    question.topic = topic
-                    queryset = Question.objects.filter(topic=question.topic)
-
-                    if question.is_repeated():
-                        mm.repeated.append(question)
-                    elif similar_exists(question, queryset):
-                        mm.similar.append(question)
-                    else:
-                        mm.added.append(question)
-                        question.save()
-                        for ans in answers:
-                            ans.question = question
-                            ans.save()
+                for parsed_question in parse_questions(xmlfile):
+                    self.load_question(mm, *parsed_question)
 
             except XMLSyntaxError as err:
                 mm.syntax_error = err

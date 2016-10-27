@@ -1,6 +1,3 @@
-from chm.models import Question
-
-
 def distance(str1, str2):
     """
 

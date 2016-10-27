@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from django.contrib import messages
 from django.contrib.auth.models import User
 from choice_master import settings
+from chm import similarity
 
 
 class XMLFile(models.Model):
@@ -48,6 +49,9 @@ class Question(models.Model):
     def is_repeated(self):
         return Question.objects.filter(text=self.text,
                                        topic=self.topic).exists()
+    def similar_exists(self):
+        queryset = Question.objects.filter(topic=self.topic)
+        return similarity.similar_exists(self, queryset)
 
 class Answer(models.Model):
     """
