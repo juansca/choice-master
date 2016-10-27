@@ -56,5 +56,154 @@
 
          ]
       }
+   },
+   {
+      "model":"chm.subject",
+      "pk":1,
+      "fields":{
+         "name":"Algebra",
+         "description":"Vectores, matrices y esas cosas re locas"
+      }
+   },
+   {
+      "model":"chm.subject",
+      "pk":2,
+      "fields":{
+         "name":"AM2",
+         "description":"Analisis matematico 2. Nos hacemos los cancheros y pusimos AM2"
+      }
+   },
+   {
+      "model":"chm.subject",
+      "pk":3,
+      "fields":{
+         "name":"Probabilidad",
+         "description":"Viva Gauss!"
+      }
+   },
+   {
+      "model":"chm.subject",
+      "pk":4,
+      "fields":{
+         "name":"Ing Soft I",
+         "description":"Interactuaci\u00f3n"
+      }
+   },
+   {
+      "model":"chm.topic",
+      "pk":1,
+      "fields":{
+         "name":"Series de Taylor",
+         "subject":2
+      }
+   },
+   {
+      "model":"chm.topic",
+      "pk":2,
+      "fields":{
+         "name":"Bayes",
+         "subject":3
+      }
+   },
+   {
+      "model":"chm.topic",
+      "pk":3,
+      "fields":{
+         "name":"Testing",
+         "subject":4
+      }
+   },
+   {
+      "model":"chm.topic",
+      "pk":4,
+      "fields":{
+         "name":"subesp",
+         "subject":1
+      }
+   },
+   {
+      "model":"chm.topic",
+      "pk":5,
+      "fields":{
+         "name":"vectores",
+         "subject":1
+      }
+   },
+   {
+      "model":"chm.topic",
+      "pk":6,
+      "fields":{
+         "name":"distribucion normal",
+         "subject":3
+      }
+   },
+   {
+      "model":"chm.topic",
+      "pk":7,
+      "fields":{
+         "name":"coding",
+         "subject":4
+      }
+   },
+   {
+      "model":"chm.question",
+      "pk":2,
+      "fields":{
+         "topic":1,
+         "text":" Todos los patos son de color rojo? "
+      }
+   },
+   {
+      "model":"chm.question",
+      "pk":4,
+      "fields":{
+         "topic":3,
+         "text":"Son todas estas respuestas incorrectes?"
+      }
+   },
+   {
+      "model":"chm.answer",
+      "pk":6,
+      "fields":{
+         "text":" No ",
+         "question":2,
+         "is_correct":false
+      }
+   },
+   {
+      "model":"chm.answer",
+      "pk":7,
+      "fields":{
+         "text":" S\u00ed ",
+         "question":2,
+         "is_correct":false
+      }
+   },
+   {
+      "model":"chm.answer",
+      "pk":13,
+      "fields":{
+         "text":"No entiendo",
+         "question":4,
+         "is_correct":false
+      }
+   },
+   {
+      "model":"chm.answer",
+      "pk":14,
+      "fields":{
+         "text":"S\u00ed",
+         "question":4,
+         "is_correct":false
+      }
+   },
+   {
+      "model":"chm.answer",
+      "pk":15,
+      "fields":{
+         "text":"No",
+         "question":4,
+         "is_correct":false
+      }
    }
 ]
