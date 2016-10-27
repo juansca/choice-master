@@ -82,7 +82,6 @@ class QuestionAdmin(admin.ModelAdmin):
     model = Question
     inlines = (AnswerInline,)
     list_display = ['get_text', 'get_topic_name', 'get_subject_name']
-    change_form_template = 'change_question.html'
 
     def get_text(self, obj):
         return obj.text
