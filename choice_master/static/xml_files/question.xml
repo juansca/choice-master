@@ -33,6 +33,4 @@
   </xs:complexType>
 
   <xs:element name="file" type="filetype"/>
-  <xs:attribute name="topic" type="xs:string"/>
-
 </xs:schema>

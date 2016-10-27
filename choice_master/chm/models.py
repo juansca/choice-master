@@ -10,8 +10,6 @@ class XMLFile(models.Model):
     """
     The option to upload questions from files
     """
-    name = models.CharField(max_length=200)
-    topic = models.ForeignKey('Topic')
     file = models.FileField(upload_to=settings.MEDIA_ROOT)
 
 
@@ -47,6 +45,9 @@ class Question(models.Model):
     def __str__(self):
         return self.text
 
+    def is_repeated(self):
+        return Question.objects.filter(text=self.text,
+                                       topic=self.topic).exists()
 
 class Answer(models.Model):
     """
