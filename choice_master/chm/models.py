@@ -1,5 +1,5 @@
 from allauth.account.signals import user_signed_up
-from chm import similarity
+from chm.similarity import is_similar
 from choice_master import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -11,15 +11,15 @@ from django.utils.translation import ugettext_lazy as _
 
 class XMLFile(models.Model):
     """
-    The option to upload questions from files
+    The XMLFile object is used to upload files to the server in order to
+    support bulk uploading of questions and answers to the database.
+    No instace of this object will actually exist in the database.
     """
     file = models.FileField(upload_to=settings.MEDIA_ROOT)
 
 
 class Subject(models.Model):
-    """
-    A subject that is mandatory to load a question
-    """
+    """Subject Model"""
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=500)
 
@@ -28,9 +28,7 @@ class Subject(models.Model):
 
 
 class Topic(models.Model):
-    """
-    A specidic topic related to the subject
-    """
+    """Topic Model"""
     name = models.CharField(max_length=200)
     subject = models.ForeignKey('Subject')
 
@@ -39,9 +37,7 @@ class Topic(models.Model):
 
 
 class Question(models.Model):
-    """
-    A topic's question
-    """
+    """Question Model"""
     topic = models.ForeignKey('Topic')
     text = models.CharField(max_length=300)
 
@@ -49,12 +45,25 @@ class Question(models.Model):
         return self.text
 
     def is_repeated(self):
+        """
+        Check if a identical question exists in the database.
+        :return: True only if an identical question exists in the database
+        :rtype: bool
+        """
         return Question.objects.filter(text=self.text,
                                        topic=self.topic).exists()
 
     def similar_exists(self):
+        """
+        Check if a similar question exists in the database.
+        :return: True only if a similar question exists in the database
+        :rtype: bool
+        """
         queryset = Question.objects.filter(topic=self.topic)
-        return similarity.similar_exists(self, queryset)
+        for q in queryset:
+            if is_similar(self.text, q.text):
+                return True
+        return False
 
     def clean(self):
         if self.is_repeated():
@@ -65,9 +74,7 @@ class Question(models.Model):
 
 
 class Answer(models.Model):
-    """
-    An answer for a question
-    """
+    """Answer Model"""
     text = models.CharField(max_length=300)
     question = models.ForeignKey('Question')
     is_correct = models.BooleanField(default=False)
@@ -78,7 +85,8 @@ class Answer(models.Model):
 
 class Flag(models.Model):
     """
-    A question flagged by a user
+    Flag Model. An instance of this model indicates that a question has been
+    flagged by some user.
     """
     question = models.ForeignKey('Question', related_name='flags')
     datetime = models.DateTimeField(auto_now_add=True)
@@ -87,9 +95,7 @@ class Flag(models.Model):
 
 
 class FlaggedQuestion(Question):
-    """
-    Proxy model used to manage flagged questions
-    """
+    """Proxy model used to manage flagged questions"""
 
     class Meta:
         proxy = True

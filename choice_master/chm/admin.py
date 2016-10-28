@@ -19,14 +19,21 @@ from lxml.etree import XMLSyntaxError
 
 
 class XMLFileAdmin(admin.ModelAdmin):
+    """The representation of XMLFile model in the admin interface."""
+
     model = XMLFile
     change_form_template = 'change_XMLFile.html'
 
     def add_view(self, request, form_url='', extra_context=None):
+        # Change the form_url of the in order to redirect after submit
         form_url = reverse('admin:chm_load_questions')
         return super(XMLFileAdmin, self).add_view(request, form_url)
 
     def get_urls(self):
+        """
+        Associate the url with name "admin:chm_load_questions" with the view
+        "load_questions_view".
+        """
         urls = [
             url('^loadquestions/$',
                 self.admin_site.admin_view(self.load_questions_view),
@@ -35,6 +42,12 @@ class XMLFileAdmin(admin.ModelAdmin):
         return urls + super(XMLFileAdmin, self).get_urls()
 
     def load_question(self, request, data, mm):
+        """
+        Parse the data, create all the instances of the corresponding models,
+        validate them and then save them. Handle all the validation errors that
+        might be raised in the validation process by using the given
+        MessageManager.
+        """
         try:
             subject = Subject.objects.get(name=data['subject'])
             topic = Topic.objects.get(name=data['topic'], subject=subject)
@@ -59,9 +72,14 @@ class XMLFileAdmin(admin.ModelAdmin):
             mm.no_topic.append((data['topic'], data['question']))
 
         except ValidationError as err:
-            mm.validation_errors.append((err, data['question']))
+            mm.validation_error.append((err, data['question']))
 
     def load_questions_view(self, request):
+        """
+        Parse and load the questions and answers from the specified file into
+        the database. Handle any validation error showing the corresponding
+        message.
+        """
         mm = LoadQuestionsMessageManager()
         try:
             form = XMLFileForm(request.POST, request.FILES)
@@ -123,7 +141,6 @@ class TopicAdmin(admin.ModelAdmin):
 
 
 class FlaggedQuestionAdmin(admin.ModelAdmin):
-
     list_display = ('text', 'flags_count')
     fields = ('text',)
     inlines = (AnswerInline,)

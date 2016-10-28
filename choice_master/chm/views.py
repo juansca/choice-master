@@ -7,8 +7,8 @@ from chm.models import Question
 
 def index(request):
     """
-        If the user is authenticated redirect to login, otherwise display index
-        page.
+    If the user is authenticated redirect to login, otherwise display index
+    page.
     """
 
     if not request.user.is_authenticated:

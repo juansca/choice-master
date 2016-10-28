@@ -1,33 +1,33 @@
 """
 Tests for app chm
 """
-from django.contrib.auth.models import User
 from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
 
 
 class TestLogin(TestCase):
-    """ Testing login functinality
+    """
+    Testing login functinality
 
-    Como usuario quiero poder ingresar al sistema con mis
-    credenciales de usuario.
-    =====================================================
+    Como usuario quiero poder ingresar al sistema con mis credenciales de
+    usuario.
+    =====================================================================
 
     Criterios de aceptación:
     ------------------------
-        - Los usuarios registrados deben poder acceder
-          al sistema mediante un formulario de login donde
-          ingresen su nombre de usuario y contraseña.
-        - En caso de que el usuario exista y los datos
-          sean correctos el usuario accederá a la aplicación.
-        - Si hubo algún error en el proceso de login
-          se le indicará al usuario.
+        - Los usuarios registrados deben poder acceder al sistema mediante un
+          formulario de login donde ingresen su nombre de usuario y contraseña.
+        - En caso de que el usuario exista y los datos sean correctos el
+          usuario accederá a la aplicación.
+        - Si hubo algún error en el proceso de login se le indicará al usuario.
     """
 
     def setUp(self):
-        """ Set up environment for TestLogin
-
+        """
+        Set up environment for TestLogin
             - create a user
         """
         # save this password, as it will be salted and hashed
@@ -41,7 +41,7 @@ class TestLogin(TestCase):
         self.index_url = reverse('index')
 
     def test_anonymous_user_is_redirected_to_login(self):
-        """ Test that anonymous can not see index.html"""
+        """Test that anonymous can not see index.html"""
 
         # given I am not authenthicated
         user = AnonymousUser()
@@ -53,11 +53,10 @@ class TestLogin(TestCase):
         self.assertRedirects(response, self.account_login_url)
 
     def test_login_redirects_to_index(self):
-        """ Test successful login scenario.
-
-        When user provides a valid username
-        and password combination, then she should be
-        redirected to the home page
+        """
+        Test successful login scenario.
+        When user provides a valid username and password combination, then she
+        should be redirected to the home page.
         """
 
         # given I am a registered user
@@ -74,10 +73,9 @@ class TestLogin(TestCase):
         self.assertFalse(response.context['user'].is_anonymous())
 
     def test_login_wrong_username(self):
-        """ Test unsuccessful login scenario
-
-            When user provides an invalid username
-            then an error is shown.
+        """
+        Test unsuccessful login scenario.
+        When user provides an invalid username then an error is shown.
         """
         # given I am a registered user
         user = self.valid_user
@@ -93,18 +91,16 @@ class TestLogin(TestCase):
         form = response.context['form']
         expected_error = {
             '__all__': [
-                'El usuario y/o la contraseña que '
-                'especificaste no son correctos.'
+                'The username and/or password you specified are not correct.'
             ]
         }
         self.assertFalse(form.is_valid())
         self.assertEquals(form.errors, expected_error)
 
     def test_login_wrong_password(self):
-        """ Test unsuccessful login scenario
-
-            When user provides an invalid password
-            then an error is shown.
+        """
+        Test unsuccessful login scenario
+        When user provides an invalid password then an error is shown.
         """
         # given I am a registered user
         user = self.valid_user
@@ -120,8 +116,7 @@ class TestLogin(TestCase):
         form = response.context['form']
         expected_error = {
             '__all__': [
-                'El usuario y/o la contraseña que '
-                'especificaste no son correctos.'
+                'The username and/or password you specified are not correct.'
             ]
         }
         self.assertFalse(form.is_valid())
@@ -129,7 +124,8 @@ class TestLogin(TestCase):
 
 
 class TestRegisterNewUser(TestCase):
-    """ Testing register functinality
+    """
+    Testing register functinality
 
     Como usuario quiero poder registrarme en el sistema
     ===================================================
@@ -169,4 +165,4 @@ class TestRegisterNewUser(TestCase):
 
         # and I see a message
         html = response.content.decode('utf-8')
-        self.assertTrue('Se ha registrado exitosamente' in html)
+        self.assertTrue('You signed up succesfully' in html)
