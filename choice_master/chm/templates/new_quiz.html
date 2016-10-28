@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block custom_css %}
-<link href="/static/admin/css/widgets.css" type="text/css" media="all" rel="stylesheet" />
+    <link href="/static/admin/css/widgets.css" type="text/css" rel="stylesheet">
+	<link href="/static/css/overrides.css" type="text/css" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -55,11 +56,23 @@
 
       {# Topics #}
       <div class="form-group">
-        <div class="centered col-sm-12">
-          {{ form.topics }}
-          {% if form.topics.errors %}
-			<div class="alert alert-danger">You must choose at least one topic</div>
-          {% endif %}
+        {% if form.topics.errors %}
+		<div class="row">
+          <div class="centered col-sm-1">
+          </div>
+          <div class="centered col-sm-10">
+              <div class="alert alert-danger">You must choose at least one topic</div>
+          </div>
+        </div>
+       {% endif %}
+
+		<div class="row">
+          {# workarrownd to make it look centered #}
+          <div class="centered col-sm-1">
+          </div>
+          <div class="centered col-sm-11">
+            {{ form.topics }}
+          </div>
         </div>
       </div>
 
@@ -76,7 +89,7 @@
 {% endblock %}
 
 {% block custom_js %}
-<script type="text/javascript" src="/admin/jsi18n/"></script>
+<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
 <script type="text/javascript">
 django.jQuery = $;
 </script>
