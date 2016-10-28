@@ -6,4 +6,5 @@ from chm import views
 
 urlpatterns = [
     url(r'^$', views.index, name='index'),
+    url(r'quizz/new/$', views.new_quiz, name='new_quiz'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

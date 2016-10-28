@@ -125,8 +125,12 @@ class Quiz(models.Model):
     # selected topics
     topics = models.ManyToManyField('Topic')
 
-    # user configuration: time available to
-    # answer each question (in seconds)
+    # USER CONFIGURATION
+
+    # amount of questions
+    nr_of_questions = models.IntegerField()
+
+    # time available to answer each question (in seconds)
     seconds_per_question = models.IntegerField()
 
 
