@@ -24,9 +24,20 @@ class QuizForm(forms.Form):
         widget=FilteredSelectMultiple('Topics', is_stacked=False)
     )
 
-    nr_of_questions = forms.IntegerField(min_value=0)
-    seconds_per_question = forms.IntegerField(min_value=0)
-    selection_algorithm = forms.ChoiceField(choices=SELECTION_ALGORITHMS)
+    nr_of_questions = forms.IntegerField(
+        min_value=1,
+        initial=4,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+    )
+    seconds_per_question = forms.IntegerField(
+        min_value=10,
+        initial=10,
+        widget=forms.NumberInput(attrs={'class': 'form-control'}),
+    )
+    selection_algorithm = forms.ChoiceField(
+        choices=SELECTION_ALGORITHMS,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+    )
 
     class Media:
         # jsi18n is required by the widget
