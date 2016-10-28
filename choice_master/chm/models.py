@@ -1,5 +1,5 @@
 from allauth.account.signals import user_signed_up
-from chm.similarity import is_similar
+from .similarity import is_similar
 from choice_master import settings
 from django.contrib import messages
 from django.contrib.auth.models import User

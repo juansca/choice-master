@@ -41,7 +41,8 @@ class XMLFileAdmin(admin.ModelAdmin):
         ]
         return urls + super(XMLFileAdmin, self).get_urls()
 
-    def load_question(self, data, mm):
+    @staticmethod
+    def load_question(data, mm):
         """
         Parse the data, create all the instances of the corresponding models,
         validate them and then save them. Handle all the validation errors that

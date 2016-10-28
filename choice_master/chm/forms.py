@@ -1,5 +1,5 @@
 from django import forms
-from chm.models import XMLFile
+from .models import XMLFile
 
 
 class XMLFileForm(forms.ModelForm):
