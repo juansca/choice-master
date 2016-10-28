@@ -1,9 +1,12 @@
 def distance(str1, str2):
     """
-
+    Compute the Levenshtein distance between str1 and str2
     :param str1: String to compute distance
     :param str2: String to compute distance
-    :return: the Lehvenstein distance between str1 and str2
+    :type str1: string
+    :type str2: string
+    :return: the Levenshtein distance between str1 and str2
+    :rtype: int
     """
     distance_table = dict()
 
@@ -25,28 +28,12 @@ def distance(str1, str2):
 
 def is_similar(str1, str2):
     """
-
-    :param str1: String to verify the similarity
-    :param str2: String to verify the similarity
-    :return: If the distance between str1 and str2 is short enough, we consider
-             that are similar
+    Determine if the str1 is different from the str2
+    :param str1: String to compare
+    :param str2: String to compare
+    :type str1: string
+    :type str2: string
+    :return: True only if the strings are similar
+    :rtype: bool
     """
     return distance(str1, str2) < 5
-
-
-def similar_exists(pquestion, dbtopic_questions):
-    """
-
-    :param pquestion: a Question model object to verify if a similar question
-                      is in the db
-    :param dbtopic_questions: a QuerySet with all the questions that has the
-                              same topic that pquestion
-    :return: True if a similar question exists
-    """
-    some_similar = False
-    for db_question in dbtopic_questions.values('text'):
-        dbqtext = db_question['text']
-        some_similar = some_similar or is_similar(pquestion.text, dbqtext)
-        if some_similar:
-            break
-    return some_similar

@@ -1,8 +1,8 @@
 from django import forms
-from chm.models import XMLFile
-from chm.models import Topic
 from django.contrib.admin.widgets import FilteredSelectMultiple
 
+from chm.models import XMLFile
+from chm.models import Topic
 
 
 class XMLFileForm(forms.ModelForm):
@@ -31,8 +31,7 @@ class QuizForm(forms.Form):
     class Media:
         # jsi18n is required by the widget
         js = ('/admin/jsi18n/',)
-        css = {'all': ('/static/admin/css/widgets.css',),}
-
+        css = {'all': ('/static/admin/css/widgets.css',)}
 
     def make_quiz(self):
         """Make a quiz based on user input"""
