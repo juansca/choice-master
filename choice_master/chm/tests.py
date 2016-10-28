@@ -1,6 +1,8 @@
 """
 Tests for app chm
 """
+from .admin import XMLFileAdmin
+from .messages import LoadQuestionsMessageManager
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import User
 from django.test import TestCase

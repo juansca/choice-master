@@ -4,17 +4,17 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import redirect
 from django.urls import reverse
 
-from chm.forms import XMLFileForm
-from chm.messages import LoadQuestionsMessageManager
-from chm.models import Answer
-from chm.models import Flag
-from chm.models import FlaggedQuestion
-from chm.models import Question
-from chm.models import Subject
-from chm.models import Topic
-from chm.models import XMLFile
+from .forms import XMLFileForm
+from .messages import LoadQuestionsMessageManager
+from .models import Answer
+from .models import Flag
+from .models import FlaggedQuestion
+from .models import Question
+from .models import Subject
+from .models import Topic
+from .models import XMLFile
 
-from chm.xml import XMLParser
+from .xml import XMLParser
 from lxml.etree import XMLSyntaxError
 
 
@@ -41,7 +41,7 @@ class XMLFileAdmin(admin.ModelAdmin):
         ]
         return urls + super(XMLFileAdmin, self).get_urls()
 
-    def load_question(self, request, data, mm):
+    def load_question(self, data, mm):
         """
         Parse the data, create all the instances of the corresponding models,
         validate them and then save them. Handle all the validation errors that
@@ -87,7 +87,7 @@ class XMLFileAdmin(admin.ModelAdmin):
                 xmlfile = request.FILES['file']
                 parser = XMLParser(xmlfile)
                 for data in parser.parse_questions():
-                    self.load_question(request, data, mm)
+                    self.load_question(data, mm)
             else:
                 mm.form_is_valid = False
                 mm.set_messages(request)

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 from allauth.account.views import login
 
-from chm.models import Question
+from .models import Question
 
 
 def index(request):
