@@ -29,7 +29,7 @@ def new_quiz(request):
         form = QuizForm(request.POST, user=request.user)
         if form.is_valid():
             quiz = form.make_quiz()
-            return render(request, 'quiz.html', {'quiz': quiz})
+            return render(request, 'quiz.html', {'quiz': quiz.to_json()})
     else:
         form = QuizForm()
 

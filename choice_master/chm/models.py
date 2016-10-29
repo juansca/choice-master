@@ -84,12 +84,26 @@ class Question(models.Model):
         if self.similar_exists():
             raise ValidationError(_('A similar question already exists'))
 
+    def to_json(self):
+        return {
+            'id': self.id,
+            'text': self.text,
+            'topic': self.topic.name,
+            'answers': [a.to_json() for a in self.answers.all()]
+        }
+
 
 class Answer(models.Model):
     """Answer Model"""
     text = models.CharField(max_length=300)
-    question = models.ForeignKey('Question')
+    question = models.ForeignKey('Question', related_name='answers')
     is_correct = models.BooleanField(default=False)
+
+    def to_json(self):
+        return {
+            'id': self.id,
+            'text': self.text,
+        }
 
     def __str__(self):
         return self.text
@@ -126,6 +140,11 @@ class Quiz(models.Model):
     an instance of Quiz is created.
     """
 
+    STATUS = Choices(
+        'in_progress',
+        'finished',
+        'aborted',       # the user never finished the quiz
+    )
     # the user taking the exam
     user = models.ForeignKey(User)
 
@@ -142,6 +161,18 @@ class Quiz(models.Model):
 
     # time available to answer each question (in seconds)
     seconds_per_question = models.IntegerField()
+
+    state = models.CharField(choices=STATUS,
+                             default=STATUS.in_progress,
+                             max_length=20)
+
+    def to_json(self):
+        result = {
+            'id': self.id,
+            'questions': [qoq.question.to_json()
+                          for qoq in QuestionOnQuiz.objects.filter(quiz=self)]
+        }
+        return result
 
 
 class QuestionOnQuiz(models.Model):
