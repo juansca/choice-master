@@ -26,7 +26,7 @@ def new_quiz(request):
     """ User wants to start an exam."""
 
     if request.method == 'POST':
-        form = QuizForm(request.POST)
+        form = QuizForm(request.POST, user=request.user)
         if form.is_valid():
             quiz = form.make_quiz()
             return render(request, 'quiz.html', {'quiz': quiz})

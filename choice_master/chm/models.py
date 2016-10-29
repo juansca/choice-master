@@ -167,7 +167,7 @@ class QuestionOnQuiz(models.Model):
         'right'          # the user provided the right answer
     )
 
-    question = models.ManyToManyField('Question')
+    question = models.ForeignKey('Question')
     quiz = models.ForeignKey('Quiz')
     state = models.CharField(choices=STATUS,
                              default=STATUS.not_answered,

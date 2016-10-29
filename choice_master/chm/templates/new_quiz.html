@@ -45,9 +45,13 @@
 
 
       {# selection algorithm #}
-      <div class="form-group">
+      {% if form.selection_algorithm.errors %}
+        <div class="form-group has-error">
+      {% else %}
+        <div class="form-group">
+      {% endif %}
         <label class="control-label col-sm-4" for="selection_algorithm">Selection algorithm</label>
-        <div class="col-sm-3">
+        <div class="col-sm-4">
           {{ form.selection_algorithm }}
         </div>
       </div>
