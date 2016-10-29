@@ -34,3 +34,8 @@ def new_quiz(request):
         form = QuizForm()
 
     return render(request, 'new_quiz.html', {'form': form})
+
+
+def timer(request):
+    seconds = request.GET.get('seconds', 10)
+    return render(request, 'timer.html', {'seconds': seconds})
