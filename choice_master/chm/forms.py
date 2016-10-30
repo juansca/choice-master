@@ -109,3 +109,10 @@ class QuizForm(forms.Form):
         ))
         random.shuffle(candidates)
         return candidates[:self.cleaned_data['nr_of_questions']]
+
+
+class FlagForm(forms.Form):
+    """Form used to flag a question"""
+    description = forms.CharField(
+        widget=forms.Textarea(attrs={'class': 'form-control'})
+    )

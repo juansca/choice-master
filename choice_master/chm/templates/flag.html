@@ -1,0 +1,63 @@
+
+{% extends "base.html" %}
+{% block custom_css %}
+{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h1>Flag a question!</h1>
+  </div>
+
+  <div class="panel panel-warning">
+
+    <div class="panel-heading">
+        {{ question.text }}
+        <ul>
+        {% for option in question.answers.all %}
+            <li>{{ option }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+
+    <div class="panel-body">
+
+    {% if flag %}
+        <blockquote>
+            {{ flag.description }}
+        </blockquote>
+        <p>Thank you for your feedback. An administrator will receive this information and take proper actions!</p>
+        <p>Keep using Choice Master!</p>
+		  <button type="submit" class="btn btn-success" onclick="go_home()">Take me Home!</button>
+
+    {% else %}
+    <form class="form-horizontal" action="{% url 'flag' id=question.id %}" method="POST">
+      {% csrf_token %}
+
+      {# description #}
+      <p><strong>Please describe the problem you have found:</strong></p>
+      <div class="form-group">
+	    <div class="col-sm-offset-1 col-sm-10">
+          {{ form.description }}
+        </div>
+      </div>
+      <div class="col-sm-11">
+        <div class="pull-right">
+		  <button type="submit" class="btn btn-danger" onclick="go_home()">Cancel</button>
+		  <button type="submit" class="btn btn-success">Submit</button>
+        </div>
+      </div>
+    </form>
+
+
+    {% endif %}
+
+
+{% endblock %}
+
+{% block custom_js %}
+<script type="text/javascript">
+function go_home() {
+    window.location = "{% url 'index' %}";
+}
+</script>
+{% endblock %}
