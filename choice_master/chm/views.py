@@ -3,10 +3,10 @@ Views for app chm
 """
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 
-from chm.models import Question, QuestionOnQuiz, Answer
-from chm.forms import QuizForm
+from chm.models import Question, QuestionOnQuiz, Answer, Flag
+from chm.forms import QuizForm, FlagForm
 from chm.forms import Quiz
 
 
@@ -65,6 +65,19 @@ def timer(request):
 
 
 def flag_question(request, id):
-    # TODO: continue here
-    seconds = request.GET.get('seconds', 10)
-    return render(request, 'timer.html', {'seconds': seconds})
+    question = get_object_or_404(Question, id=id)
+    context = {'question': question}
+    if request.method == 'POST':
+        form = FlagForm(request.POST)
+        if form.is_valid():
+            flag = Flag.objects.create(
+                question=question,
+                user=request.user,
+                description=form.cleaned_data['description'],
+            )
+            context['flag'] = flag
+    else:
+        form = FlagForm()
+
+    context['form'] = form
+    return render(request, 'flag.html', context)
