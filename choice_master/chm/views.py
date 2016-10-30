@@ -5,8 +5,9 @@ Views for app chm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
-from chm.models import Question, QuestionOnQuiz
+from chm.models import Question, QuestionOnQuiz, Answer
 from chm.forms import QuizForm
+from chm.forms import Quiz
 
 
 @login_required
@@ -35,6 +36,7 @@ def new_quiz(request):
 
     return render(request, 'new_quiz.html', {'form': form})
 
+
 def correct_quiz(request):
     """ Verify user answers"""
 
@@ -58,5 +60,11 @@ def correct_quiz(request):
 
 
 def timer(request):
+    seconds = request.GET.get('seconds', 10)
+    return render(request, 'timer.html', {'seconds': seconds})
+
+
+def flag_question(request, id):
+    # TODO: continue here
     seconds = request.GET.get('seconds', 10)
     return render(request, 'timer.html', {'seconds': seconds})
