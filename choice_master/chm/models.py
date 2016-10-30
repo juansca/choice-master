@@ -8,6 +8,7 @@ from model_utils import Choices
 
 # django imports
 from django.db import models
+from django.db.models import Count
 from django.dispatch import receiver
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -166,6 +167,18 @@ class Quiz(models.Model):
                              default=STATUS.in_progress,
                              max_length=20)
 
+    def score(self):
+        """Return float indicating ratio of correct answers"""
+        qq = QuestionOnQuiz.objects.filter(quiz=self)
+        correct = qq.filter(state=QuestionOnQuiz.STATUS.right)
+        score = correct.count() / float(qq.count())
+        return score
+
+    def detailed_score(self):
+        """Return queryset detailing total amount of answers in each state"""
+        qq = QuestionOnQuiz.objects.filter(quiz=self)
+        return qq.values('state').annotate(total=Count('state'))
+
     def to_json(self):
         result = {
             'id': self.id,
@@ -199,7 +212,7 @@ class QuestionOnQuiz(models.Model):
     )
 
     question = models.ForeignKey('Question')
-    quiz = models.ForeignKey('Quiz')
+    quiz = models.ForeignKey('Quiz', related_name='questions')
     state = models.CharField(choices=STATUS,
                              default=STATUS.not_answered,
                              max_length=20)

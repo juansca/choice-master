@@ -7,6 +7,7 @@ from django.shortcuts import render
 
 from chm.models import Question
 from chm.forms import QuizForm
+from chm.forms import Quiz
 
 
 @login_required
@@ -37,5 +38,15 @@ def new_quiz(request):
 
 
 def timer(request):
+    seconds = request.GET.get('seconds', 10)
+    return render(request, 'timer.html', {'seconds': seconds})
+
+
+def quiz_results(request):
+    return render(request, 'quiz_results.html', {'quiz': Quiz.objects.all()[0]})
+
+
+def flag_question(request, id):
+    # TODO: continue here
     seconds = request.GET.get('seconds', 10)
     return render(request, 'timer.html', {'seconds': seconds})
