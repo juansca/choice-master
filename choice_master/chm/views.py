@@ -5,7 +5,7 @@ Views for app chm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 
-from chm.models import Question
+from chm.models import Question, QuestionOnQuiz
 from chm.forms import QuizForm
 
 
@@ -34,6 +34,29 @@ def new_quiz(request):
         form = QuizForm()
 
     return render(request, 'new_quiz.html', {'form': form})
+
+def correct_quiz(request):
+    """ Verify user answers"""
+
+    quiz_id = request.POST('quiz_id')
+    quiz = Quiz.objects.get(pk=quiz_id)
+    for answer in request.POST('answer'):
+        qoq = QuestionOnQuiz.objects.get(question=answer['question_id'], quiz_id=quiz_id)
+        question_ans = Answer.objects.get(question=answer['question_id']).values('pk')
+        ans_ids = []
+        for ids in question_ans:
+            ans_ids.append(ids['pk'])
+
+        if answer['answer_id'] == ans_ids:
+            qoq.STATUS = 'right'
+        elif not ans_ids:
+            qoq.STATUS = 'not answered'
+        else:
+            qoq.STATUS = 'wrong'
+        qoq.save()
+
+    return render(request, 'quiz_results.html', {'quiz': quiz})
+
 
 
 def timer(request):
