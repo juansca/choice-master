@@ -84,7 +84,11 @@
              is_checked(questions[i].id, result.answers[i].answer_id);
              console.log(result.answers[i].answers);
              if (i + 1 == questions.length) {
-                 $.redirectPost(result);
+                 $.redirectPost(
+                     {
+                         'json' : JSON.stringify(result)
+                     }
+                 );
              } else {
                  next_question(i + 1);
              }

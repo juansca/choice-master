@@ -10,6 +10,7 @@ from allauth.account.views import login
 
 from chm.models import Question, QuestionOnQuiz, Answer, Flag, Quiz
 from chm.forms import QuizForm, FlagForm
+import json
 
 def index(request):
     """
@@ -46,7 +47,8 @@ def correct_quiz(request):
     """ Verify user answers"""
 
     if request.method == 'POST':
-        quiz_id = request.POST['quiz_id']
+        data = json.loads(request.POST['json'])
+        quiz_id = data['quiz_id']
 
         # fail with 404 if quiz doesn't exist
         quiz = get_object_or_404(Quiz, pk=quiz_id)
@@ -55,9 +57,7 @@ def correct_quiz(request):
         if request.user != quiz.user:
             raise PermissionDenied
 
-        print(request.POST['answers'])
-        print(type(request.POST['answers']))
-        for answer in request.POST['answers']:
+        for answer in data['answers']:
             qoq = QuestionOnQuiz.objects.get(
                 question_id=answer['question_id'],
                 quiz_id=quiz_id
