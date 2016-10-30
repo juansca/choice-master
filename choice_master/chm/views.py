@@ -3,22 +3,28 @@ Views for app chm
 """
 
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from allauth.account.views import login
 
 from chm.models import Question, QuestionOnQuiz, Answer, Flag
 from chm.forms import QuizForm, FlagForm
 from chm.forms import Quiz
 
-
-@login_required
 def index(request):
-    """ If the user is authenticated redirect to login,
-    otherwise display index page.
     """
-    context = {}
-    if request.user.is_staff:
-        nfq = Question.objects.filter(flags__isnull=False).count()
-        context['n_flagged_questions'] = nfq
+    If the user is authenticated redirect to login, otherwise display index
+    page.
+    """
+
+    if not request.user.is_authenticated:
+        return redirect(login)
+    else:
+        context = {}
+        if request.user.is_staff:
+            nfq = Question.objects.filter(flags__isnull=False).count()
+            context['n_flagged_questions'] = nfq
     return render(request, 'index.html', context)
 
 
