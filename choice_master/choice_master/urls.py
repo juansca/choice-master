@@ -16,7 +16,7 @@ Including another URLconf
 from django.conf.urls import url
 from django.conf.urls import include
 from django.contrib import admin
-
+from allauth.account import views
 
 urlpatterns = [
     url(r'^', include('chm.urls')),
