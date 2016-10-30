@@ -1,8 +1,111 @@
-{% extends "base.html" %}
+ {% extends "base.html" %}
+
 {% block content %}
-  <div class="page-header">
-    <h1>You are taking a quiz</h1>
-  </div>
-<p>Questions...</p>
+<div class="page-header">
+		<h1 id = "headline">You are taking a quiz</h1>
+</div>
+<form> {% csrf_token %}
+<h2 id="question"></h2>
+<div id="answers"></div>
+<div id="button">  </div>
+</form>
 {% endblock %}
 
+{% block custom_js %}
+
+<script>
+ var quiz = {{ quiz | safe }}
+ var questions = quiz.questions
+ result = {
+	   'quiz_id': quiz.id,
+	   'answers': []
+ };
+
+ function format_button(qid, type) {
+     return '<button class="submit" type="' + type + '" id="ok' + qid + '">OK</button>';
+ }
+
+ function format_checkbox(qid, id, text) {
+	   var template='<div class="funkyradio"><div class="funkyradio-success">' +
+	                '<input type="checkbox" name="' + qid + '" id="' + id + '"/>' +
+	                '<label for="' + id + '">' + text + '</label></div></div>';
+
+	   return template;
+ }
+
+ $( document ).ready(function() {
+     // jquery extend function
+     $.extend({
+         redirectPost: function(location, args)
+         {
+             var form = $("<form> {% csrf_token %} </form>");
+             form.attr("method", "post");
+             form.attr("action", location);
+
+             $.each( args, function( key, value ) {
+                 var field = $('<input></input>');
+
+                 field.attr("type", "hidden");
+                 field.attr("name", key);
+                 field.attr("value", value);
+
+                 form.append(field);
+             });
+             $(form).appendTo('body').submit();
+         }
+     });
+
+	   function change_template(question, type) {
+		     $("#question").text(question.text);
+		     $("#answers").text('');
+		     $("#button").text('');
+		     for (i in question.answers) {
+			       var answer = question.answers[i]
+			       var $answer_html = $(format_checkbox(question.id, answer.id, answer.text));
+			       $("#answers").append($answer_html);
+		     }
+         var $button_html = $(format_button(question.id, type));
+         $("#button").append($button_html);
+	   }
+
+	   function is_checked(qid, answers) {
+		     $( "[name='" + qid + "']:checked" ).each(function() {
+		         answers.push($(this).attr('id'));
+		     });
+	   }
+
+	   function next_question(i) {
+		     var question_result = {
+			       'question_id': questions[i].id,
+			       'answers':[]
+		     };
+         result.answers.push(question_result);
+
+		     if (i + 1 == questions.length) {
+		         change_template(questions[i], "submit");
+			       $("#ok" + questions[i].id).click(function() {
+				         is_checked(questions[i].id, result.answers[i].answers);
+				         console.log(result.answers[i].answers);
+				         $("#button").hide();
+				         $("#answers").hide();
+				         $("#headline").hide();
+				         $("#question").replaceWith("You have finished the Quiz")
+                 var redirect = "http://127.0.0.1:8000/quiz/corrected/";
+                 $.redirectPost(redirect, result);
+             })
+		     } else {
+		         change_template(questions[i], "button");
+			       $("#ok" + questions[i].id).click(function() {
+				         is_checked(questions[i].id, result.answers[i].answers);
+				         console.log(result.answers[i].answers)
+				         next_question(i + 1);})
+		     }
+
+	   }
+	   next_question(0);
+
+
+ });
+
+</script>
+{% endblock %}
