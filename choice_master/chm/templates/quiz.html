@@ -13,26 +13,22 @@
 {% block custom_js %}
 
 <script>
- var quiz = {{ quiz | safe }}
- var questions = quiz.questions
- result = {
-	   'quiz_id': quiz.id,
-	   'answers': []
- };
-
- function format_button(qid) {
-     return '<button class="submit" type="button" id="ok' + qid + '">OK</button>';
- }
-
- function format_checkbox(qid, id, text) {
-	   var template='<div class="funkyradio"><div class="funkyradio-success">' +
-	                '<input type="checkbox" name="' + qid + '" id="' + id + '"/>' +
-	                '<label for="' + id + '">' + text + '</label></div></div>';
-
-	   return template;
- }
-
  $( document ).ready(function() {
+    var quiz = {{ quiz | safe }}
+    var questions = quiz.questions
+
+    function format_button(qid) {
+        return '<button class="submit" type="button" id="ok' + qid + '">OK</button>';
+    }
+
+    function format_checkbox(qid, id, text) {
+        var template='<div class="funkyradio"><div class="funkyradio-success">' +
+                    '<input type="checkbox" name="' + qid + '" id="' + id + '"/>' +
+                    '<label for="' + id + '">' + text + '</label></div></div>';
+
+        return template;
+    }
+
      // jquery extend function
      $.extend({
          redirectPost: function(args)
@@ -72,31 +68,29 @@
 		     });
 	   }
 
+     result = {
+         'quiz_id': quiz.id,
+         'answers': []
+     };
 	   function next_question(i) {
 		     var question_result = {
 			       'question_id': questions[i].id,
-			       'answers':[]
+			       'answer_id': []
 		     };
+
          result.answers.push(question_result);
-
-		     if (i + 1 == questions.length) {
-		         change_template(questions[i], "submit");
-			       $("#ok" + questions[i].id).click(function() {
-				         is_checked(questions[i].id, result.answers[i].answers);
-				         console.log(result.answers[i].answers);
+         change_template(questions[i]);
+         $("#ok" + questions[i].id).click(function() {
+             is_checked(questions[i].id, result.answers[i].answer_id);
+             console.log(result.answers[i].answers);
+             if (i + 1 == questions.length) {
                  $.redirectPost(result);
-             })
-		     } else {
-		         change_template(questions[i], "button");
-			       $("#ok" + questions[i].id).click(function() {
-				         is_checked(questions[i].id, result.answers[i].answers);
-				         console.log(result.answers[i].answers)
-				         next_question(i + 1);})
-		     }
-
+             } else {
+                 next_question(i + 1);
+             }
+         });
 	   }
 	   next_question(0);
-
 
  });
 
