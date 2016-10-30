@@ -8,6 +8,24 @@
     <incorrect> 5 </incorrect>
   </question>
 
+  <question subject="Algebra" topic="subesp">
+    <text> Cuanto es 2 mas 4? </text>
+    <incorrect> 31 </incorrect>
+    <incorrect> 12 </incorrect>
+    <incorrect> 23 </incorrect>
+    <correct> 412 </correct>
+    <incorrect> 35 </incorrect>
+  </question>
+
+  <question subject="Algebra" topic="subesp">
+    <text> Cuanto es 2 mas 1? </text>
+    <incorrect> 0 </incorrect>
+    <incorrect> 11 </incorrect>
+    <incorrect> 28 </incorrect>
+    <correct> 462 </correct>
+    <incorrect> 57 </incorrect>
+  </question>
+
   <question subject="AM2" topic="Series de Taylor">
     <text> Todos los patos son de color rojo? </text>
     <correct> No </correct>

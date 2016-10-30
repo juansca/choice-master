@@ -46,23 +46,38 @@ def new_quiz(request):
 def correct_quiz(request):
     """ Verify user answers"""
 
-    quiz_id = request.POST('quiz_id')
-    quiz = Quiz.objects.get(pk=quiz_id)
-    for answer in request.POST('answer'):
-        qoq = QuestionOnQuiz.objects.get(question=answer['question_id'], quiz_id=quiz_id)
-        question_ans = Answer.objects.get(question=answer['question_id']).values('pk')
-        ans_ids = []
-        for ids in question_ans:
-            ans_ids.append(ids['pk'])
+    if request.method == 'POST':
+        quiz_id = request.POST('quiz_id')
 
-        if answer['answer_id'] == ans_ids:
-            qoq.state = QuestionOnQuiz.STATUS.right
-        elif not ans_ids:
-            qoq.state = QuestionOnQuiz.STATUS.not_answered
-        else:
-            qoq.state = QuestionOnQuiz.STATUS.wrong
-        qoq.save()
-    return render(request, 'quiz_results.html', {'quiz': quiz})
+        # fail with 404 if quiz doesn't exist
+        quiz = get_object_or_404(pk=quiz_id)
+
+        # fail with 403 if user didn't take this quiz
+        if request.user != quiz.user:
+            raise PermissionDenied
+
+        for answer in request.POST('answer'):
+            qoq = QuestionOnQuiz.objects.get(
+                question_id=answer['question_id'],
+                quiz_id=quiz_id
+            )
+            correct_answers_ids = Answer.objects.filter(
+                question=answer['question_id'],
+                is_correct=True
+            ).values('pk')
+
+            if not answer['answer_id']:
+                # user didn't choose any answer
+                qoq.state = QuestionOnQuiz.STATUS.not_answered
+            if set(answer['answer_id']) == set(correct_answers_ids):
+                qoq.state = QuestionOnQuiz.STATUS.right
+            else:
+                qoq.state = QuestionOnQuiz.STATUS.wrong
+            qoq.save()
+
+        return render(request, 'quiz_results.html', {'quiz': quiz})
+    else:
+        return render(request, 'index.html')
 
 
 def timer(request):
