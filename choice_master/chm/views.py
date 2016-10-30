@@ -48,15 +48,13 @@ def correct_quiz(request):
             ans_ids.append(ids['pk'])
 
         if answer['answer_id'] == ans_ids:
-            qoq.STATUS = 'right'
+            qoq.state = QuestionOnQuiz.STATUS.right
         elif not ans_ids:
-            qoq.STATUS = 'not answered'
+            qoq.state = QuestionOnQuiz.STATUS.not_answered
         else:
-            qoq.STATUS = 'wrong'
+            qoq.state = QuestionOnQuiz.STATUS.wrong
         qoq.save()
-
     return render(request, 'quiz_results.html', {'quiz': quiz})
-
 
 
 def timer(request):
