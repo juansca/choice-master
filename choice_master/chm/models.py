@@ -176,7 +176,7 @@ class Quiz(models.Model):
         qq = QuestionOnQuiz.objects.filter(quiz=self)
         correct = qq.filter(state=QuestionOnQuiz.STATUS.right)
         score = correct.count() / float(qq.count())
-        return score
+        return score * 100
 
     def detailed_score(self):
         """Return queryset detailing total amount of answers in each state"""
