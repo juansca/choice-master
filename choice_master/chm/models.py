@@ -186,6 +186,7 @@ class Quiz(models.Model):
     def to_json(self):
         result = {
             'id': self.id,
+            'seconds': self.seconds_per_question,
             'questions': [qoq.question.to_json()
                           for qoq in QuestionOnQuiz.objects.filter(quiz=self)]
         }
