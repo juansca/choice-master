@@ -2,173 +2,151 @@
 
 {% block content %}
 <div class="page-header">
-		<h1 id = "headline">You are taking a quiz</h1>
+        <h1 id = "headline">You are taking a quiz</h1>
 </div>
-
-<div id="all">
-    <h2 id="question"></h2>
-    <div class="progress">
-        <div class="progress-bar" role="progressbar"
-             aria-valuenow="70" aria-valuemin="0"
-             aria-valuemax="100" style="width:100%">
-		        {{ quiz.seconds }} sec
-        </div>
-    </div>
-    <div id="answers"></div>
-    <div id="button"></div>
+<div class="progress">
+  <div class="progress-bar" role="progressbar" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" style="width:100%">
+		{{ seconds }} sec
+  </div>
 </div>
+<h2 id="question"></h2>
+<div id="answers"></div>
+<div id="button">  </div>
 {% endblock %}
 
 {% block custom_js %}
 
 <script>
- $( document ).ready(function() {
-    var quiz = {{ quiz | safe }}
-    var questions = quiz.questions
-    var seconds = quiz.seconds
-    var rounds = questions.length;
+    $( document ).ready(function() {
 
-    function format_button(qid) {
-        return '<button class="submit" type="button" id="ok' + qid + '">OK</button>';
-    }
+        var quiz = {{ quiz | safe }}; {# this will dump quiz as a json object #}
+        var questions = quiz.questions
 
-    function format_checkbox(qid, id, text) {
-        var template='<div class="funkyradio"><div class="funkyradio-success">' +
-                    '<input type="checkbox" name="' + qid + '" id="' + id + '"/>' +
-                    '<label for="' + id + '">' + text + '</label></div></div>';
+        // this will be the post data
+        var result = {
+            'quiz_id': quiz.id,
+            'answers': []
+        };
 
-        return template;
-    }
+        var current_question = -1;
+        var timer_bar;
+        var seconds = {{ seconds }};
 
-     // jquery extend function
-     $.extend({
-         redirectPost: function(args)
-         {
-             var form = $("<form action='/quiz/corrected/'> {% csrf_token %} </form>");
-             form.attr("method", "post");
+        // jquery extend function
+        $.extend({
+            redirectPost: function(args) {
+                var field;
+                var url = "{% url 'correct_quiz' %}";
+                var form = $("<form action='" + url + "'> {% csrf_token %} </form>");
 
-             $.each( args, function( key, value ) {
-                 var field = $('<input></input>');
+                form.attr("method", "post");
 
-                 field.attr("type", "hidden");
-                 field.attr("name", key);
-                 field.attr("value", value);
+                $.each( args, function( key, value ) {
+                    field = $('<input></input>');
+                    field.attr("type", "hidden");
+                    field.attr("name", key);
+                    field.attr("value", value);
 
-                 form.append(field);
-             });
-             $(form).appendTo('body').submit();
-         }
-     });
-
-	   function change_template(question) {
-		     $("#question").text(question.text);
-		     $("#answers").text('');
-		     $("#button").text('');
-		     for (i in question.answers) {
-			       var answer = question.answers[i]
-			       var $answer_html = $(format_checkbox(question.id, answer.id, answer.text));
-			       $("#answers").append($answer_html);
-		     }
-         var $button_html = $(format_button(question.id));
-         $("#button").append($button_html);
-	   }
-
-	   function is_checked(qid, answers) {
-		     $( "[name='" + qid + "']:checked" ).each(function() {
-		         answers.push($(this).attr('id'));
-		     });
-	   }
-
-     function format_progress_bar(seconds_left, seconds) {
-         var ratio = seconds_left / seconds * 100;
-         $('.progress-bar').css('width', ratio + '%');
-	       $('.progress-bar').text(seconds_left + ' sec');
-     }
-
-     function clear_all() {
-         $("#headline").text('You have finished the quiz');
-         $("#all").text('Finished');
-     }
-
-     result = {
-         'quiz_id': quiz.id,
-         'answers': []
-     };
-
-     var seconds_left = seconds;
-     var question_number = 0;
-     var ratio;
-
-	   function next_question(i) {
-		     var question_result = {
-			       'question_id': questions[i].id,
-			       'answer_id': []
-		     };
-
-         result.answers.push(question_result);
-         change_template(questions[i]);
-         $("#ok" + questions[i].id).click(function() {
-             seconds_left = seconds;
-             format_progress_bar(seconds_left, seconds)
-             is_checked(questions[i].id, result.answers[i].answer_id);
-             if (i + 1 == questions.length) {
-                 clear_all();
-                 $.redirectPost(
-                     {
-                         'json' : JSON.stringify(result)
-                     }
-                 );
-             } else {
-                 question_number = i + 1;
-                 next_question(i + 1);
-             }
-         });
-	   }
-
-	   next_question(0);
-
-     function run_time() {
-         seconds_left--;
-         if (seconds_left >= 0) {
-             ratio = seconds_left / seconds * 100;
-             format_progress_bar(seconds_left, seconds)
-         } else {
-             question_number++;
-             if (question_number == rounds) {
-                 clearInterval(timer);
-                 clear_all();
-                 $.redirectPost(
-                     {
-                         'json' : JSON.stringify(result)
-                     }
-                 );
-             } else {
-                 seconds_left = seconds;
-                 next_question(question_number);
-                 format_progress_bar(seconds_left, seconds);
-             }
-         }
-     }
-
-     var timer = setInterval(function() {
-         run_time()
-     }, 1000);
+                    form.append(field);
+                });
+                $(form).appendTo('body').submit();
+            }
+        });
 
 
- });
+        function format_button(qid) {
+            // return ok button
+            return '<button class="submit" type="button" id="ok' + qid + '">OK</button>';
+        }
 
+        function format_checkbox(qid, id, text) {
+            // return checkbox and answer
+            var html = '<div class="funkyradio"><div class="funkyradio-success">' +
+                       '<input type="checkbox" name="' + qid + '" id="' + id + '"/>' +
+                       '<label for="' + id + '">' + text + '</label></div></div>';
+            return html;
+        }
 
+        function change_template(question) {
+            // clear question and answers
+            $("#question").text(question.text);
+            $("#answers").text('');
+            $("#button").text('');
+            // set new answers
+            for (i in question.answers) {
+                var answer = question.answers[i]
+                var $answer_html = $(format_checkbox(question.id, answer.id, answer.text));
+                $("#answers").append($answer_html);
+            }
+            var button_html = format_button(question.id);
+            $("#button").append(button_html);
+        }
 
+        function get_checked_answers(qid, answers) {
+            $( "[name='" + qid + "']:checked" ).each(function() {
+                answers.push($(this).attr('id'));
+            });
+        }
 
+        function next_question() {
+            // advance question counter
+            current_question++;
 
+            // make an alias, easier to read
+            var i = current_question;
 
+            if (i == questions.length) {
+                $.redirectPost({
+                    'json' : JSON.stringify(result),
+                });
+            } else {
 
+                // this cuestion's answers (initially, none)
+                var question_result = {
+                    'question_id': questions[i].id,
+                    'answer_id': []
+                };
 
+                // set it as part of the global result
+                result.answers.push(question_result);
 
+                // refresh view
+                change_template(questions[i]);
+                clear_timer();
+                init_timer(questions[i].id, result.answers[i].answer_id);
 
+                $("#ok" + questions[i].id).click(function() {
+                    // user pressed OK, collect selected answers
+                    get_checked_answers(questions[i].id, result.answers[i].answer_id);
+                    next_question();
+                });
+            }
+        }
 
+        function clear_timer() {
+            clearInterval(timer_bar);
+            $('.progress-bar').css('width', '100%');
+            $('.progress-bar').text(seconds + ' sec');
+        }
 
+        function init_timer(some_id, some_list) {
+            var j = seconds;
+            var ratio;
+            timer_bar = setInterval(function () {
+                j--;
+                if (j > 0) {
+                    ratio = j / seconds * 100;
+                    $('.progress-bar').css('width', j / seconds * 100 + '%');
+                    $('.progress-bar').text(j + ' sec');
+                } else {
+                    get_checked_answers(some_id, some_list);
+                    next_question();
+                }
+            }, 1000);
+        }
 
-
+        // start the quiz
+        next_question();
+    });
 </script>
 {% endblock %}
