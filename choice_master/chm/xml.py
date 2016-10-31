@@ -41,7 +41,7 @@ class XMLParser(object):
 
             for i in range(1, len(data)):
                 ans = {'text': data[i].text,
-                       'is_correct': data[i].tag is "correct"}
+                       'is_correct': data[i].tag == "correct"}
                 result['answers'].append(ans)
 
             yield result
