@@ -7,10 +7,12 @@ from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from allauth.account.views import login
+from django.core.exceptions import PermissionDenied
 
-from chm.models import Question, QuestionOnQuiz, Answer, Flag, Quiz
+from chm.models import Question, QuestionOnQuiz, Flag, Quiz
 from chm.forms import QuizForm, FlagForm
 import json
+
 
 def index(request):
     """
@@ -43,6 +45,7 @@ def new_quiz(request):
     return render(request, 'new_quiz.html', {'form': form})
 
 
+@login_required
 def correct_quiz(request):
     """ Verify user answers"""
 
@@ -62,23 +65,22 @@ def correct_quiz(request):
                 question_id=answer['question_id'],
                 quiz_id=quiz_id
             )
-            correct_answers_ids = Answer.objects.filter(
-                question=answer['question_id'],
+            correct_answers_ids = qoq.question.answers.filter(
                 is_correct=True
             ).values('pk')
 
-            if not answer['answer_id']:
-                # user didn't choose any answer
-                qoq.state = QuestionOnQuiz.STATUS.not_answered
             if set(answer['answer_id']) == set(correct_answers_ids):
                 qoq.state = QuestionOnQuiz.STATUS.right
+            elif not answer['answer_id']:
+                # user didn't choose any answer
+                qoq.state = QuestionOnQuiz.STATUS.not_answered
             else:
                 qoq.state = QuestionOnQuiz.STATUS.wrong
             qoq.save()
 
         return render(request, 'quiz_results.html', {'quiz': quiz})
     else:
-        return render(request, 'index.html')
+        return redirect(login)
 
 
 def timer(request):
