@@ -153,7 +153,7 @@ class FlaggedQuestionAdmin(admin.ModelAdmin):
     flags_count.short_description = 'Number of complains'
 
     def get_queryset(self, request):
-        return Question.objects.filter(flags__isnull=False)
+        return Question.objects.filter(flags__isnull=False).distinct()
 
     def has_add_permission(self, request):
         return False
