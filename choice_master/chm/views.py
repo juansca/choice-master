@@ -9,7 +9,7 @@ from django.shortcuts import redirect
 from allauth.account.views import login
 from django.core.exceptions import PermissionDenied
 
-from chm.models import Question, QuestionOnQuiz, Flag, Quiz
+from chm.models import Question, QuestionOnQuiz, Flag, Quiz, Answer
 from chm.forms import QuizForm, FlagForm
 import json
 
@@ -61,15 +61,23 @@ def correct_quiz(request):
             raise PermissionDenied
 
         for answer in data['answers']:
-            qoq = QuestionOnQuiz.objects.get(
-                question_id=answer['question_id'],
-                quiz_id=quiz_id
+            question = get_object_or_404(Question, pk=answer['question_id'])
+            qoq = get_object_or_404(
+                QuestionOnQuiz,
+                question=question,
+                quiz=quiz
             )
-            correct_answers_ids = qoq.question.answers.filter(
+
+            print(qoq.question.text)
+            correct_answers = Answer.objects.filter(
+                question=question,
                 is_correct=True
             ).values('pk')
 
-            if set(answer['answer_id']) == set(correct_answers_ids):
+            correct_answers_ids = list()
+            for answ in correct_answers:
+                correct_answers_ids.append(str(answ['pk']))
+            if answer['answer_id'] == correct_answers_ids:
                 qoq.state = QuestionOnQuiz.STATUS.right
             elif not answer['answer_id']:
                 # user didn't choose any answer
