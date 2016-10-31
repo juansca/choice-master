@@ -72,7 +72,7 @@ class Question(models.Model):
         :return: True only if a similar question exists in the database
         :rtype: bool
         """
-        queryset = Question.objects.filter(topic=self.topic)
+        queryset = Question.objects.filter(topic=self.topic).exclude(pk=self.pk)
         for q in queryset:
             if is_similar(self.text, q.text):
                 return True
