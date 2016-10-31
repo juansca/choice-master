@@ -63,8 +63,12 @@ class Question(models.Model):
         :return: True only if an identical question exists in the database
         :rtype: bool
         """
-        return Question.objects.filter(text=self.text,
-                                       topic=self.topic).exists()
+        return Question.objects.filter(
+            text=self.text,
+            topic=self.topic
+        ).exclude(
+            pk=self.pk
+        ).exists()
 
     def similar_exists(self):
         """
