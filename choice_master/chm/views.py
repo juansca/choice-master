@@ -67,8 +67,6 @@ def correct_quiz(request):
                 question=question,
                 quiz=quiz
             )
-
-            print(qoq.question.text)
             correct_answers = Answer.objects.filter(
                 question=question,
                 is_correct=True
