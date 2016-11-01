@@ -100,10 +100,10 @@
             for (i in old_questions) {
                 // An alias for a single already answered question
                 var q = old_questions[i];
-                var button_html = format_button(q.text, FLAG.text + question.id, FLAG.style);
+                var button_html = format_button(q.text, FLAG.text + q.id, FLAG.style);
                 $("#button_duplicates").append(button_html);
                 $("#button_duplicates").append('<br>');
-                $("#" + FLAG.text + question.id).click(function() {
+                $("#" + FLAG.text + q.id).click(function() {
                     console.log("hola!");
                 });
             }
@@ -177,6 +177,7 @@
 
                 $("#" + DUPLICATE.text + questions[i].id).click(function() {
                     $("#all").hide();
+                    clear_timer();
                     duplicate_template(questions, current_question);
                 });
 
