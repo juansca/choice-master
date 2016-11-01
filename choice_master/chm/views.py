@@ -9,6 +9,7 @@ from django.shortcuts import redirect
 from allauth.account.views import login
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
+from django.http import JsonResponse
 
 from chm.models import Question, QuestionOnQuiz, Flag, Quiz, Answer
 from chm.forms import QuizForm, FlagForm
@@ -95,10 +96,11 @@ def correct_quiz(request):
         return redirect(login)
 
 
-def timer(request):
-    seconds = request.GET.get('seconds', 10)
-    return render(request, 'timer.html', {'seconds': seconds})
-
+def duplicate_question(request):
+    print(request.POST)
+    if request.method == 'POST':
+        data = json.loads(request.POST['json'])
+    return JsonResponse(data)
 
 def flag_question(request, id):
     question = get_object_or_404(Question, id=id)

@@ -108,10 +108,13 @@
                 $("#button_duplicates").append(button_html);
                 $("#button_duplicates").append('<br>');
                 $("#" + FLAG.text + q.id).click(function() {
-                    console.log("hola!");
+
+                    var url = "{% url 'duplicate_question' %}";
+                    $.post(url, {'json': JSON.stringify(questions[current_question])},
+                           function(data) {questions[current_question] = data;}, "json");
+
                     $("#error").hide();
                     $("#all").show();
-                    questions[current_question].text = 'PREGUNTA REEMPLAZADA';
 
                     // go back in time
                     current_question--;
