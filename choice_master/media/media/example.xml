@@ -1,0 +1,32 @@
+<file>
+  <question>
+    <text> Cuanto es 2 mas 2? </text>
+    <incorrect> 3 </incorrect>
+    <incorrect> 1 </incorrect>
+    <incorrect> 2 </incorrect>
+    <correct> 42 </correct>
+    <incorrect> 5 </incorrect>
+  </question>
+
+  <question>
+    <text> Todos los patos son de color rojo? </text>
+    <correct> No </correct>
+    <incorrect> Sí </incorrect>
+  </question>
+
+  <question>
+    <text> Son estas respuestas correctas? </text>
+    <correct> Sí </correct>
+    <correct> Obvio que sí </correct>
+    <correct> Define correctitud </correct>
+    <correct> Pizza? </correct>
+    <correct> 42 </correct>
+  </question>
+
+  <question>
+    <text> Son todas estas respuestas incorrectas? </text>
+    <incorrect> No entiendo </incorrect>
+    <incorrect> Sí </incorrect>
+    <correct> No </correct>
+  </question>
+</file>

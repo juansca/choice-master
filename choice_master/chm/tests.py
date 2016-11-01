@@ -1,33 +1,44 @@
 """
 Tests for app chm
 """
+from .admin import XMLFileAdmin
+from .messages import LoadQuestionsMessageManager
+from . import factories
+from . import models
 from django.contrib.auth.models import User
-from django.contrib.auth.models import AnonymousUser
 from django.test import TestCase
 from django.urls import reverse
+import random
+import string
+
+
+# This function is defined here for convinience
+def random_string(length):
+    list_of_chars = [random.choice(string.ascii_uppercase)
+                     for _ in range(length)]
+    return "".join(list_of_chars)
 
 
 class TestLogin(TestCase):
-    """ Testing login functinality
+    """
+    Testing login functinality
 
-    Como usuario quiero poder ingresar al sistema con mis
-    credenciales de usuario.
-    =====================================================
+    Como usuario quiero poder ingresar al sistema con mis credenciales de
+    usuario.
+    =====================================================================
 
     Criterios de aceptación:
     ------------------------
-        - Los usuarios registrados deben poder acceder
-          al sistema mediante un formulario de login donde
-          ingresen su nombre de usuario y contraseña.
-        - En caso de que el usuario exista y los datos
-          sean correctos el usuario accederá a la aplicación.
-        - Si hubo algún error en el proceso de login
-          se le indicará al usuario.
+        - Los usuarios registrados deben poder acceder al sistema mediante un
+          formulario de login donde ingresen su nombre de usuario y contraseña.
+        - En caso de que el usuario exista y los datos sean correctos el
+          usuario accederá a la aplicación.
+        - Si hubo algún error en el proceso de login se le indicará al usuario.
     """
 
     def setUp(self):
-        """ Set up environment for TestLogin
-
+        """
+        Set up environment for TestLogin
             - create a user
         """
         # save this password, as it will be salted and hashed
@@ -41,10 +52,7 @@ class TestLogin(TestCase):
         self.index_url = reverse('index')
 
     def test_anonymous_user_is_redirected_to_login(self):
-        """ Test that anonymous can not see index.html"""
-
-        # given I am not authenthicated
-        user = AnonymousUser()
+        """Test that anonymous can not see index.html"""
 
         # when I go to the index url
         response = self.client.get(self.index_url, follow=True)
@@ -53,11 +61,10 @@ class TestLogin(TestCase):
         self.assertRedirects(response, self.account_login_url)
 
     def test_login_redirects_to_index(self):
-        """ Test successful login scenario.
-
-        When user provides a valid username
-        and password combination, then she should be
-        redirected to the home page
+        """
+        Test successful login scenario.
+        When user provides a valid username and password combination, then she
+        should be redirected to the home page.
         """
 
         # given I am a registered user
@@ -74,13 +81,10 @@ class TestLogin(TestCase):
         self.assertFalse(response.context['user'].is_anonymous())
 
     def test_login_wrong_username(self):
-        """ Test unsuccessful login scenario
-
-            When user provides an invalid username
-            then an error is shown.
         """
-        # given I am a registered user
-        user = self.valid_user
+        Test unsuccessful login scenario.
+        When user provides an invalid username then an error is shown.
+        """
 
         # when I provide a wrong username
         data = {'login': 'NyP', 'password': self.valid_user_password}
@@ -93,18 +97,16 @@ class TestLogin(TestCase):
         form = response.context['form']
         expected_error = {
             '__all__': [
-                'El usuario y/o la contraseña que '
-                'especificaste no son correctos.'
+                'The username and/or password you specified are not correct.'
             ]
         }
         self.assertFalse(form.is_valid())
         self.assertEquals(form.errors, expected_error)
 
     def test_login_wrong_password(self):
-        """ Test unsuccessful login scenario
-
-            When user provides an invalid password
-            then an error is shown.
+        """
+        Test unsuccessful login scenario
+        When user provides an invalid password then an error is shown.
         """
         # given I am a registered user
         user = self.valid_user
@@ -120,8 +122,7 @@ class TestLogin(TestCase):
         form = response.context['form']
         expected_error = {
             '__all__': [
-                'El usuario y/o la contraseña que '
-                'especificaste no son correctos.'
+                'The username and/or password you specified are not correct.'
             ]
         }
         self.assertFalse(form.is_valid())
@@ -129,7 +130,8 @@ class TestLogin(TestCase):
 
 
 class TestRegisterNewUser(TestCase):
-    """ Testing register functinality
+    """
+    Testing register functinality
 
     Como usuario quiero poder registrarme en el sistema
     ===================================================
@@ -169,4 +171,254 @@ class TestRegisterNewUser(TestCase):
 
         # and I see a message
         html = response.content.decode('utf-8')
-        self.assertTrue('Se ha registrado exitosamente' in html)
+        self.assertTrue('You signed up succesfully' in html)
+
+
+class TestAdministratorLoadingQuestions(TestCase):
+    """
+    Testing loading xml files as admin functionality.
+
+    Como administrador quiero cargar preguntas al sistema para un tema dado
+    =======================================================================
+
+    Criterios de aceptación:
+    ------------------------
+
+    - El superusuario debe poder cargar nuevas preguntas al sistema.
+
+    - Las preguntas deben tener un formato XML.
+
+    - Cuando se carga una pregunta el sistema debe revisar alguna métrica para
+      buscar similitud con otra preguntas previamente cargadas.
+
+    - Los archivos de preguntas pueden tener más de una pregunta posible.
+
+    - Las preguntas se cargan con distintas opciones (multiple-choice) y una
+      respuesta entre dichas opciones.
+
+    - Se debe definir un esquema XML fijo para las preguntas y un esquema de
+      validación xsd.
+    """
+
+    def setUp(self):
+        """ Set up for load_question testing"""
+        cases = 100
+        max_length = 30
+        answers_length = 10
+
+        self.data_list = []
+        for x in range(cases):
+            answers = []
+            for x in range(answers_length - 1):
+                answers.append(
+                    {'text': random_string(max_length),
+                     'is_correct': random.choice([False, True])})
+
+            # Just in case, add a correct one
+            answers.append({'text': 'correct', 'is_correct': True})
+
+            data = {
+                'subject': random_string(max_length),
+                'topic': random_string(max_length),
+                'question': random_string(max_length),
+                'answers': answers
+            }
+            self.data_list.append(data)
+
+            name = random_string(max_length)
+            subject = factories.SubjectFactory.create(name=name)
+            topic = factories.TopicFactory.create(subject=subject)
+
+            text = random_string(max_length)
+            question = factories.QuestionFactory.create(text=text,
+                                                        topic=topic)
+            factories.AnswerFactory.create_batch(answers_length,
+                                                 question=question)
+
+    def test_load_valid_question(self):
+        """Test the case where the question is valid"""
+
+        for data in self.data_list:
+
+            subject = factories.SubjectFactory.create(name=data['subject'])
+            topic = factories.TopicFactory.create(name=data['topic'],
+                                                  subject=subject)
+
+            # Create an empty question manager
+            mm = LoadQuestionsMessageManager()
+
+            # Run the code to be tested
+            XMLFileAdmin.load_question(data, mm)
+
+            self.assertEquals(mm.no_subject, [])
+            self.assertEquals(mm.no_topic, [])
+            self.assertEquals(mm.validation_error, [])
+            self.assertEquals(len(mm.added), 1)
+            self.assertEquals(mm.added[0].text, data['question'])
+            queryset = models.Question.objects.filter(text=data['question'],
+                                                      topic=topic)
+            self.assertEquals(len(queryset), 1)
+
+            for ans in data['answers']:
+                text = ans['text']
+                is_correct = ans['is_correct']
+                queryset = models.Answer.objects.filter(text=text,
+                                                        is_correct=is_correct)
+
+                exists = queryset.exists()
+                self.assertTrue(exists)
+
+    def test_load_no_subject_question(self):
+        """Test the case where the Subject does not exists"""
+        for data in self.data_list:
+
+            # Create an empty question manager
+            mm = LoadQuestionsMessageManager()
+
+            # Run the code to be tested
+            XMLFileAdmin.load_question(data, mm)
+
+            self.assertEquals(len(mm.no_subject), 1)
+            self.assertEquals(len(mm.no_subject[0]), 2)
+            self.assertEquals(mm.no_subject[0][1], (data['question']))
+            self.assertEquals(mm.no_topic, [])
+            self.assertEquals(mm.validation_error, [])
+            self.assertEquals(mm.added, [])
+            queryset = models.Question.objects.filter(text=data['question'])
+            self.assertEquals(len(queryset), 0)
+
+            for ans in data['answers']:
+                text = ans['text']
+                is_correct = ans['is_correct']
+                queryset = models.Answer.objects.filter(text=text,
+                                                        is_correct=is_correct)
+                exists = queryset.exists()
+                self.assertFalse(exists)
+
+    def test_load_no_topic_question(self):
+        """Test the case where the Topic does not exists"""
+        for data in self.data_list:
+
+            factories.SubjectFactory.create(name=data['subject'])
+
+            # Create an empty question manager
+            mm = LoadQuestionsMessageManager()
+
+            # Run the code to be tested
+            XMLFileAdmin.load_question(data, mm)
+
+            self.assertEquals(len(mm.no_topic), 1)
+            self.assertEquals(len(mm.no_topic[0]), 2)
+            self.assertEquals(mm.no_topic[0][1], (data['question']))
+            self.assertEquals(mm.no_subject, [])
+            self.assertEquals(mm.validation_error, [])
+            self.assertEquals(mm.added, [])
+            queryset = models.Question.objects.filter(text=data['question'])
+            self.assertEquals(len(queryset), 0)
+
+            for ans in data['answers']:
+                text = ans['text']
+                is_correct = ans['is_correct']
+                queryset = models.Answer.objects.filter(text=text,
+                                                        is_correct=is_correct)
+                exists = queryset.exists()
+                self.assertFalse(exists)
+
+    def test_load_exists_question(self):
+        """Test the case where the question already exists"""
+        for data in self.data_list:
+
+            subject = factories.SubjectFactory.create(name=data['subject'])
+            topic = factories.TopicFactory.create(name=data['topic'],
+                                                  subject=subject)
+
+            factories.QuestionFactory.create(text=data['question'],
+                                             topic=topic)
+            # Create an empty question manager
+            mm = LoadQuestionsMessageManager()
+
+            # Run the code to be tested
+            XMLFileAdmin.load_question(data, mm)
+            self.assertEquals(len(mm.validation_error), 1)
+            self.assertEquals(len(mm.validation_error[0]), 2)
+            self.assertEquals(len(mm.validation_error[0][0].messages), 1)
+            self.assertEquals(mm.validation_error[0][0].messages[0],
+                              'The question already exists')
+            self.assertEquals(mm.validation_error[0][1], data['question'])
+            self.assertEquals(mm.no_topic, [])
+            self.assertEquals(mm.no_subject, [])
+            self.assertEquals(mm.added, [])
+            queryset = models.Question.objects.filter(text=data['question'],
+                                                      topic=topic)
+
+            self.assertEquals(len(queryset), 1)
+
+            for ans in data['answers']:
+                # It might seem confusing given that the answers might be the
+                # same to test weather or not
+                text = ans['text']
+                is_correct = ans['is_correct']
+                queryset = models.Answer.objects.filter(text=text,
+                                                        is_correct=is_correct)
+                exists = queryset.exists()
+                self.assertFalse(exists)
+
+    def test_load_similar_question(self):
+        """Test the case where the similar question already exists"""
+        for data in self.data_list:
+
+            subject = factories.SubjectFactory.create(name=data['subject'])
+            topic = factories.TopicFactory.create(name=data['topic'],
+                                                  subject=subject)
+            text = data['question']
+            text = text[:-1] + "a"
+            factories.QuestionFactory.create(text=text, topic=topic)
+            # Create an empty question manager
+            mm = LoadQuestionsMessageManager()
+
+            # Run the code to be tested
+            XMLFileAdmin.load_question(data, mm)
+
+            self.assertEquals(len(mm.validation_error), 1)
+            self.assertEquals(len(mm.validation_error[0]), 2)
+            self.assertEquals(len(mm.validation_error[0][0].messages), 1)
+            self.assertEquals(mm.validation_error[0][0].messages[0],
+                              'A similar question already exists')
+            self.assertEquals(mm.validation_error[0][1], data['question'])
+            self.assertEquals(mm.no_topic, [])
+            self.assertEquals(mm.no_subject, [])
+            self.assertEquals(mm.added, [])
+            queryset = models.Question.objects.filter(text=data['question'],
+                                                      topic=topic)
+
+            self.assertEquals(len(queryset), 0)
+
+            for ans in data['answers']:
+                # It might seem confusing given that the answers might be the
+                # same to test weather or not
+                text = ans['text']
+                is_correct = ans['is_correct']
+                queryset = models.Answer.objects.filter(text=text,
+                                                        is_correct=is_correct)
+                exists = queryset.exists()
+                self.assertFalse(exists)
+
+
+class TestSimilarity(TestCase):
+    """
+    Testing similarity function.
+
+    Como administrador quiero cargar preguntas al sistema para un tema dado
+    =======================================================================
+
+    Criterios de aceptación:
+    ------------------------
+
+    - Cuando se carga una pregunta el sistema debe revisar alguna métrica para
+      buscar similitud con otra preguntas previamente cargadas. (only the
+      metric will be tested here)
+    """
+
+    def setUp(self):
+        """ Set up for load_question testing"""
+        pass

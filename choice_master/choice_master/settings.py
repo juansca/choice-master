@@ -15,7 +15,8 @@ import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
+MEDIA_ROOT = "media"
+MEDIA_URL = '/site_media/media/'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -26,7 +27,7 @@ SECRET_KEY = '^w+!l0vr!lw937t$&+4r1y$v=a*8l6s+2r&e^yc%b&(u(cgd(-'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # Determines the e-mail verification method during signup – choose one of
 # “mandatory”, “optional”, or “none”. When set to “mandatory” the user is
@@ -88,6 +89,7 @@ TEMPLATES = [
 
                 # `allauth` needs this from django
                 'django.template.context_processors.request',
+                'chm.context_processors.flagged_questions'
             ],
         },
     },
@@ -140,7 +142,7 @@ AUTHENTICATION_BACKENDS = (
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
-LANGUAGE_CODE = 'es-ar'
+LANGUAGE_CODE = 'en-Us'
 LOCALE_PATHS = [
     os.path.join(BASE_DIR, 'choice_master', 'locale'),
 ]

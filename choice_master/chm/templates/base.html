@@ -9,13 +9,20 @@
 
     <link rel="icon" href="{%  static 'favicon.ico' %}">
 
-    <title></title>
+    <title>Choice Master</title>
 
     <!-- Bootstrap core CSS -->
     <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="{% static 'css/non.responsive.css' %}" rel="stylesheet">
+    
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/quizform.css' %}" rel="stylesheet">
+
+
+	{% block custom_css %}
+	{% endblock %}
 
   </head>
 
@@ -41,24 +48,29 @@
             <li><a href="#contact">Contact</a></li> -->
 
 
-            <!-- This is a dropdown, it might be useful later>
-
+            {% if user.is_staff %}
             <li class="dropdown">
-              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Administration Menu <span class="caret"></span></a>
 
               <ul class="dropdown-menu">
 
-                <li><a href="#">Action</a></li>
-                <li><a href="#">Another action</a></li>
-                <li><a href="#">Something else here</a></li>
+				<li><a href="/admin">Admin</a></li>
                 <li role="separator" class="divider"></li>
-                <li class="dropdown-header">Nav header</li>
-                <li><a href="#">Separated link</a></li>
-                <li><a href="#">One more separated link</a></li>
+                <li class="dropdown-header">Options</li>
+                <li><a href="/admin/chm/subject/">Subjects</a></li>
+                <li><a href="/admin/chm/topic/">Topics</a></li>
+                <li><a href="/admin/chm/question/">Questions</a></li>
+                <li><a href="/admin/chm/xmlfile/">Upload XML</a></li>
+                <li><a href="/admin/chm/flaggedquestion/">
+						Complains
+						{% if n_flagged_questions %}
+							<span class="label label-danger">{{ n_flagged_questions }}</span>
+						{% endif %}
+					</a></li>
 
               </ul>
             </li>
-            <-->
+            {% endif %}
 
           </ul>
 
@@ -66,6 +78,9 @@
             {% if user.is_authenticated %}
               <li class="active">
                 <a href="#">{{ user.username }}</a>
+              </li>
+              <li>
+                <a href="{% url 'new_quiz' %}">Take a quiz</a>
               </li>
 
               <li>
@@ -82,10 +97,17 @@
     </nav>
 
     <div class="container">
-      <div class="page-header">
+
+		{% if messages %}
+			<ul class="messages">
+				{% for message in messages %}
+				<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+				{% endfor %}
+			</ul>
+		{% endif %}
+
         {% block content %}
         {% endblock %}
-      </div>
     </div> <!-- /container -->
 
 
@@ -94,6 +116,9 @@
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="{% static 'js/jquery.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/csrf.js' %}"></script>
 
+	{% block custom_js %}
+	{% endblock %}
   </body>
 </html>

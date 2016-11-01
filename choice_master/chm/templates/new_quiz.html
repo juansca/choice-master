@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block custom_css %}
+    <link href="/static/admin/css/widgets.css" type="text/css" rel="stylesheet">
+	<link href="/static/css/overrides.css" type="text/css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+  <div class="page-header">
+    <h1> New quiz! </h1>
+  </div>
+
+  <div class="panel panel-success">
+
+    <div class="panel-heading">
+      Set-up your quiz
+    </div>
+
+    <div class="panel-body">
+      {% if form.errors %}
+        {% for error in form.non_field_errors %}
+          <div class="alert alert-danger">
+            <strong>{{ error|escape }}</strong>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+    <form class="form-horizontal" action="{% url 'new_quiz' %}" method="POST">
+      {% csrf_token %}
+
+      {# number of quiestions #}
+      <div class="form-group">
+        <label class="control-label col-sm-4" for="nr_of_questions">Number of questions</label>
+	    <div class="col-sm-2">
+          {{ form.nr_of_questions }}
+        </div>
+      </div>
+
+      {# seconds between quiestions #}
+      <div class="form-group">
+        <label class="control-label col-sm-4" for="seconds_per_question">Seconds per question</label>
+    	<div class="col-sm-2">
+          {{ form.seconds_per_question }}
+        </div>
+      </div>
+
+
+      {# selection algorithm #}
+      {% if form.selection_algorithm.errors %}
+        <div class="form-group has-error">
+      {% else %}
+        <div class="form-group">
+      {% endif %}
+        <label class="control-label col-sm-4" for="selection_algorithm">Selection algorithm</label>
+        <div class="col-sm-4">
+          {{ form.selection_algorithm }}
+        </div>
+      </div>
+
+	  <hr />
+
+      {# Topics #}
+      <div class="form-group">
+        {% if form.topics.errors %}
+		<div class="row">
+          <div class="centered col-sm-1">
+          </div>
+          <div class="centered col-sm-10">
+              <div class="alert alert-danger">You must choose at least one topic</div>
+          </div>
+        </div>
+       {% endif %}
+
+		<div class="row">
+          {# workarrownd to make it look centered #}
+          <div class="centered col-sm-1">
+          </div>
+          <div class="centered col-sm-11">
+            {{ form.topics }}
+          </div>
+        </div>
+      </div>
+
+	  <div class="form-group"> 
+	    <div class="col-sm-offset-10 col-sm-3">
+		  <button type="submit" class="btn btn-default">Submit</button>
+	    </div>
+	  </div>
+    </form>
+  </div>
+  <div class="panel-footer">
+  </div>
+</div>
+{% endblock %}
+
+{% block custom_js %}
+<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+<script type="text/javascript">
+django.jQuery = $;
+</script>
+<script type="text/javascript" src="/static/admin/js/core.js"></script>
+<script type="text/javascript" src="/static/admin/js/SelectBox.js"></script>
+<script type="text/javascript" src="/static/admin/js/SelectFilter2.js"></script>
+{% endblock %}
