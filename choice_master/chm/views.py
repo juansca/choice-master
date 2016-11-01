@@ -95,7 +95,7 @@ def correct_quiz(request):
     else:
         return redirect(login)
 
-
+@login_required
 def duplicate_question(request):
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
@@ -117,12 +117,19 @@ def duplicate_question(request):
             pk=duplicate.pk
         ).first()
 
+
+        flag = Flag.objects.create(
+            question=question,
+            user=request.user,
+            description= _("USER FLAGED THIS QUESTION AS A"
+                           "DUPLICATE OF THIS OTHER ONE: ") + duplicate.text
+        )
+
         if new_question is None:
             return JsonResponse({'ok': False})
 
         qoq.question = new_question;
-        qoq.save();
-
+        qoq.save(force_update=True);
         return JsonResponse({'ok': True, 'question': new_question.to_json()})
 
 
