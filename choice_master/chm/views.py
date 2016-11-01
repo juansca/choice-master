@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from allauth.account.views import login
 from django.core.exceptions import PermissionDenied
+from django.utils.translation import ugettext_lazy as _
 
 from chm.models import Question, QuestionOnQuiz, Flag, Quiz, Answer
 from chm.forms import QuizForm, FlagForm
@@ -39,6 +40,7 @@ def new_quiz(request):
         if form.is_valid():
             quiz = form.make_quiz()
             context = {
+                'finish_message': _('You have finished the test'),
                 'seconds': quiz.seconds_per_question,
                 'quiz': quiz.to_json()
             }
