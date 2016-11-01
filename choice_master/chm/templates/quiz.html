@@ -66,6 +66,13 @@
                    '">OK</button>';
         }
 
+        function format_duplicate_button(qid) {
+            // return duplicate button
+            return '<button type="button" ' +
+                   'class="btn btn-warning btn-md" id="duplicate' + qid +
+                   '">Duplicate</button>';
+        }
+
         function format_checkbox(qid, id, text) {
             // return checkbox and answer
             var html = '<div class="funkyradio"><div class="funkyradio-success">' +
@@ -86,7 +93,10 @@
                 $("#answers").append($answer_html);
             }
             var button_html = format_button(question.id);
+            var button_duplicate_html = format_duplicate_button(question.id)
             $("#button").append(button_html);
+            $("#button").append('<br>');
+            $("#button").append(button_duplicate_html);
         }
 
         function clear_all() {
