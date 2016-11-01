@@ -19,6 +19,7 @@
 </div>
 <div id="error">
     <h2 id="flagged_question"></h2>
+    <p id="flagged_comment"></p>
     <div id="possible_duplicates"></div>
     <div id="button_duplicates"></div>
 </div>
@@ -63,17 +64,17 @@
             }
         });
 
-        // Style configurations of buttons
+        // Style configurations of buttons and inputs
         OK = {'text': 'OK' , 'style': 'btn btn-success btn-block' }
         DUPLICATE = {'text': 'Duplicate' , 'style': 'btn btn-warning btn-md'}
-        FLAG = {'text': 'Flag this question' , 'style': 'btn btn-warning btn-md'}
+        FLAG = {'text': 'Flag' , 'style': 'btn btn-info btn-block'}
         CHECKBOX = 'checkbox';
         RADIO = 'radio';
 
         function format_button(text, qid, style) {
             // return ok button
             return '<button type="button" ' +
-                   'class="' + style + '" id="' + text + qid +
+                   'class="' + style + '" id="' + qid +
                    '">' + text + '</button>';
         }
 
@@ -85,6 +86,27 @@
                        '" id="' + type + id + '"/>' +
                        '<label for="' + type + id + '">' + text + '</label></div></div>';
             return html;
+        }
+
+        function duplicate_template(questions, current) {
+            old_questions = []
+            for (i = 0; i < current; i++) {
+                old_questions.push(questions[i])
+            }
+            var question = questions[current];
+
+            $("#flagged_question").text("Duplicate: " + question.text);
+            $("#flagged_comment").text("Select the question considered a duplicate:");
+            for (i in old_questions) {
+                // An alias for a single already answered question
+                var q = old_questions[i];
+                var button_html = format_button(q.text, FLAG.text + question.id, FLAG.style);
+                $("#button_duplicates").append(button_html);
+                $("#button_duplicates").append('<br>');
+                $("#" + FLAG.text + question.id).click(function() {
+                    console.log("hola!");
+                });
+            }
         }
 
         function change_template(question) {
@@ -99,9 +121,10 @@
                                                   answer.text, CHECKBOX));
                 $("#answers").append($answer_html);
             }
-            var button_html = format_button(OK.text, question.id, OK.style);
+            var button_html = format_button(OK.text, OK.text + question.id, OK.style);
             var button_duplicate_html = format_button(DUPLICATE.text,
-                                                      question.id, DUPLICATE.style)
+                                                      DUPLICATE.text + question.id,
+                                                      DUPLICATE.style)
             $("#button").append(button_html);
             $("#button").append('<br>');
             $("#button").append(button_duplicate_html);
@@ -152,10 +175,9 @@
                 clear_timer();
                 init_timer(CHECKBOX + questions[i].id, result.answers[i].answer_id);
 
-                $("#duplicate" + questions[i].id).click(function() {
-                    result.answers.pop();
-                    current_question--;
-                    next_question();
+                $("#" + DUPLICATE.text + questions[i].id).click(function() {
+                    $("#all").hide();
+                    duplicate_template(questions, current_question);
                 });
 
                 $("#" + OK.text + questions[i].id).click(function() {
