@@ -14,6 +14,7 @@
     </div>
     <h2 id="question"></h2>
     <div id="answers"></div>
+    <br>
     <div id="button">  </div>
 </div>
 {% endblock %}
@@ -60,7 +61,9 @@
 
         function format_button(qid) {
             // return ok button
-            return '<button class="submit" type="button" id="ok' + qid + '">OK</button>';
+            return '<button type="button" ' +
+                   'class="btn btn-success btn-block" id="ok' + qid +
+                   '">OK</button>';
         }
 
         function format_checkbox(qid, id, text) {
