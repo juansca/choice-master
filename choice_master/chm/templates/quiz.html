@@ -78,11 +78,12 @@
         }
 
 
-        function format_checkbox(qid, id, text) {
+        function format_input(qid, id, text, type) {
             // return checkbox and answer
             var html = '<div class="funkyradio"><div class="funkyradio-success">' +
-                       '<input type="checkbox" name="' + qid + '" id="' + id + '"/>' +
-                       '<label for="' + id + '">' + text + '</label></div></div>';
+                       '<input type="' + type + '" name="' + type + qid +
+                       '" id="' + type + id + '"/>' +
+                       '<label for="' + type + id + '">' + text + '</label></div></div>';
             return html;
         }
 
@@ -94,7 +95,8 @@
             // set new answers
             for (i in question.answers) {
                 var answer = question.answers[i]
-                var $answer_html = $(format_checkbox(question.id, answer.id, answer.text));
+                var $answer_html = $(format_input(question.id, answer.id,
+                                                  answer.text, CHECKBOX));
                 $("#answers").append($answer_html);
             }
             var button_html = format_button(OK.text, question.id, OK.style);
