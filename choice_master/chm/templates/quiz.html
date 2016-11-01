@@ -70,19 +70,13 @@
         CHECKBOX = 'checkbox';
         RADIO = 'radio';
 
-        function format_button(qid) {
+        function format_button(text, qid, style) {
             // return ok button
             return '<button type="button" ' +
-                   'class="btn btn-success btn-block" id="ok' + qid +
-                   '">OK</button>';
+                   'class="' + style + '" id="' + text + qid +
+                   '">' + text + '</button>';
         }
 
-        function format_duplicate_button(qid) {
-            // return duplicate button
-            return '<button type="button" ' +
-                   'class="btn btn-warning btn-md" id="duplicate' + qid +
-                   '">Duplicate</button>';
-        }
 
         function format_checkbox(qid, id, text) {
             // return checkbox and answer
@@ -103,8 +97,9 @@
                 var $answer_html = $(format_checkbox(question.id, answer.id, answer.text));
                 $("#answers").append($answer_html);
             }
-            var button_html = format_button(question.id);
-            var button_duplicate_html = format_duplicate_button(question.id)
+            var button_html = format_button(OK.text, question.id, OK.style);
+            var button_duplicate_html = format_button(DUPLICATE.text,
+                                                      question.id, DUPLICATE.style)
             $("#button").append(button_html);
             $("#button").append('<br>');
             $("#button").append(button_duplicate_html);
@@ -161,7 +156,7 @@
                     next_question();
                 });
 
-                $("#ok" + questions[i].id).click(function() {
+                $("#" + OK.text + questions[i].id).click(function() {
                     // user pressed OK, collect selected answers
                     get_checked_answers(questions[i].id, result.answers[i].answer_id);
                     next_question();
