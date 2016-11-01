@@ -47,6 +47,7 @@
         var timer_bar;
         var seconds = {{ seconds }};
 
+
         // jquery extend function
         $.extend({
             redirectPost: function(args) {
@@ -102,7 +103,12 @@
             $("#substitute_not_found").append(html);
         }
 
+
+        // True only if the last question was correctly retrieved
+        var recieved_question_ok = false;
+
         function duplicate_template(questions) {
+            // Display the duplicate menu
             var current = current_question;
             $("#all").hide();
             $("#error").show();
@@ -136,8 +142,10 @@
                         data: {'data': JSON.stringify(data_to_send)},
                         success: function(data) {
                             if (data.ok == false) {
+                                recieved_question_ok = false;
                                 alert_substitute_not_found();
                             } else {
+                                console.log(data.question)
                                 questions[current_question] = data.question};
                             },
                         dataType: "json",
@@ -147,7 +155,7 @@
                     $("#error").hide();
                     $("#all").show();
 
-                    // go back in time
+                    // Go back in time
                     current_question--;
                     result.answers.pop();
                     next_question();
@@ -156,7 +164,7 @@
         }
 
         function change_template(question) {
-            // clear question and answers
+            // Clear question and answers
             $("#question").text(question.text);
             $("#answers").text('');
             $("#button").text('');
@@ -167,13 +175,22 @@
                                                   answer.text, CHECKBOX));
                 $("#answers").append($answer_html);
             }
-            var button_html = format_button(OK.text, OK.text + question.id, OK.style);
+            var button_html = format_button(OK.text, OK.text + question.id,
+	                                    OK.style);
             var button_duplicate_html = format_button(DUPLICATE.text,
-                                                      DUPLICATE.text + question.id,
+                                                      DUPLICATE.text +
+						      question.id,
                                                       DUPLICATE.style)
             $("#button").append(button_html);
-            $("#button").append('<br>');
-            $("#button").append(button_duplicate_html);
+            // If it is not the first time and the last time we did retrieved
+	          // a question then display the complaints button.
+            if (recieved_question_ok) {
+                $("#button").append('<br>');
+                $("#button").append(button_duplicate_html);
+            } else {
+                recieved_question_ok = true;
+            }
+
         }
 
         function clear_all() {
@@ -219,7 +236,8 @@
                 // refresh view
                 change_template(questions[i]);
                 clear_timer();
-                init_timer(CHECKBOX + questions[i].id, result.answers[i].answer_id);
+                init_timer(CHECKBOX + questions[i].id,
+		           result.answers[i].answer_id);
 
                 $("#" + DUPLICATE.text + questions[i].id).click(function() {
                     clear_timer();

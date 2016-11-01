@@ -100,7 +100,7 @@ def duplicate_question(request):
         topic = get_object_or_404(Topic, pk=data['topic_id'])
         qoq = get_object_or_404(QuestionOnQuiz, quiz=quiz, question=question)
 
-        questions_on_quiz = QuestionOnQuiz.objects.filter(quiz=quiz);
+        questions_on_quiz = QuestionOnQuiz.objects.filter(quiz=quiz).values('question');
         new_question = Question.objects.filter(
             topic=topic
         ).exclude(
