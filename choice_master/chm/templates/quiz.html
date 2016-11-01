@@ -138,6 +138,12 @@
                 clear_timer();
                 init_timer(questions[i].id, result.answers[i].answer_id);
 
+                $("#duplicate" + questions[i].id).click(function() {
+                    result.answers.pop();
+                    current_question--;
+                    next_question();
+                });
+
                 $("#ok" + questions[i].id).click(function() {
                     // user pressed OK, collect selected answers
                     get_checked_answers(questions[i].id, result.answers[i].answer_id);
