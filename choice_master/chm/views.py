@@ -15,7 +15,6 @@ from chm.models import Question, QuestionOnQuiz, Flag, Quiz, Answer, Topic
 from chm.forms import QuizForm, FlagForm
 import json
 
-
 def index(request):
     """
     If the user is authenticated redirect to login, otherwise display index
@@ -24,12 +23,7 @@ def index(request):
 
     if not request.user.is_authenticated:
         return redirect(login)
-    else:
-        context = {}
-        if request.user.is_staff:
-            nfq = Question.objects.filter(flags__isnull=False).count()
-            context['n_flagged_questions'] = nfq
-    return render(request, 'index.html', context)
+    return render(request, 'index.html')
 
 
 @login_required
@@ -124,6 +118,8 @@ def duplicate_question(request):
             description= _("USER FLAGED THIS QUESTION AS A"
                            "DUPLICATE OF THIS OTHER ONE: ") + duplicate.text
         )
+
+        flag.save()
 
         if new_question is None:
             return JsonResponse({'ok': False})

@@ -89,6 +89,7 @@ TEMPLATES = [
 
                 # `allauth` needs this from django
                 'django.template.context_processors.request',
+                'chm.context_processors.flagged_questions'
             ],
         },
     },
