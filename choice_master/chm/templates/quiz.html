@@ -100,6 +100,7 @@
 
             $("#flagged_question").text("Duplicate: " + question.text);
             $("#flagged_comment").text("Select the question considered a duplicate:");
+            $("#button_duplicates").text("");
             for (i in old_questions) {
                 // An alias for a single already answered question
                 var q = old_questions[i];
