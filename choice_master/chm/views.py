@@ -15,6 +15,7 @@ from chm.models import Question, QuestionOnQuiz, Flag, Quiz, Answer, Topic
 from chm.forms import QuizForm, FlagForm
 import json
 
+
 def index(request):
     """
     If the user is authenticated redirect to login, otherwise display index
@@ -28,7 +29,7 @@ def index(request):
 
 @login_required
 def new_quiz(request):
-    """ User wants to start an exam."""
+    """ User wants to start an exam. """
 
     if request.method == 'POST':
         form = QuizForm(request.POST, user=request.user)
@@ -48,7 +49,7 @@ def new_quiz(request):
 
 @login_required
 def correct_quiz(request):
-    """ Verify user answers"""
+    """ Verify user answers """
 
     if request.method == 'POST':
         data = json.loads(request.POST['json'])
@@ -89,8 +90,14 @@ def correct_quiz(request):
     else:
         return redirect(login)
 
+
 @login_required
 def duplicate_question(request):
+    """
+        Given a duplicate question proivded by a POST request
+        return a json object containing a new question that is not
+        contained in neither the quiz questions.
+    """
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
 
@@ -98,9 +105,12 @@ def duplicate_question(request):
         question = get_object_or_404(Question, pk=data['question_id'])
         duplicate = get_object_or_404(Question, pk=data['duplicate_id'])
         topic = get_object_or_404(Topic, pk=data['topic_id'])
-        qoq = get_object_or_404(QuestionOnQuiz, quiz=quiz, question=question)
+        qoq = get_object_or_404(QuestionOnQuiz,
+                                quiz=quiz,
+                                question=question)
 
-        questions_on_quiz = QuestionOnQuiz.objects.filter(quiz=quiz).values('question');
+        questions_on_quiz = QuestionOnQuiz.objects.filter(quiz=quiz
+                                                          ).values('question')
         new_question = Question.objects.filter(
             topic=topic
         ).exclude(
@@ -111,25 +121,29 @@ def duplicate_question(request):
             pk=duplicate.pk
         ).first()
 
-
         flag = Flag.objects.create(
             question=question,
             user=request.user,
-            description= _("USER FLAGED THIS QUESTION AS A"
-                           "DUPLICATE OF THIS OTHER ONE: ") + duplicate.text
-        )
+            description=_("USER FLAGED THIS QUESTION AS A"
+                          "DUPLICATE OF THIS OTHER ONE: ") + duplicate.text
+                        )
 
         flag.save()
 
         if new_question is None:
             return JsonResponse({'ok': False})
 
-        qoq.question = new_question;
-        qoq.save(force_update=True);
+        qoq.question = new_question
+        qoq.save(force_update=True)
         return JsonResponse({'ok': True, 'question': new_question.to_json()})
 
-
+@login_required
 def flag_question(request, id):
+    """
+    Flag the question with id=id
+    :param request: POST
+    :param id: the id to be a flagged question.
+    """
     question = get_object_or_404(Question, id=id)
     context = {'question': question}
     if request.method == 'POST':
