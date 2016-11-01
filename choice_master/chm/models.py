@@ -94,6 +94,7 @@ class Question(models.Model):
             'id': self.id,
             'text': self.text,
             'topic': self.topic.name,
+            'topic_id': self.topic.pk,
             'answers': [a.to_json() for a in self.answers.all()]
         }
 

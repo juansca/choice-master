@@ -12,6 +12,10 @@
 		        {{ seconds }}
         </div>
     </div>
+
+    <div id="substitute_not_found">
+    </div>
+
     <h2 id="question"></h2>
     <div id="answers"></div>
     <br>
@@ -88,6 +92,16 @@
             return html;
         }
 
+
+        function alert_substitute_not_found() {
+            var html = '<div class="alert alert-danger">' +
+                       '<a href="#" class="close" data-dismiss="alert" aria-label="close">' +
+                       '&times;</a>' +
+                       'Sorry, no other question on the same topic was found.' +
+                       '</div>';
+            $("#substitute_not_found").append(html);
+        }
+
         function duplicate_template(questions) {
             var current = current_question;
             $("#all").hide();
@@ -108,10 +122,27 @@
                 $("#button_duplicates").append(button_html);
                 $("#button_duplicates").append('<br>');
                 $("#" + FLAG.text + q.id).click(function() {
-
                     var url = "{% url 'duplicate_question' %}";
-                    $.post(url, {'json': JSON.stringify(questions[current_question])},
-                           function(data) {questions[current_question] = data;}, "json");
+                    var data_to_send = {
+                        'quiz_id': quiz.id,
+                        'question_id': questions[current_question].id,
+                        'duplicate_id': q.id,
+                        'topic_id': questions[current_question].topic_id
+                    };
+
+                    $.ajax({
+                        type: 'POST',
+                        url: url,
+                        data: {'data': JSON.stringify(data_to_send)},
+                        success: function(data) {
+                            if (data.ok == false) {
+                                alert_substitute_not_found();
+                            } else {
+                                questions[current_question] = data.question};
+                            },
+                        dataType: "json",
+                        async:false
+                    });
 
                     $("#error").hide();
                     $("#all").show();

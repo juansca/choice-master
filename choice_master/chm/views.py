@@ -11,7 +11,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 from django.http import JsonResponse
 
-from chm.models import Question, QuestionOnQuiz, Flag, Quiz, Answer
+from chm.models import Question, QuestionOnQuiz, Flag, Quiz, Answer, Topic
 from chm.forms import QuizForm, FlagForm
 import json
 
@@ -97,10 +97,34 @@ def correct_quiz(request):
 
 
 def duplicate_question(request):
-    print(request.POST)
     if request.method == 'POST':
-        data = json.loads(request.POST['json'])
-    return JsonResponse(data)
+        data = json.loads(request.POST['data'])
+
+        quiz = get_object_or_404(Quiz, pk=data['quiz_id'])
+        question = get_object_or_404(Question, pk=data['question_id'])
+        duplicate = get_object_or_404(Question, pk=data['duplicate_id'])
+        topic = get_object_or_404(Topic, pk=data['topic_id'])
+        qoq = get_object_or_404(QuestionOnQuiz, quiz=quiz, question=question)
+
+        questions_on_quiz = QuestionOnQuiz.objects.filter(quiz=quiz);
+        new_question = Question.objects.filter(
+            topic=topic
+        ).exclude(
+            pk__in=questions_on_quiz
+        ).exclude(
+            pk=question.pk
+        ).exclude(
+            pk=duplicate.pk
+        ).first()
+
+        if new_question is None:
+            return JsonResponse({'ok': False})
+
+        qoq.question = new_question;
+        qoq.save();
+
+        return JsonResponse({'ok': True, 'question': new_question.to_json()})
+
 
 def flag_question(request, id):
     question = get_object_or_404(Question, id=id)
