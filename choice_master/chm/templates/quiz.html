@@ -88,7 +88,10 @@
             return html;
         }
 
-        function duplicate_template(questions, current) {
+        function duplicate_template(questions) {
+            var current = current_question;
+            $("#all").hide();
+            $("#error").show();
             old_questions = []
             for (i = 0; i < current; i++) {
                 old_questions.push(questions[i])
@@ -105,6 +108,14 @@
                 $("#button_duplicates").append('<br>');
                 $("#" + FLAG.text + q.id).click(function() {
                     console.log("hola!");
+                    $("#error").hide();
+                    $("#all").show();
+                    questions[current_question].text = 'PREGUNTA REEMPLAZADA';
+
+                    // go back in time
+                    current_question--;
+                    result.answers.pop();
+                    next_question();
                 });
             }
         }
@@ -176,9 +187,8 @@
                 init_timer(CHECKBOX + questions[i].id, result.answers[i].answer_id);
 
                 $("#" + DUPLICATE.text + questions[i].id).click(function() {
-                    $("#all").hide();
                     clear_timer();
-                    duplicate_template(questions, current_question);
+                    duplicate_template(questions);
                 });
 
                 $("#" + OK.text + questions[i].id).click(function() {
