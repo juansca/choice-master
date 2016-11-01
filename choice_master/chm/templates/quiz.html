@@ -109,6 +109,12 @@
             $("#all").text('');
         }
 
+        function remove_non_numeric_chars(myString) {
+            // Removes all non numeric characters from string myString
+            myString = myString.replace(/\D/g,'');
+            return myString
+        }
+
         function get_checked_answers(qid, answers) {
             $( "[name='" + qid + "']:checked" ).each(function() {
                 answers.push($(this).attr('id'));
