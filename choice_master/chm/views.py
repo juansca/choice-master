@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
+from django.urls import reverse
 from allauth.account.views import login
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
@@ -86,9 +87,18 @@ def correct_quiz(request):
                 qoq.state = QuestionOnQuiz.STATUS.wrong
             qoq.save()
 
-        return render(request, 'quiz_results.html', {'quiz': quiz})
+        return redirect(reverse('quiz_results', kwargs={'id': quiz.id}))
     else:
         return redirect(login)
+
+
+@login_required
+def quiz_results(request, id):
+    """Show results obtained in quiz"""
+    quiz = get_object_or_404(Quiz, id=id)
+    if quiz.user != request.user:
+        raise PermissionDenied
+    return render(request, 'quiz_results.html', {'quiz': quiz})
 
 
 @login_required
@@ -136,6 +146,7 @@ def duplicate_question(request):
         qoq.question = new_question
         qoq.save(force_update=True)
         return JsonResponse({'ok': True, 'question': new_question.to_json()})
+
 
 @login_required
 def flag_question(request, id):
