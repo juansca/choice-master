@@ -54,15 +54,22 @@ class Topic(models.Model):
         :return: True only if a similar topic exists in the database
         :rtype: bool
         """
-        queryset = Topic.objects.filter(subject=self.subject).exclude(pk=self.pk)
+        queryset = Topic.objects.filter(
+            subject=self.subject
+        ).exclude(
+            pk=self.pk)
+
         for q in queryset:
             if is_similar(self.name.lower(), q.name.lower()):
                 return True
         return False
 
     def clean(self):
-        if self.similar_exists():
-            raise ValidationError(_('A similar topic already exists'))
+        try:
+            if self.similar_exists():
+                raise ValidationError(_('A similar topic already exists'))
+        except Subject.DoesNotExist:
+            pass
 
 
 class Question(models.Model):
@@ -101,11 +108,14 @@ class Question(models.Model):
         return False
 
     def clean(self):
-        if self.is_repeated():
-            raise ValidationError(_('The question already exists'))
+        try:
+            if self.is_repeated():
+                raise ValidationError(_('The question already exists'))
 
-        if self.similar_exists():
-            raise ValidationError(_('A similar question already exists'))
+            if self.similar_exists():
+                raise ValidationError(_('A similar question already exists'))
+        except Topic.DoesNotExist:
+            pass
 
     def to_json(self):
         return {
