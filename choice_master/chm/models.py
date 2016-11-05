@@ -48,6 +48,22 @@ class Topic(models.Model):
     def __str__(self):
         return '{} ({})'.format(self.name, self.subject)
 
+    def similar_exists(self):
+        """
+        Check if a similar topic ignoring case exists in the database.
+        :return: True only if a similar topic exists in the database
+        :rtype: bool
+        """
+        queryset = Topic.objects.filter(subject=self.subject).exclude(pk=self.pk)
+        for q in queryset:
+            if is_similar(self.name.lower(), q.name.lower()):
+                return True
+        return False
+
+    def clean(self):
+        if self.similar_exists():
+            raise ValidationError(_('A similar topic already exists'))
+
 
 class Question(models.Model):
     """Question Model"""
