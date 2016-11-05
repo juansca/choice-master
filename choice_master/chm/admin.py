@@ -49,7 +49,7 @@ class XMLFileAdmin(admin.ModelAdmin):
         return urls + super(XMLFileAdmin, self).get_urls()
 
     @staticmethod
-    def load_question(data, mm, request):
+    def load_question(data, mm, request, ignore_similar=False):
         """
         Parse the data, create all the instances of the corresponding models,
         validate them and then save them. Handle all the validation errors that
@@ -69,7 +69,7 @@ class XMLFileAdmin(admin.ModelAdmin):
                 answer.is_correct = ans['is_correct']
                 answers.append(answer)
 
-            if question.similar_exists():
+            if question.similar_exists() and not ignore_similar:
                 raise SimilarQuestionError(_("A similar question exists"), data)
             else:
                 question.save()
