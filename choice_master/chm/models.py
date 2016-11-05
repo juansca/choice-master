@@ -34,6 +34,25 @@ class Subject(models.Model):
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=500)
 
+    def similar_exists(self):
+        """
+        Check if a subject in the database has the same name (ignoring case)
+        than the question.
+        :return: True only if a subject with the same name ignoring case exists
+        in the database
+        :rtype: bool
+        """
+        queryset = Subject.objects.exclude(pk=self.pk)
+
+        for q in queryset:
+            if self.name.lower() == q.name.lower():
+                return True
+        return False
+
+    def clean(self):
+        if self.similar_exists():
+            raise ValidationError(_('A similar subject already exists'))
+
     def __str__(self):
         return self.name
 
@@ -45,13 +64,12 @@ class Topic(models.Model):
     name = models.CharField(max_length=200)
     subject = models.ForeignKey('Subject')
 
-    def __str__(self):
-        return '{} ({})'.format(self.name, self.subject)
-
     def similar_exists(self):
         """
-        Check if a similar topic ignoring case exists in the database.
-        :return: True only if a similar topic exists in the database
+        Check if a Topic in the database has the same name (ignoring case)
+        than the question.
+        :return: True only if a Topic with the same name ignoring case exists
+        in the database
         :rtype: bool
         """
         queryset = Topic.objects.filter(
@@ -60,7 +78,7 @@ class Topic(models.Model):
             pk=self.pk)
 
         for q in queryset:
-            if is_similar(self.name.lower(), q.name.lower()):
+            if self.name.lower() == q.name.lower():
                 return True
         return False
 
@@ -70,6 +88,9 @@ class Topic(models.Model):
                 raise ValidationError(_('A similar topic already exists'))
         except Subject.DoesNotExist:
             pass
+
+    def __str__(self):
+        return '{} ({})'.format(self.name, self.subject)
 
 
 class Question(models.Model):
