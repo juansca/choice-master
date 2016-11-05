@@ -17,6 +17,7 @@ from .models import XMLFile
 
 from .xml import XMLParser
 from lxml.etree import XMLSyntaxError
+import json
 
 
 class SimilarQuestionError(Exception):
@@ -45,6 +46,9 @@ class XMLFileAdmin(admin.ModelAdmin):
             url('^loadquestions/$',
                 self.admin_site.admin_view(self.load_questions_view),
                 name='chm_load_questions'),
+            url('^acceptsimilarquestion/$',
+                self.admin_site.admin_view(self.accept_similar_question_view),
+                name='chm_accept_similar_question'),
         ]
         return urls + super(XMLFileAdmin, self).get_urls()
 
@@ -70,7 +74,8 @@ class XMLFileAdmin(admin.ModelAdmin):
                 answers.append(answer)
 
             if question.similar_exists() and not ignore_similar:
-                raise SimilarQuestionError(_("A similar question exists"), data)
+                raise SimilarQuestionError(_("A similar question exists"),
+                                           data)
             else:
                 question.save()
                 for answer in answers:
@@ -117,6 +122,12 @@ class XMLFileAdmin(admin.ModelAdmin):
 
         mm.set_messages(request)
         return redirect(reverse('admin:chm_question_changelist'))
+
+    def accept_similar_question_view(self, request):
+        if request.method == 'POST':
+            data = json.loads(request.POST['data'])
+            mm = LoadQuestionsMessageManager()
+            self.load_question(data, mm, request, ignore_similar=True)
 
 
 class AnswerInline(admin.TabularInline):
