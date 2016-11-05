@@ -132,9 +132,6 @@ class Question(models.Model):
         try:
             if self.is_repeated():
                 raise ValidationError(_('The question already exists'))
-
-            if self.similar_exists():
-                raise ValidationError(_('A similar question already exists'))
         except Topic.DoesNotExist:
             pass
 
