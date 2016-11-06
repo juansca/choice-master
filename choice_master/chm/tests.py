@@ -445,12 +445,14 @@ class TestSimilarity(TestCase):
             self.not_similar.append({'fst': str1_not_similar, 'snd': str2_not_similar})
 
     def test_is_similar(self):
+        """Test the case where the strings are similar"""
         for i in range(1, 30):
             fst_similar = self.similar[i]['fst']
             snd_similar = self.similar[i]['snd']
             self.assertIs(is_similar(fst_similar, snd_similar), True)
 
     def test_is_not_similar(self):
+        """Test the case where the strings are not similar"""
         for i in range(1, 30):
             fst_not_similar = self.not_similar[i]['fst']
             snd_not_similar = self.not_similar[i]['snd']
@@ -458,6 +460,20 @@ class TestSimilarity(TestCase):
 
 
 class TestXSD(TestCase):
+    """
+    Testing XSD schema.
+
+    Como administrador quiero cargar preguntas al sistema a travéz de un documento XML,
+    debe adaptarse al schema xsd implementado. Lo último es lo que se testea aquí.
+    ===================================================================================
+
+    Criterios de aceptación:
+    ------------------------
+
+    - El archivo XML puede tener varias preguntas, cada una de ellas tiene una Materia (subject)
+    y un tema (topic) también tiene el texto que la describe y respuestas. Debe haber, al menos,
+    una respuesta correcta.
+    """
     SCHEMA_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'question.xml')
     VALID_XML_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'valid_question.xml')
     XML_WITHOUT_TOPIC_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'without_topic.xml')
@@ -466,6 +482,7 @@ class TestXSD(TestCase):
 
 
     def test_valid_schema_from_xsd(self):
+        """Test the case where the xml file is valid"""
         with open(self.SCHEMA_PATH, "r") as f:
             xmlschema_doc = etree.parse(f)
         self.schema = etree.XMLSchema(xmlschema_doc)
@@ -476,6 +493,10 @@ class TestXSD(TestCase):
         self.assertIs(self.schema.validate(valid_xml_file), True)
 
     def test_without_topic_from_xsd(self):
+        """
+        Test the case where the xml file is invalid.
+        The questions does not have topic.
+        """
         with open(self.SCHEMA_PATH, "r") as f:
             xmlschema_doc = etree.parse(f)
         self.schema = etree.XMLSchema(xmlschema_doc)
@@ -487,6 +508,11 @@ class TestXSD(TestCase):
 
 
     def test_without_subject_from_xsd(self):
+        """
+        Test the case where the xml file is invalid.
+        The questions does not have subject.
+        """
+
         with open(self.SCHEMA_PATH, "r") as f:
             xmlschema_doc = etree.parse(f)
         self.schema = etree.XMLSchema(xmlschema_doc)
@@ -498,6 +524,10 @@ class TestXSD(TestCase):
 
 
     def test_without_correct_from_xsd(self):
+        """
+        Test the case where the xml file is invalid.
+        The questions does not have any correct answer.
+        """
         with open(self.SCHEMA_PATH, "r") as f:
             xmlschema_doc = etree.parse(f)
         self.schema = etree.XMLSchema(xmlschema_doc)
@@ -509,10 +539,38 @@ class TestXSD(TestCase):
 
 
 class TestXMLParser(TestCase):
+    """
+    Testing XML Parser.
+
+    Como administrador quiero cargar preguntas al sistema a travéz de un documento XML,
+    debe adaptarse al schema xsd implementado. Aquí se testea que el documente sea
+    parseado correctamente.
+    ===================================================================================
+
+    Criterios de aceptación:
+    ------------------------
+
+    - El archivo XML puede tener varias preguntas, cada una de ellas tiene una Materia (subject)
+    y un tema (topic) también tiene el texto que la describe y respuestas. Debe haber, al menos,
+    una respuesta correcta.
+    """
+
     def test_parse_questions(self):
         pass
 
 class TestQuiz(TestCase):
+    """
+    Testing Quiz.
+
+    Como usuario quiero realizar un exámen multiple choice con preguntas de una materia específica.
+    =======================================
+
+    Criterios de aceptación:
+    ------------------------
+
+    - Como usuario quiero realizar un examen.
+    """
+
     def test_new_quiz(self):
         pass
 
@@ -524,5 +582,19 @@ class TestQuiz(TestCase):
 
 
 class TestFlagQuestion(TestCase):
+    """
+    Testing Flag Question.
+
+    Como usuario quiero realizar un poder denunciar una pregunta. Ya sea
+    mientras hago un examen y aparece repetida, como si la respuesta es incorrecta.
+    ===============================================================================
+
+    Criterios de aceptación:
+    ------------------------
+
+    - Cada vez que se realizo una denuncia, el admin debe poder verla y analizarla.
+    La pregunta denunciada, junto a la descripción, es guardada en la Base de Datos.
+    """
+
     def test_flag_question(self):
         pass
