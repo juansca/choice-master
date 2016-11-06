@@ -194,7 +194,23 @@ def answer_question(request):
 
 @login_required
 def discard_quiz(request):
-	return JsonResponse({'success': "False"})
+	if (method=="POST")
+		quiz = get_object_or_404(Quiz, pk=data['quiz_id'])
+
+		if request.user == quiz.user:
+			quiz.state = Quiz.STATUS.aborted
+			quiz.save()
+			return JsonResponse({'success' : "True"})	
+
+		else:
+			raise PermissionDenied
+			
+	else:
+		return redirect(login)
+
+	
+
+
 
 
 @login_required
