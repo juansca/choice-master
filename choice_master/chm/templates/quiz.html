@@ -218,7 +218,7 @@
                     'question_id': question_id,
                     'answers': JSON.stringify(checked_answers),
                 },
-                success: function () {return !0;},
+                success: function (data) {console.log(data);},
                 fail: function () {alert('PANIC: failed to post answers');},
             });
         }

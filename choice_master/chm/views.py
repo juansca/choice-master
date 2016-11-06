@@ -43,9 +43,17 @@ def new_quiz(request):
             }
             return render(request, 'quiz.html', context)
     else:
-        form = QuizForm()
+        # check if user has pending quizes
+        context = {
+            'form': QuizForm(),
+            'pending_quizes': Quiz.objects.filter(
+                user=request.user,
+                state=Quiz.STATUS.in_progress
+            ).values('pk')
+        }
+        print(context)
 
-    return render(request, 'new_quiz.html', {'form': form})
+    return render(request, 'new_quiz.html', context)
 
 
 @login_required
@@ -63,30 +71,9 @@ def correct_quiz(request):
         if request.user != quiz.user:
             raise PermissionDenied
 
-        for answer in data['answers']:
-            question = get_object_or_404(Question, pk=answer['question_id'])
-            qoq = get_object_or_404(
-                QuestionOnQuiz,
-                question=question,
-                quiz=quiz
-            )
-            correct_answers = Answer.objects.filter(
-                question=question,
-                is_correct=True
-            ).values('pk')
-
-            correct_answers_ids = list()
-            for answ in correct_answers:
-                correct_answers_ids.append(str(answ['pk']))
-            if answer['answer_id'] == correct_answers_ids:
-                qoq.state = QuestionOnQuiz.STATUS.right
-            elif not answer['answer_id']:
-                # user didn't choose any answer
-                qoq.state = QuestionOnQuiz.STATUS.not_answered
-            else:
-                qoq.state = QuestionOnQuiz.STATUS.wrong
-            qoq.save()
-
+        # set quiz as finished, since user answered last question
+        quiz.state = Quiz.STATUS.finished
+        quiz.save()
         return redirect(reverse('quiz_results', kwargs={'id': quiz.id}))
     else:
         return redirect(login)
@@ -189,7 +176,6 @@ def answer_question(request):
             is_correct=True
         ).values('pk')
 
-        import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
         correct_answers_set = set(correct_answers)
 
         if user_answers_set == correct_answers_set:
@@ -204,3 +190,13 @@ def answer_question(request):
         return JsonResponse({'success': "True"})
     else:
         return JsonResponse({'success': "False"})
+
+
+@login_required
+def discard_quiz(request):
+	return JsonResponse({'success': "False"})
+
+
+@login_required
+def resume_quiz(request):
+	return JsonResponse({'success': "False"})
