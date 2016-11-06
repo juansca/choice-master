@@ -52,7 +52,6 @@ def new_quiz(request):
                 state=Quiz.STATUS.in_progress
             ).values('pk')
         }
-        print(context)
 
     return render(request, 'new_quiz.html', context)
 
@@ -193,7 +192,18 @@ def answer_question(request):
 
 @login_required
 def discard_quiz(request):
-    return JsonResponse({'success': "False"})
+    if request.method == "POST":
+        quiz = get_object_or_404(Quiz, pk=int(request.POST['quiz_id']))
+
+        if request.user == quiz.user:
+            quiz.state = Quiz.STATUS.aborted
+            quiz.save()
+            return JsonResponse({'success': "True"})
+
+        else:
+            raise PermissionDenied
+    else:
+        return redirect(login)
 
 
 @login_required
@@ -208,14 +218,14 @@ def resume_quiz(request):
             raise PermissionDenied
 
         # fail with 403 if this quiz is finished
-        if quiz.status != Quiz.STATUS.in_progress:
+        if quiz.state != Quiz.STATUS.in_progress:
             raise PermissionDenied
 
         context = {
             'finish_message': _('You have finished the test'),
             'seconds': quiz.seconds_per_question,
             # filter not answered question for that quiz
-            'quiz': quiz.to_json(filter_answered=True)
+            'quiz': quiz.to_json(exclude_answered=True)
         }
         messages.success(request, 'Resuming quiz...')
         return render(request, 'quiz.html', context)
