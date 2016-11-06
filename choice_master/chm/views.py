@@ -176,24 +176,31 @@ def flag_question(request, id):
 def answer_question(request):
 
     if request.method == 'POST':
-        qoq = get_object_or_404(QuestionOnQuiz, quiz_id = request.POST['quiz_id'], question_id = request.POST['question_id'])	
-        user_answers_set = set(json.loads(request.POST['answer_id']))
-          
+        qoq = get_object_or_404(
+            QuestionOnQuiz,
+            quiz_id=int(request.POST['quiz_id']),
+            question_id=int(request.POST['question_id'])
+        )
+        user_answers_set = set(map(lambda a: int(a),
+                                   json.loads(request.POST['answers'])))
+
         correct_answers = Answer.objects.filter(
             question=qoq.question,
             is_correct=True
         ).values('pk')
 
+        import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
         correct_answers_set = set(correct_answers)
+
         if user_answers_set == correct_answers_set:
             qoq.state = QuestionOnQuiz.STATUS.right
-        elif not answer['answer_id']:
+        elif not user_answers_set:
             # user didn't choose any answer
             qoq.state = QuestionOnQuiz.STATUS.not_answered
         else:
             qoq.state = QuestionOnQuiz.STATUS.wrong
-            qoq.save()      
-        return JsonResponse({'success': "True"})
 
-    else: 
+        qoq.save()
+        return JsonResponse({'success': "True"})
+    else:
         return JsonResponse({'success': "False"})

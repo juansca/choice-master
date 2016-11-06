@@ -13,4 +13,5 @@ urlpatterns = [
         name='quiz_results'),
     url(r'quiz/corrected/$', views.correct_quiz, name='correct_quiz'),
     url(r'question/(?P<id>\d+)/flag/$', views.flag_question, name='flag'),
+    url(r'question/answer/$', views.answer_question, name='answer_question'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
