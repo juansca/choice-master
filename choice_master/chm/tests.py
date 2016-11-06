@@ -480,47 +480,41 @@ class TestXSD(TestCase):
     XML_WITHOUT_SUBJECT_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'without_subject.xml')
     XML_WITHOUT_CORRECT_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'without_correct.xml')
 
-
-    def test_valid_schema_from_xsd(self):
-        """Test the case where the xml file is valid"""
+    def setUp(self):
         with open(self.SCHEMA_PATH, "r") as f:
             xmlschema_doc = etree.parse(f)
         self.schema = etree.XMLSchema(xmlschema_doc)
 
-        with open(self.VALID_XML_PATH, "r") as f:
-            valid_xml_file = etree.parse(f)
+        with open(self.VALID_XML_PATH, "r") as v:
+            self.valid_xml_file = etree.parse(v)
 
-        self.assertIs(self.schema.validate(valid_xml_file), True)
+        with open(self.XML_WITHOUT_TOPIC_PATH, "r") as t:
+            self.without_topic_xml_file = etree.parse(t)
+
+        with open(self.XML_WITHOUT_SUBJECT_PATH, "r") as s:
+            self.without_subject_xml_file = etree.parse(s)
+
+        with open(self.XML_WITHOUT_CORRECT_PATH, "r") as c:
+            self.without_correct_xml_file = etree.parse(c)
+
+    def test_valid_schema_from_xsd(self):
+        """Test the case where the xml file is valid"""
+
+        self.assertIs(self.schema.validate(self.valid_xml_file), True)
 
     def test_without_topic_from_xsd(self):
         """
         Test the case where the xml file is invalid.
         The questions does not have topic.
         """
-        with open(self.SCHEMA_PATH, "r") as f:
-            xmlschema_doc = etree.parse(f)
-        self.schema = etree.XMLSchema(xmlschema_doc)
-
-        with open(self.XML_WITHOUT_TOPIC_PATH, "r") as f:
-            invalid_xml_file = etree.parse(f)
-
-        self.assertIs(self.schema.validate(invalid_xml_file), False)
-
+        self.assertIs(self.schema.validate(self.without_topic_xml_file), False)
 
     def test_without_subject_from_xsd(self):
         """
         Test the case where the xml file is invalid.
         The questions does not have subject.
         """
-
-        with open(self.SCHEMA_PATH, "r") as f:
-            xmlschema_doc = etree.parse(f)
-        self.schema = etree.XMLSchema(xmlschema_doc)
-
-        with open(self.XML_WITHOUT_SUBJECT_PATH, "r") as f:
-            invalid_xml_file = etree.parse(f)
-
-        self.assertIs(self.schema.validate(invalid_xml_file), False)
+        self.assertIs(self.schema.validate(self.without_subject_xml_file), False)
 
 
     def test_without_correct_from_xsd(self):
@@ -528,14 +522,7 @@ class TestXSD(TestCase):
         Test the case where the xml file is invalid.
         The questions does not have any correct answer.
         """
-        with open(self.SCHEMA_PATH, "r") as f:
-            xmlschema_doc = etree.parse(f)
-        self.schema = etree.XMLSchema(xmlschema_doc)
-
-        with open(self.XML_WITHOUT_CORRECT_PATH, "r") as f:
-            invalid_xml_file = etree.parse(f)
-
-        self.assertIs(self.schema.validate(invalid_xml_file), False)
+        self.assertIs(self.schema.validate(self.without_correct_xml_file), False)
 
 
 class TestXMLParser(TestCase):
