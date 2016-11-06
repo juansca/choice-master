@@ -230,13 +230,18 @@ class Quiz(models.Model):
         qq = QuestionOnQuiz.objects.filter(quiz=self)
         return qq.values('state').annotate(total=Count('state'))
 
-    def to_json(self):
+    def to_json(self, filter_answered=False):
         result = {
             'id': self.id,
             'seconds': self.seconds_per_question,
-            'questions': [qoq.question.to_json()
-                          for qoq in QuestionOnQuiz.objects.filter(quiz=self)]
         }
+
+        questions_qs = QuestionOnQuiz.objects.filter(quiz=self)
+
+        if filter_answered:
+            questions_qs.filter(answer=QuestionOnQuiz.STATUS.not_answered)
+
+        result['questions'] = [qoq.question.to_json() for qoq in questions_qs]
         return result
 
 

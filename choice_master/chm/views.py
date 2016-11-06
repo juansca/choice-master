@@ -7,6 +7,7 @@ from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.contrib import messages
 from allauth.account.views import login
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
@@ -159,6 +160,7 @@ def flag_question(request, id):
     context['form'] = form
     return render(request, 'flag.html', context)
 
+
 @login_required
 def answer_question(request):
 
@@ -180,9 +182,6 @@ def answer_question(request):
 
         if user_answers_set == correct_answers_set:
             qoq.state = QuestionOnQuiz.STATUS.right
-        elif not user_answers_set:
-            # user didn't choose any answer
-            qoq.state = QuestionOnQuiz.STATUS.not_answered
         else:
             qoq.state = QuestionOnQuiz.STATUS.wrong
 
@@ -194,9 +193,31 @@ def answer_question(request):
 
 @login_required
 def discard_quiz(request):
-	return JsonResponse({'success': "False"})
+    return JsonResponse({'success': "False"})
 
 
 @login_required
 def resume_quiz(request):
-	return JsonResponse({'success': "False"})
+    """Allow user resume unfinished quiz"""
+    if request.method == 'POST':
+        quiz_id = int(request.POST['quiz_id'])
+        quiz = get_object_or_404(Quiz, pk=quiz_id)
+
+        # fail with 403 if user didn't take this quiz
+        if quiz.user != request.user:
+            raise PermissionDenied
+
+        # fail with 403 if this quiz is finished
+        if quiz.status != Quiz.STATUS.in_progress:
+            raise PermissionDenied
+
+        context = {
+            'finish_message': _('You have finished the test'),
+            'seconds': quiz.seconds_per_question,
+            # filter not answered question for that quiz
+            'quiz': quiz.to_json(filter_answered=True)
+        }
+        messages.success(request, 'Resuming quiz...')
+        return render(request, 'quiz.html', context)
+    else:
+        return redirect(login)
