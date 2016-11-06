@@ -1,16 +1,24 @@
 """
 Tests for app chm
 """
+from unittest import TestCase
+from os import path
+
 from .admin import XMLFileAdmin
 from .messages import LoadQuestionsMessageManager
+from .similarity import is_similar
+from .xml import XMLParser
 from . import factories
 from . import models
+from choice_master.settings import BASE_DIR
+
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
+from lxml import etree
+
 import random
 import string
-
 
 # This function is defined here for convinience
 def random_string(length):
@@ -415,10 +423,106 @@ class TestSimilarity(TestCase):
     ------------------------
 
     - Cuando se carga una pregunta el sistema debe revisar alguna métrica para
-      buscar similitud con otra preguntas previamente cargadas. (only the
+      buscar similitud con otras preguntas previamente cargadas. (only the
       metric will be tested here)
     """
 
     def setUp(self):
         """ Set up for load_question testing"""
+
+        # It has two list of dicts, one for similar strings
+        # and another that are not
+        self.similar = []
+        self.not_similar = []
+        for i in range(1, 50):
+            # Create two strings that we are sure that are similar
+            str1_similar = random_string(10)
+            str2_similar = "p" + str1_similar + "d"
+            self.similar.append({'fst': str1_similar, 'snd': str2_similar})
+            # Create two strings that we are sure that are not similar
+            str1_not_similar = random_string(50)
+            str2_not_similar = "bla" + str1_not_similar[5:10] + "maaaal"
+            self.not_similar.append({'fst': str1_not_similar, 'snd': str2_not_similar})
+
+    def test_is_similar(self):
+        for i in range(1, 30):
+            fst_similar = self.similar[i]['fst']
+            snd_similar = self.similar[i]['snd']
+            self.assertIs(is_similar(fst_similar, snd_similar), True)
+
+    def test_is_not_similar(self):
+        for i in range(1, 30):
+            fst_not_similar = self.not_similar[i]['fst']
+            snd_not_similar = self.not_similar[i]['snd']
+            self.assertIs(is_similar(fst_not_similar, snd_not_similar), False)
+
+
+class TestXSD(TestCase):
+    SCHEMA_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'question.xml')
+    VALID_XML_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'valid_question.xml')
+    XML_WITHOUT_TOPIC_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'without_topic.xml')
+    XML_WITHOUT_SUBJECT_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'without_subject.xml')
+    XML_WITHOUT_CORRECT_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'without_correct.xml')
+
+
+    def test_valid_schema_from_xsd(self):
+        with open(self.SCHEMA_PATH, "r") as f:
+            xmlschema_doc = etree.parse(f)
+        self.schema = etree.XMLSchema(xmlschema_doc)
+
+        with open(self.VALID_XML_PATH, "r") as f:
+            valid_xml_file = etree.parse(f)
+
+        self.assertIs(self.schema.validate(valid_xml_file), True)
+
+    def test_without_topic_from_xsd(self):
+        with open(self.SCHEMA_PATH, "r") as f:
+            xmlschema_doc = etree.parse(f)
+        self.schema = etree.XMLSchema(xmlschema_doc)
+
+        with open(self.XML_WITHOUT_TOPIC_PATH, "r") as f:
+            invalid_xml_file = etree.parse(f)
+
+        self.assertIs(self.schema.validate(invalid_xml_file), False)
+
+
+    def test_without_subject_from_xsd(self):
+        with open(self.SCHEMA_PATH, "r") as f:
+            xmlschema_doc = etree.parse(f)
+        self.schema = etree.XMLSchema(xmlschema_doc)
+
+        with open(self.XML_WITHOUT_SUBJECT_PATH, "r") as f:
+            invalid_xml_file = etree.parse(f)
+
+        self.assertIs(self.schema.validate(invalid_xml_file), False)
+
+
+    def test_without_correct_from_xsd(self):
+        with open(self.SCHEMA_PATH, "r") as f:
+            xmlschema_doc = etree.parse(f)
+        self.schema = etree.XMLSchema(xmlschema_doc)
+
+        with open(self.XML_WITHOUT_CORRECT_PATH, "r") as f:
+            invalid_xml_file = etree.parse(f)
+
+        self.assertIs(self.schema.validate(invalid_xml_file), False)
+
+
+class TestXMLParser(TestCase):
+    def test_parse_questions(self):
+        pass
+
+class TestQuiz(TestCase):
+    def test_new_quiz(self):
+        pass
+
+    def test_correct_quiz(self):
+        pass
+
+    def test_quiz_results(self):
+        pass
+
+
+class TestFlagQuestion(TestCase):
+    def test_flag_question(self):
         pass

@@ -1,0 +1,50 @@
+<file>
+  <question subject="Algebra" topic="subesp">
+    <text> Cuanto es 2 mas 2? </text>
+    <incorrect> 3 </incorrect>
+    <incorrect> 1 </incorrect>
+    <incorrect> 2 </incorrect>
+    <correct> 42 </correct>
+    <incorrect> 5 </incorrect>
+  </question>
+
+  <question subject="Algebra" topic="subesp">
+    <text> Cuanto es 2 mas 4? </text>
+    <incorrect> 31 </incorrect>
+    <incorrect> 12 </incorrect>
+    <incorrect> 23 </incorrect>
+    <correct> 412 </correct>
+    <incorrect> 35 </incorrect>
+  </question>
+
+  <question subject="Algebra" topic="subesp">
+    <text> Cuanto es 2 mas 1? </text>
+    <incorrect> 0 </incorrect>
+    <incorrect> 11 </incorrect>
+    <incorrect> 28 </incorrect>
+    <correct> 462 </correct>
+    <incorrect> 57 </incorrect>
+  </question>
+
+  <question subject="AM2" topic="Series de Taylor">
+    <text> Todos los patos son de color rojo? </text>
+    <correct> No </correct>
+    <incorrect> Sí </incorrect>
+  </question>
+
+  <question subject="Probabilidad" topic="Bayes">
+    <text> Son estas respuestas correctas? </text>
+    <correct> Sí </correct>
+    <correct> Obvio que sí </correct>
+    <correct> Define correctitud </correct>
+    <correct> Pizza? </correct>
+    <correct> 42 </correct>
+  </question>
+
+  <question subject="Ing Soft I" topic="Testing">
+    <text> Son todas estas respuestas incorrectas? </text>
+    <incorrect> No entiendo </incorrect>
+    <incorrect> Sí </incorrect>
+    <correct> No </correct>
+  </question>
+</file>
