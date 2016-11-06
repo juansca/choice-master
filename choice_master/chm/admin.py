@@ -1,8 +1,11 @@
 from django.conf.urls import url
 from django.contrib import admin
 from django.core.exceptions import ValidationError
+from django.http import Http404
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.safestring import SafeString
 from django.utils.translation import ugettext_lazy as _
 
 from .forms import XMLFileForm
@@ -94,7 +97,7 @@ class XMLFileAdmin(admin.ModelAdmin):
             mm.validation_error.append((err, data['question']))
 
         except SimilarQuestionError as err:
-            request.session['duplicates'].append({'data': err.data})
+            request.session['duplicates'].append(err.data)
 
     def load_questions_view(self, request):
         """
@@ -128,7 +131,9 @@ class XMLFileAdmin(admin.ModelAdmin):
             data = json.loads(request.POST['data'])
             mm = LoadQuestionsMessageManager()
             self.load_question(data, mm, request, ignore_similar=True)
-
+            return JsonResponse({'ok': True})
+        else:
+            raise Http404(_("Nothing to see here."))
 
 class AnswerInline(admin.TabularInline):
     extra = 1
@@ -141,12 +146,13 @@ class QuestionAdmin(admin.ModelAdmin):
     inlines = (AnswerInline,)
     list_display = ['get_text', 'get_topic_name', 'get_subject_name']
 
-    # change_list_template = 'questionlist.html'
+    change_list_template = 'change_question_list.html'
 
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
 
-        extra_context['duplicates'] = request.session.pop('duplicates', False)
+        extra_context['duplicates'] = request.session.pop('duplicates',
+                                                          False)
 
         return super(QuestionAdmin, self).changelist_view(
             request, extra_context=extra_context,
