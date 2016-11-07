@@ -2,27 +2,32 @@
 Views for app chm
 """
 
+from allauth.account.views import login
+import json
+
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.core.exceptions import PermissionDenied
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
+from django.shortcuts import render
 from django.urls import reverse
-from django.contrib import messages
-from allauth.account.views import login
-from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
-from django.http import JsonResponse
 
-from chm.models import Question, QuestionOnQuiz, Flag, Quiz, Answer, Topic
-from chm.forms import QuizForm, FlagForm
-import json
+from chm.forms import FlagForm
+from chm.forms import QuizForm
+from chm.models import Answer
+from chm.models import Flag
+from chm.models import Question
+from chm.models import QuestionOnQuiz
+from chm.models import Quiz
+from chm.models import Topic
 
 
 def index(request):
-    """
-    If the user is authenticated redirect to login, otherwise display index
-    page.
-    """
+    """ If the user is authenticated redirect to login,
+    otherwise display index page."""
 
     if not request.user.is_authenticated:
         return redirect(login)
@@ -31,7 +36,7 @@ def index(request):
 
 @login_required
 def new_quiz(request):
-    """ User wants to start an exam. """
+    """ User wants to start an exam."""
 
     if request.method == 'POST':
         form = QuizForm(request.POST, user=request.user)
@@ -162,7 +167,7 @@ def flag_question(request, id):
 
 @login_required
 def answer_question(request):
-
+    """ POST only view for submitting user answer"""
     if request.method == 'POST':
         qoq = get_object_or_404(
             QuestionOnQuiz,
@@ -192,6 +197,7 @@ def answer_question(request):
 
 @login_required
 def discard_quiz(request):
+    """ POST only view to put quiz in aborted state"""
     if request.method == "POST":
         quiz = get_object_or_404(Quiz, pk=int(request.POST['quiz_id']))
 
