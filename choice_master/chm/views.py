@@ -22,6 +22,7 @@ from chm.models import Flag
 from chm.models import Question
 from chm.models import QuestionOnQuiz
 from chm.models import Quiz
+from chm.models import Subject
 from chm.models import Topic
 
 
@@ -237,3 +238,26 @@ def resume_quiz(request):
         return render(request, 'quiz.html', context)
     else:
         return redirect(login)
+
+
+@login_required
+def show_stats(request):
+    """ Show user stats"""
+    # produce a bunch of data for the UI to consume
+    context = {}
+    subjects_id = Quiz.objects.filter(
+        user=request.user,
+    ).values('topics__subject').distinct()
+    subjects = Subject.objects.filter(id__in=subjects_id)
+    for subject in subjects:
+        subject.learning_coeff = subject.learning_coeff(request.user)
+    context['subjects'] = subjects
+    return render(request, 'stats.html', context)
+
+
+@login_required
+def stats_detail(request, id):
+    """ Show user stats"""
+    # produce a bunch of data for the UI to consume
+    context = {}
+    return render(request, 'stats.html', context)

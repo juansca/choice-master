@@ -34,6 +34,15 @@ class Subject(models.Model):
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=500)
 
+    def learning_coeff(self, user):
+        """Return user knowledge as a float in [0..10]"""
+        topics = self.topics.all()
+        try:
+            lc = sum([t.learning_coeff(user) for t in topics]) / topics.count()
+        except ZeroDivisionError:
+            lc = float() # 0.0
+        return lc
+
     def similar_exists(self):
         """
         Check if a subject in the database has the same name (ignoring case)
@@ -62,7 +71,21 @@ class Topic(models.Model):
     A specific topic related to the subject
     """
     name = models.CharField(max_length=200)
-    subject = models.ForeignKey('Subject')
+    subject = models.ForeignKey('Subject', related_name='topics')
+
+    def learning_coeff(self, user):
+        """Return user knowledge as a float in [0..10]"""
+        qoq = QuestionOnQuiz.objects.filter(
+            question__topic=self,
+            quiz__user=user,
+        ).exclude(state=QuestionOnQuiz.STATUS.not_answered)
+
+        correct = qoq.filter(state=QuestionOnQuiz.STATUS.right)
+        try:
+            lc = correct.count() / qoq.count()
+        except ZeroDivisionError:
+            lc = float() # 0.0
+        return lc
 
     def similar_exists(self):
         """

@@ -16,4 +16,6 @@ urlpatterns = [
     url(r'question/answer/$', views.answer_question, name='answer_question'),
     url(r'quiz/discard/$', views.discard_quiz, name='discard_quiz'),
     url(r'quiz/resume/$', views.resume_quiz, name='resume_quiz'),
+    url(r'stats/$', views.show_stats, name='show_stats'),
+    url(r'stats/(?P<id>\d+)$', views.stats_detail, name='stats_detail'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

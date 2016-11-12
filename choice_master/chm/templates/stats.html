@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% for subject in subjects %}
+  <div class="list-group">
+    <a href="{% url 'stats_detail' subject.id %}" class="list-group-item">
+        <h4 class="list-group-item-heading" title="{{ subjet.description }}">
+          {{ subject.name }}
+          {% with subject.learning_coeff as lc %}
+            {% if lc < 4 %}
+              <span class="label label-danger" style="float: right; font-size: 0.8em">{{ lc|floatformat:2 }} %</span>
+            {% elif lc <= 7 %}
+              <span class="label label-default" style="float: right; font-size: 0.8em">{{ lc|floatformat:2 }} %</span>
+            {% else %}
+              <span class="label label-success" style="float: right; font-size: 0.8em">{{ lc|floatformat:2 }} %</span>
+            {% endif %}
+          {% endwith %}
+      </h4>
+    </a>
+  </div>
+  {% endfor %}
+{% endblock %}
