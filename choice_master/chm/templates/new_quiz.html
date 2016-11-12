@@ -80,7 +80,7 @@
         </div>
       </div>
 
-      <div class="form-group"> 
+      <div class="form-group">
         <div class="col-sm-offset-10 col-sm-3">
           <button type="submit" class="btn btn-default">Submit</button>
         </div>
@@ -112,7 +112,7 @@
 {% endblock %}
 
 {% block custom_js %}
-<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+<script type="text/javascript" src="/static/js/jsi18n.js"></script>
 <script type="text/javascript">
 django.jQuery = $;
     {% if pending_quizes %}
