@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="page-header">
+    <h1>{{ subject.name }} <small style="font-size: 0.5em"> {{ subject.description}}</small></h1>
+  </div>
+  <div class="row">
+    <div class="col-lg-4 jumbotron">
+      <h2>General Stats</h2>
+      {% for key, value in general_stats %}
+        <div class="media">
+          <div class="media-left">
+            <p> <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> </p>
+          </div>
+          <div class="media-body">
+            <h4 class="media-heading">{{ key}}</h4>
+            {{ value }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="col-lg-8">
+      <h2>Your Evolution on {{ subject }}</h2>
+      <img src="https://almende.github.io/chap-links-library/js/graph/doc/graph.png" alt="Example Graph" />
+    </div>
+  </div>
+  <hr>
+  <div class="row">
+    <h2>History of quizes</h2>
+    {% if quizes %}
+      {% for quiz in quizes %}
+        <div class="list-group">
+          {% if quiz.state == 'finished' %}
+            <a href="{% url 'quiz_results' quiz.id %}" class="list-group-item" title="Quiz details">
+          {% elif quiz.state == 'in_progress' %}
+            {# by goint to new_quiz, user will be forced to resume or discard the pending quiz #}
+            <a href="{% url 'new_quiz' %}" class="list-group-item">
+          {% else %}
+            <a class="list-group-item disabled" title="Aborted quiz">
+          {% endif %}
+              {{ quiz.datetime }},
+              {% with quiz.score as score %}
+                {% if score < 40 %}
+                  <span class="label label-danger" style="float: right; font-size: 0.8em">{{ score|floatformat:2 }} %</span>
+                {% elif score <= 70 %}
+                  <span class="label label-warning" style="float: right; font-size: 0.8em">{{ score|floatformat:2 }} %</span>
+                {% else %}
+                  <span class="label label-success" style="float: right; font-size: 0.8em">{{ score|floatformat:2 }} %</span>
+                {% endif %}
+              {% endwith %}
+            </h4>
+          </a>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p>
+        <span class="glyphicon glyphicon-arrow-right"></span>
+        No quizes yet, start practicing {{ subject }}
+        <a href="{% url 'new_quiz' %}">now</a>.
+      </p>
+    {% endif %}
+  </div>
+
+{% endblock %}

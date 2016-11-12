@@ -40,7 +40,7 @@ class Subject(models.Model):
         try:
             lc = sum([t.learning_coeff(user) for t in topics]) / topics.count()
         except ZeroDivisionError:
-            lc = float() # 0.0
+            lc = float()  # 0.0
         return lc
 
     def similar_exists(self):
@@ -84,7 +84,7 @@ class Topic(models.Model):
         try:
             lc = correct.count() / qoq.count()
         except ZeroDivisionError:
-            lc = float() # 0.0
+            lc = float()  # 0.0
         return lc
 
     def similar_exists(self):
@@ -241,11 +241,14 @@ class Quiz(models.Model):
                              default=STATUS.in_progress,
                              max_length=20)
 
-    def score(self):
+    def score(self, **kwargs):
         """Return float indicating ratio of correct answers"""
-        qq = QuestionOnQuiz.objects.filter(quiz=self)
+        qq = QuestionOnQuiz.objects.filter(quiz=self, **kwargs)
         correct = qq.filter(state=QuestionOnQuiz.STATUS.right)
-        score = correct.count() / float(qq.count())
+        try:
+            score = correct.count() / qq.count()
+        except ZeroDivisionError:
+            score = 0
         return score * 100
 
     def detailed_score(self):

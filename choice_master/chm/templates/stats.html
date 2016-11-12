@@ -1,22 +1,48 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="page-header">
+  <h2>Subjects</h2>
+  <small>Click on any subjet to see your evoultion</small>
+</div>
+  {% if not subjects %}
+        <div class="alert alert-info" role="alert">
+          <span class="glyphicon glyphicon-arrow-right"></span>
+          No quizes yet, start practicing {{ subject }}
+          <a class="alert-link" href="{% url 'new_quiz' %}">now</a>.
+        </div>
+
+  {% endif %}
   {% for subject in subjects %}
-  <div class="list-group">
-    <a href="{% url 'stats_detail' subject.id %}" class="list-group-item">
-        <h4 class="list-group-item-heading" title="{{ subjet.description }}">
-          {{ subject.name }}
-          {% with subject.learning_coeff as lc %}
-            {% if lc < 4 %}
-              <span class="label label-danger" style="float: right; font-size: 0.8em">{{ lc|floatformat:2 }} %</span>
-            {% elif lc <= 7 %}
-              <span class="label label-default" style="float: right; font-size: 0.8em">{{ lc|floatformat:2 }} %</span>
-            {% else %}
-              <span class="label label-success" style="float: right; font-size: 0.8em">{{ lc|floatformat:2 }} %</span>
-            {% endif %}
-          {% endwith %}
-      </h4>
-    </a>
-  </div>
+    {% with subject.learning_coeff as lc %}
+      {% if lc < 4 %}
+        <div class="alert alert-danger" role="alert">
+          <span class="glyphicon glyphicon-arrow-down"></span>
+          <a href="{% url 'stats_detail' subject.id %}" class="alert-link">
+            <strong>{{ subject.name }}</strong>
+          </a>
+          <small>({{ lc|floatformat:2 }} %)</small>
+          <span style="float: right">You should consider studying a little bit more before the exam...</span>
+        </div>
+      {% elif lc <= 7 %}
+        <div class="alert alert-warning" role="alert">
+          <span class="glyphicon glyphicon-arrow-right"></span>
+          <a href="{% url 'stats_detail' subject.id %}" class="alert-link">
+            <strong>{{ subject.name }}</strong>
+          </a>
+          <small>({{ lc|floatformat:2 }} %)</small>
+          <span style="float: right">An exam at this point could be successfull, but you could still improve</span>
+        </div>
+      {% else %}
+        <div class="alert alert-sucess" role="alert">
+          <span class="glyphicon glyphicon-arrow-up"></span>
+          <a href="{% url 'stats_detail' subject.id %}" class="alert-link">
+            <strong>{{ subject.name }}</strong>
+          </a>
+          <small>({{ lc|floatformat:2 }} %)</small>
+          <span style="float: right">Congratulations, you rock!</span>
+        </div>
+      {% endif %}
+    {% endwith %}
   {% endfor %}
 {% endblock %}

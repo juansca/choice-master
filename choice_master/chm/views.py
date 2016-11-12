@@ -259,5 +259,41 @@ def show_stats(request):
 def stats_detail(request, id):
     """ Show user stats"""
     # produce a bunch of data for the UI to consume
-    context = {}
-    return render(request, 'stats.html', context)
+    subject = get_object_or_404(Subject, id=id)
+    subject.learning_coeff = subject.learning_coeff(request.user)
+
+    quizes = Quiz.objects.filter(
+        user=request.user,
+        topics__subject=subject
+    )
+
+    qq = QuestionOnQuiz.objects.filter(
+        quiz__in=quizes.exclude(state=Quiz.STATUS.aborted),
+        question__topic__subject=subject
+    )
+
+    correct = qq.filter(state=QuestionOnQuiz.STATUS.right)
+    incorrect = qq.filter(state=QuestionOnQuiz.STATUS.wrong)
+    not_answered = qq.filter(state=QuestionOnQuiz.STATUS.not_answered)
+
+    sum_score = sum([q.score(question__topic__subject=subject)
+                     for q in quizes])
+
+    try:
+        avg_score = '{:.2f} %'.format(sum_score / quizes.count())
+    except ZeroDivisionError:
+        avg_score = 'N/A'
+
+    context = {
+        'subject': subject,
+        'quizes': quizes.order_by('datetime'),
+        'general_stats': (
+            ('Total Quizes', quizes.count()),
+            ('Average Score', avg_score),
+            ('Total Questions', qq.count()),
+            ('Correct Answers', correct.count()),
+            ('Incorrect Answers', incorrect.count()),
+            ('Blank Questions', not_answered.count()),
+        )
+    }
+    return render(request, 'stats_detail.html', context)
