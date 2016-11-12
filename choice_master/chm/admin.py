@@ -1,3 +1,5 @@
+import json
+
 from django.conf.urls import url
 from django.contrib import admin
 from django.core.exceptions import ValidationError
@@ -5,8 +7,8 @@ from django.http import Http404
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils.safestring import SafeString
 from django.utils.translation import ugettext_lazy as _
+from lxml.etree import XMLSyntaxError
 
 from .forms import XMLFileForm
 from .messages import LoadQuestionsMessageManager
@@ -17,10 +19,7 @@ from .models import Question
 from .models import Subject
 from .models import Topic
 from .models import XMLFile
-
 from .xml import XMLParser
-from lxml.etree import XMLSyntaxError
-import json
 
 
 class SimilarQuestionError(Exception):
