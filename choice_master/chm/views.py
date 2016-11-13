@@ -51,6 +51,10 @@ def new_quiz(request):
                 'quiz': quiz.to_json()
             }
             return render(request, 'quiz.html', context)
+        else:
+            context = {
+                'form': form,
+            }
     else:
         # check if user has pending quizes
         context = {
@@ -60,7 +64,6 @@ def new_quiz(request):
                 state=Quiz.STATUS.in_progress
             ).values('pk')
         }
-        #TODO Arreglar que el context que no está definido
     return render(request, 'new_quiz.html', context)
 
 
@@ -172,6 +175,7 @@ def flag_question(request, id):
 def answer_question(request):
     """POST only view for submitting user answer"""
     if request.method == 'POST':
+        # import ipdb; ipdb.set_trace()  # XXX BREAKPOINT
         qoq = get_object_or_404(
             QuestionOnQuiz,
             quiz_id=int(request.POST['quiz_id']),
