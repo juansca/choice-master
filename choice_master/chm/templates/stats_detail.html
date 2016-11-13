@@ -4,72 +4,17 @@
     <h1>{{ subject.name }} <small style="font-size: 0.5em"> {{ subject.description}}</small></h1>
   </div>
   <div class="row">
-    <div class="col-lg-4 jumbotron">
-      <h2>General Stats</h2>
+    <div class="col-lg-3" style="background: #EEE; border-radius: 12px;">
+      <h4>General Stats</h4>
+      <dl>
       {% for key, value in general_stats %}
-        <div class="media">
-          <div class="media-left">
-            <p> <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span> </p>
-          </div>
-          <div class="media-body">
-            <h4 class="media-heading">{{ key}}</h4>
-            {{ value }}
-          </div>
-        </div>
+        <dt>{{ key }}</dt>
+        <dd>{{ value }}</dd>
       {% endfor %}
+      </dl>
     </div>
-    <div class="col-lg-8">
-        {% block custom_js %}
-            <script src="/static/js/Chart.js"></script>
-            <canvas id="performance_chart" width="100" height="100"></canvas>
-              <script>
-              var ctx = document.getElementById("performance_chart");
-              var date_times = {{ quizes_dates | safe}};
-              var avgs = {{ quizes_avg }};
-              var performance_chart = new Chart(ctx, {
-                  type: 'line',
-                  data: {
-                      labels: date_times,
-                      datasets: [{
-                          label: 'Your Performance',
-                          data: avgs,
-                          borderColor: [
-                              'rgba(255,255,255,1)',
-                              'rgba(255, 255, 235, 1)',
-                              'rgba(255, 206, 255, 1)',
-                              'rgba(255, 192, 192, 1)',
-                              'rgba(153, 102, 255, 1)',
-                              'rgba(255, 159, 64, 1)'
-                          ],
-                          backgroundColor: [
-                                'rgba(255, 99, 132, 0.2)',
-                                'rgba(54, 162, 235, 0.2)',
-                                'rgba(255, 206, 86, 0.2)',
-                                'rgba(75, 192, 192, 0.2)',
-                                'rgba(153, 102, 255, 0.2)',
-                                'rgba(255, 159, 64, 0.2)'
-                            ],
-                            borderWidth: 1
-                      }]
-                  },
-                  options: {
-                      title: {
-                          display: true,
-                          text: "Quiz Performance vs Datetime"
-                      },
-                      responsive: true,
-                      maintainAspectRatio: true,
-                      scales: {
-                          yAxes: [{
-                              ticks: {
-                                  beginAtZero:true
-                              }
-                          }]
-                      }
-                  }
-              });
-              </script>
-        {% endblock %}
+    <div class="col-lg-9">
+        <canvas id="performance_chart" width="100" height="47"></canvas>
 
     </div>
   </div>
@@ -111,3 +56,63 @@
   </div>
 
 {% endblock %}
+
+        {% block custom_js %}
+            <script src="/static/js/moment.js"></script>
+            <script src="/static/js/Chart.js"></script>
+              <script>
+              var ctx = document.getElementById("performance_chart");
+              var date_times = {{ quizes_dates | safe}};
+              var avgs = {{ quizes_avg }};
+              var performance_chart = new Chart(ctx, {
+                  type: 'line',
+                  data: {
+                      labels: date_times,
+                      datasets: [{
+                        //cubicInterpolationMode: 'monotone',
+                        lineTension: 0.08,
+                        label: 'Your Performance',
+                        data: avgs,
+                        borderWidth: 2,
+                        borderColor: [
+                            'rgba(75, 192, 192, 1)',
+
+                        ],
+                        backgroundColor: [ 
+                            'rgba(206, 206, 206, 0.5)',
+                        ],
+                      }]
+                  },
+                  options: {
+                      legend: {
+                          display: false,
+                      },
+                      title: {
+                          display: false,
+                          text: "Quiz Performance vs Datetime"
+                      },
+                      responsive: true,
+                      maintainAspectRatio: true,
+                      scales: {
+                          yAxes: [{
+                              ticks: {
+                                  beginAtZero:true,
+                                  max: 100,
+                              }
+                          }],
+                          xAxes: [{
+                              type: 'time',
+                              unit: 'day',
+                              unitStepSize: 1,
+                              time: {
+                              unit: 'day',
+                                  displayFormats: {
+                                      'day': 'MMM DD, YYYY'
+                                  } 
+                              }
+                          }]
+                      }
+                  }
+              });
+              </script>
+        {% endblock %}
