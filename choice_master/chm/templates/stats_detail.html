@@ -34,12 +34,14 @@
           {% endif %}
               {{ quiz.datetime }},
               {% with quiz.score as score %}
-                {% if score < 40 %}
-                  <span class="label label-danger" style="float: right; font-size: 0.8em">{{ score|floatformat:2 }} %</span>
-                {% elif score <= 70 %}
-                  <span class="label label-warning" style="float: right; font-size: 0.8em">{{ score|floatformat:2 }} %</span>
-                {% else %}
-                  <span class="label label-success" style="float: right; font-size: 0.8em">{{ score|floatformat:2 }} %</span>
+                {% if quiz.state != 'aborted' %}
+                    {% if score < 40 %}
+                    <span class="label label-danger" style="float: right; font-size: 0.8em">{{ score|floatformat:2 }} %</span>
+                    {% elif score <= 70 %}
+                    <span class="label label-warning" style="float: right; font-size: 0.8em">{{ score|floatformat:2 }} %</span>
+                    {% else %}
+                    <span class="label label-success" style="float: right; font-size: 0.8em">{{ score|floatformat:2 }} %</span>
+                    {% endif %}
                 {% endif %}
               {% endwith %}
             </h4>
