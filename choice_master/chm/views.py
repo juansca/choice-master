@@ -168,7 +168,7 @@ def flag_question(request, id):
 
 @login_required
 def answer_question(request):
-    """ POST only view for submitting user answer"""
+    """POST only view for submitting user answer"""
     if request.method == 'POST':
         qoq = get_object_or_404(
             QuestionOnQuiz,
@@ -183,7 +183,8 @@ def answer_question(request):
             is_correct=True
         ).values('pk')
 
-        correct_answers_set = set(correct_answers)
+        correct_answers_ids = [d['pk'] for d in correct_answers]
+        correct_answers_set = set(correct_answers_ids)
 
         if user_answers_set == correct_answers_set:
             qoq.state = QuestionOnQuiz.STATUS.right
