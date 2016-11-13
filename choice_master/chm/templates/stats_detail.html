@@ -19,7 +19,58 @@
       {% endfor %}
     </div>
     <div class="col-lg-8">
-      <h2>Your Evolution on {{ subject }}</h2>
+        {% block custom_js %}
+            <script src="/static/js/Chart.js"></script>
+            <canvas id="performance_chart" width="100" height="100"></canvas>
+              <script>
+              var ctx = document.getElementById("performance_chart");
+              var date_times = {{ quizes_dates | safe}};
+              var avgs = {{ quizes_avg }};
+              var performance_chart = new Chart(ctx, {
+                  type: 'line',
+                  data: {
+                      labels: date_times,
+                      datasets: [{
+                          label: 'Your Performance',
+                          data: avgs,
+                          borderColor: [
+                              'rgba(255,255,255,1)',
+                              'rgba(255, 255, 235, 1)',
+                              'rgba(255, 206, 255, 1)',
+                              'rgba(255, 192, 192, 1)',
+                              'rgba(153, 102, 255, 1)',
+                              'rgba(255, 159, 64, 1)'
+                          ],
+                          backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)',
+                                'rgba(255, 159, 64, 0.2)'
+                            ],
+                            borderWidth: 1
+                      }]
+                  },
+                  options: {
+                      title: {
+                          display: true,
+                          text: "Quiz Performance vs Datetime"
+                      },
+                      responsive: true,
+                      maintainAspectRatio: true,
+                      scales: {
+                          yAxes: [{
+                              ticks: {
+                                  beginAtZero:true
+                              }
+                          }]
+                      }
+                  }
+              });
+              </script>
+        {% endblock %}
+
     </div>
   </div>
   <hr>
@@ -59,56 +110,4 @@
     {% endif %}
   </div>
 
-{% endblock %}
-
-
-{% block custom_js %}
-    <script src="/static/js/Chart.js"></script>
-    <canvas id="performance_chart" width="100" height="100"></canvas>
-      <script>
-      var ctx = document.getElementById("performance_chart");
-      var date_times = {{ quizes_dates | safe}};
-      var avgs = {{ quizes_avg }};
-      var performance_chart = new Chart(ctx, {
-          type: 'line',
-          data: {
-              labels: date_times,
-              datasets: [{
-                  label: 'Your Performance',
-                  data: avgs,
-                  borderColor: [
-                      'rgba(255,255,255,1)',
-                      'rgba(255, 255, 235, 1)',
-                      'rgba(255, 206, 255, 1)',
-                      'rgba(255, 192, 192, 1)',
-                      'rgba(153, 102, 255, 1)',
-                      'rgba(255, 159, 64, 1)'
-                  ],
-                  backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],          borderWidth: 1
-              }]
-          },
-          options: {
-              title: {
-                  display: true,
-                  text: "Quiz Performance vs Datetime"
-              },
-              responsive: true,
-              maintainAspectRatio: true,
-              scales: {
-                  yAxes: [{
-                      ticks: {
-                          beginAtZero:true
-                      }
-                  }]
-              }
-          }
-      });
-      </script>
 {% endblock %}
