@@ -267,17 +267,22 @@ def stats_detail(request, id):
     quizes = Quiz.objects.filter(
         user=request.user,
         topics__subject=subject
-    )
+    ).order_by('datetime')
 
-    quizes_dates = [quiz.datetime.strftime('%Y-%m-%d %H:%M') for quiz in quizes]
+    # performance chart
 
-    quizes_avg = [quiz.score() for quiz in quizes]
+    # x axis
+    quizes_dates = [quiz.datetime.strftime('%Y-%m-%d %H:%M')
+                    for quiz in quizes.filter(state=Quiz.STATUS.finished)]
+    # y axis
+    quizes_avg = [quiz.score(question__topic__subject=subject)
+                  for quiz in quizes.filter(state=Quiz.STATUS.finished)]
 
+    # General stats
     qq = QuestionOnQuiz.objects.filter(
         quiz__in=quizes.exclude(state=Quiz.STATUS.aborted),
         question__topic__subject=subject
     )
-
 
     correct = qq.filter(state=QuestionOnQuiz.STATUS.right)
     incorrect = qq.filter(state=QuestionOnQuiz.STATUS.wrong)
@@ -291,7 +296,6 @@ def stats_detail(request, id):
     except ZeroDivisionError:
         avg_score = 'N/A'
 
-
     context = {
         'subject': subject,
         'quizes': quizes.order_by('datetime'),
@@ -303,7 +307,7 @@ def stats_detail(request, id):
             ('Incorrect Answers', incorrect.count()),
             ('Blank Questions', not_answered.count()),
         ),
-        'quizes_dates' : quizes_dates,
-        'quizes_avg' : quizes_avg,
+        'quizes_dates': quizes_dates,
+        'quizes_avg': quizes_avg,
     }
     return render(request, 'stats_detail.html', context)
