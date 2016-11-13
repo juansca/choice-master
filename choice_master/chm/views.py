@@ -27,8 +27,10 @@ from chm.models import Topic
 
 
 def index(request):
-    """ If the user is authenticated redirect to login,
-    otherwise display index page."""
+    """
+        If the user is authenticated redirect to login,
+        otherwise display index page.
+    """
 
     if not request.user.is_authenticated:
         return redirect(login)
@@ -58,7 +60,7 @@ def new_quiz(request):
                 state=Quiz.STATUS.in_progress
             ).values('pk')
         }
-
+        #TODO Arreglar que el context que no está definido
     return render(request, 'new_quiz.html', context)
 
 
@@ -198,7 +200,7 @@ def answer_question(request):
 
 @login_required
 def discard_quiz(request):
-    """ POST only view to put quiz in aborted state"""
+    """POST only view to put quiz in aborted state"""
     if request.method == "POST":
         quiz = get_object_or_404(Quiz, pk=int(request.POST['quiz_id']))
 
@@ -267,10 +269,15 @@ def stats_detail(request, id):
         topics__subject=subject
     )
 
+    quizes_dates = [quiz.datetime.strftime('%Y-%m-%d %H:%M') for quiz in quizes]
+
+    quizes_avg = [quiz.score() for quiz in quizes]
+
     qq = QuestionOnQuiz.objects.filter(
         quiz__in=quizes.exclude(state=Quiz.STATUS.aborted),
         question__topic__subject=subject
     )
+
 
     correct = qq.filter(state=QuestionOnQuiz.STATUS.right)
     incorrect = qq.filter(state=QuestionOnQuiz.STATUS.wrong)
@@ -284,6 +291,7 @@ def stats_detail(request, id):
     except ZeroDivisionError:
         avg_score = 'N/A'
 
+
     context = {
         'subject': subject,
         'quizes': quizes.order_by('datetime'),
@@ -294,6 +302,8 @@ def stats_detail(request, id):
             ('Correct Answers', correct.count()),
             ('Incorrect Answers', incorrect.count()),
             ('Blank Questions', not_answered.count()),
-        )
+        ),
+        'quizes_dates' : quizes_dates,
+        'quizes_avg' : quizes_avg,
     }
     return render(request, 'stats_detail.html', context)
