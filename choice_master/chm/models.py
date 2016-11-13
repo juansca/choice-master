@@ -85,7 +85,7 @@ class Topic(models.Model):
             lc = correct.count() / qoq.count()
         except ZeroDivisionError:
             lc = float()  # 0.0
-        return lc
+        return lc * 100
 
     def similar_exists(self):
         """
