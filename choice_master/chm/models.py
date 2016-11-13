@@ -36,6 +36,8 @@ class Subject(models.Model):
 
     def learning_coeff(self, user):
         """Return user knowledge as a float in [0..10]"""
+
+        # get all topics, even if user didn't answer any questions yet
         topics = self.topics.all()
         try:
             lc = sum([t.learning_coeff(user) for t in topics]) / topics.count()

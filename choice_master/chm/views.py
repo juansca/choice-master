@@ -300,14 +300,14 @@ def stats_detail(request, id):
     context = {
         'subject': subject,
         'quizes': quizes.order_by('datetime'),
-        'general_stats': (
-            ('Total Quizes', quizes.count()),
-            ('Average Score', avg_score),
-            ('Total Questions', qq.count()),
-            ('Correct Answers', correct.count()),
-            ('Incorrect Answers', incorrect.count()),
-            ('Blank Questions', not_answered.count()),
-        ),
+        'total_quizes': quizes.count(),
+        'average_score': avg_score,
+        'total_questions': qq.count(),
+        'correct_answers': correct.count(),
+        'incorrect_answers': incorrect.count(),
+        'blank_questions': not_answered.count(),
+
+        # performance plot
         'quizes_dates': quizes_dates,
         'quizes_avg': quizes_avg,
     }

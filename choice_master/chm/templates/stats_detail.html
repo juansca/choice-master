@@ -7,10 +7,17 @@
     <div class="col-lg-3" style="background: #EEE; border-radius: 12px;">
       <h4>General Stats</h4>
       <dl>
-      {% for key, value in general_stats %}
-        <dt>{{ key }}</dt>
-        <dd>{{ value }}</dd>
-      {% endfor %}
+        <dt>Total quizes</dt><dd>{{ total_quizes }}</dd>
+        <dt>Average score</dt>
+            <dd>{{ average_score }}
+                <span data-toggle="tooltip"
+                      title="Average score for all quizes on this subject. <br>Note that it <span style='color:red'>may differ</span> from your score in {{ subject.name }} if you only chose a subset of all possible topics."
+                    class="glyphicon glyphicon-info-sign"><span>
+            </dd>
+        <dt>Total questions</dt><dd>{{ total_questions }}</dd>
+        <dt>Correct answers</dt><dd>{{ correct_answers }}</dd>
+        <dt>Incorrect answers</dt><dd>{{ incorrect_answers }}</dd>
+        <dt>Blank questions</dt><dd>{{ blank_questions }}</dd>
       </dl>
     </div>
     <div class="col-lg-9">
@@ -115,5 +122,8 @@
                       }
                   }
               });
+            $(document).ready(function(){
+                $('[data-toggle="tooltip"]').tooltip({html: true});
+            });
               </script>
         {% endblock %}
