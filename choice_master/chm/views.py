@@ -247,9 +247,10 @@ def show_stats(request):
     """ Show user stats"""
     # produce a bunch of data for the UI to consume
     context = {}
-    subjects_id = Quiz.objects.filter(
-        user=request.user,
-    ).values('topics__subject').distinct()
+    subjects_id = QuestionOnQuiz.objects.filter(
+        quiz__user=request.user,
+        quiz__state=Quiz.STATUS.finished,
+    ).values('question__topic__subject').distinct()
     subjects = Subject.objects.filter(id__in=subjects_id)
     for subject in subjects:
         subject.learning_coeff = subject.learning_coeff(request.user)
@@ -259,7 +260,7 @@ def show_stats(request):
 
 @login_required
 def stats_detail(request, id):
-    """ Show user stats"""
+    """ Show user stats for specific subject"""
     # produce a bunch of data for the UI to consume
     subject = get_object_or_404(Subject, id=id)
     subject.learning_coeff = subject.learning_coeff(request.user)
