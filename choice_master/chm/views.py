@@ -181,10 +181,9 @@ def answer_question(request):
         correct_answers = Answer.objects.filter(
             question=qoq.question,
             is_correct=True
-        ).values('pk')
+        ).values_list('pk', flat=True)
 
-        correct_answers_ids = [d['pk'] for d in correct_answers]
-        correct_answers_set = set(correct_answers_ids)
+        correct_answers_set = set(correct_answers)
 
         if user_answers_set == correct_answers_set:
             qoq.state = QuestionOnQuiz.STATUS.right
