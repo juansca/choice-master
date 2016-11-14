@@ -634,32 +634,3 @@ class TestXMLParser(TestCase):
         answer2 = data3['answers'][1]
         self.assertEquals(answer2['text'], "Obvio que sí")
         self.assertTrue(answer2['is_correct'])
-
-class TestQuiz(TestCase):
-    """
-    Testing Quiz.
-
-    Como usuario quiero realizar un exámen multiple choice con preguntas de una materia específica.
-    =======================================
-
-    Criterios de aceptación:
-    ------------------------
-
-    - Como usuario quiero realizar un examen.
-    """
-    def setUp(self):
-        """       self.factory = RequestFactory()
-        self.user = User.objects.create_user(username='test_user',
-                                             email='bla@bla.com',
-                                             password='testest',
-                                            )
-        """
-    def test_new_quiz(self):
-        """request = self.factory.POST('/quiz/new')"""
-        pass
-
-    def test_correct_quiz(self):
-        pass
-
-    def test_quiz_results(self):
-        pass
