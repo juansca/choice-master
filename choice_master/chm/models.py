@@ -80,6 +80,7 @@ class Topic(models.Model):
         qoq = QuestionOnQuiz.objects.filter(
             question__topic=self,
             quiz__user=user,
+            quiz__state=Quiz.STATUS.finished,
         ).exclude(state=QuestionOnQuiz.STATUS.not_answered)
 
         correct = qoq.filter(state=QuestionOnQuiz.STATUS.right)
