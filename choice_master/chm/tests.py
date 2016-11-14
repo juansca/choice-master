@@ -20,6 +20,15 @@ from lxml import etree
 import random
 import string
 
+class Request():
+    """
+        A Request toy to use in load_questions
+        Note that load_question only needs a session duplicates list
+    """
+    def __init__(self, sess=[]):
+        self.session = dict()
+        self.session['duplicates'] = sess
+
 # This function is defined here for convinience
 def random_string(length):
     list_of_chars = [random.choice(string.ascii_uppercase)
@@ -214,6 +223,8 @@ class TestAdministratorLoadingQuestions(TestCase):
         max_length = 30
         answers_length = 10
 
+        self.request = Request()
+
         self.data_list = []
         for x in range(cases):
             answers = []
@@ -256,7 +267,7 @@ class TestAdministratorLoadingQuestions(TestCase):
             mm = LoadQuestionsMessageManager()
 
             # Run the code to be tested
-            XMLFileAdmin.load_question(data, mm)
+            XMLFileAdmin.load_question(data, mm, self.request)
 
             self.assertEquals(mm.no_subject, [])
             self.assertEquals(mm.no_topic, [])
@@ -266,7 +277,6 @@ class TestAdministratorLoadingQuestions(TestCase):
             queryset = models.Question.objects.filter(text=data['question'],
                                                       topic=topic)
             self.assertEquals(len(queryset), 1)
-
             for ans in data['answers']:
                 text = ans['text']
                 is_correct = ans['is_correct']
@@ -284,7 +294,7 @@ class TestAdministratorLoadingQuestions(TestCase):
             mm = LoadQuestionsMessageManager()
 
             # Run the code to be tested
-            XMLFileAdmin.load_question(data, mm)
+            XMLFileAdmin.load_question(data, mm, self.request)
 
             self.assertEquals(len(mm.no_subject), 1)
             self.assertEquals(len(mm.no_subject[0]), 2)
@@ -313,7 +323,7 @@ class TestAdministratorLoadingQuestions(TestCase):
             mm = LoadQuestionsMessageManager()
 
             # Run the code to be tested
-            XMLFileAdmin.load_question(data, mm)
+            XMLFileAdmin.load_question(data, mm, self.request)
 
             self.assertEquals(len(mm.no_topic), 1)
             self.assertEquals(len(mm.no_topic[0]), 2)
@@ -346,7 +356,7 @@ class TestAdministratorLoadingQuestions(TestCase):
             mm = LoadQuestionsMessageManager()
 
             # Run the code to be tested
-            XMLFileAdmin.load_question(data, mm)
+            XMLFileAdmin.load_question(data, mm, self.request)
             self.assertEquals(len(mm.validation_error), 1)
             self.assertEquals(len(mm.validation_error[0]), 2)
             self.assertEquals(len(mm.validation_error[0][0].messages), 1)
@@ -373,8 +383,8 @@ class TestAdministratorLoadingQuestions(TestCase):
 
     def test_load_similar_question(self):
         """Test the case where the similar question already exists"""
+        i = 1
         for data in self.data_list:
-
             subject = factories.SubjectFactory.create(name=data['subject'])
             topic = factories.TopicFactory.create(name=data['topic'],
                                                   subject=subject)
@@ -385,14 +395,9 @@ class TestAdministratorLoadingQuestions(TestCase):
             mm = LoadQuestionsMessageManager()
 
             # Run the code to be tested
-            XMLFileAdmin.load_question(data, mm)
-
-            self.assertEquals(len(mm.validation_error), 1)
-            self.assertEquals(len(mm.validation_error[0]), 2)
-            self.assertEquals(len(mm.validation_error[0][0].messages), 1)
-            self.assertEquals(mm.validation_error[0][0].messages[0],
-                              'A similar question already exists')
-            self.assertEquals(mm.validation_error[0][1], data['question'])
+            XMLFileAdmin.load_question(data, mm, self.request)
+            self.assertEquals(len(self.request.session['duplicates']), i)
+            i = i + 1
             self.assertEquals(mm.no_topic, [])
             self.assertEquals(mm.no_subject, [])
             self.assertEquals(mm.added, [])
@@ -428,7 +433,7 @@ class TestSimilarity(TestCase):
     """
 
     def setUp(self):
-        """ Set up for load_question testing"""
+        """ Set up for similarity testing"""
 
         # It has two list of dicts, one for similar strings
         # and another that are not
@@ -657,23 +662,4 @@ class TestQuiz(TestCase):
         pass
 
     def test_quiz_results(self):
-        pass
-
-
-class TestFlagQuestion(TestCase):
-    """
-    Testing Flag Question.
-
-    Como usuario quiero realizar un poder denunciar una pregunta. Ya sea
-    mientras hago un examen y aparece repetida, como si la respuesta es incorrecta.
-    ===============================================================================
-
-    Criterios de aceptación:
-    ------------------------
-
-    - Cada vez que se realizo una denuncia, el admin debe poder verla y analizarla.
-    La pregunta denunciada, junto a la descripción, es guardada en la Base de Datos.
-    """
-
-    def test_flag_question(self):
         pass
