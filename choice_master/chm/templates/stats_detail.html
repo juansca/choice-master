@@ -68,6 +68,7 @@
         {% block custom_js %}
             <script src="/static/js/moment.js"></script>
             <script src="/static/js/Chart.js"></script>
+            <script src="/static/js/chartjs-plugin-zoom.js"></script>
               <script>
               var ctx = document.getElementById("performance_chart");
               var date_times = {{ quizes_dates | safe}};
@@ -82,16 +83,31 @@
                         label: 'Your Performance',
                         data: avgs,
                         borderWidth: 2,
-                        borderColor: [
-                            'rgba(75, 192, 192, 1)',
-
-                        ],
-                        backgroundColor: [ 
-                            'rgba(206, 206, 206, 0.5)',
-                        ],
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(206, 206, 206, 0.5)',
                       }]
                   },
                   options: {
+					// Container for pan options
+					pan: {
+					// Boolean to enable panning
+					enabled: true,
+
+					// Panning directions. Remove the appropriate direction to disable 
+					// Eg. 'y' would only allow panning in the y direction
+					mode: 'x'
+					},
+
+					// Container for zoom options
+					zoom: {
+						// Boolean to enable zooming
+						enabled: true,
+
+						// Zooming directions. Remove the appropriate direction to disable 
+						// Eg. 'y' would only allow zooming in the y direction
+						mode: 'x',
+					},
+
                       legend: {
                           display: false,
                       },
@@ -113,10 +129,10 @@
                               unit: 'day',
                               unitStepSize: 1,
                               time: {
-                              unit: 'day',
-                                  displayFormats: {
-                                      'day': 'MMM DD, YYYY'
-                                  } 
+								unit: 'day',
+								displayFormats: {
+									'day': 'DD MMM YYYY',
+								}
                               }
                           }]
                       }
