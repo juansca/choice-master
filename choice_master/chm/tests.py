@@ -545,101 +545,90 @@ class TestXMLParser(TestCase):
     EMPTY_NORMAL_TO_PARSE_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'empty_to_parse.xml')
     EMPTY_TO_PARSE_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'normal_to_parse.xml')
 
-    def setUp(self):
-        with open(self.EMPTY_NORMAL_TO_PARSE_PATH, "r") as f:
-            self.empty_file = etree.parse(f)
-
-        with open(self.EMPTY_TO_PARSE_PATH, "r") as v:
-            self.normal_file = etree.parse(v)
-
     def test_parse_questions_from_empty(self):
         """Test the case where the xml file has not questions"""
+        try:
+            with open(self.EMPTY_NORMAL_TO_PARSE_PATH, "rb") as f:
+                self.empty_file = XMLParser(f)
 
-        without_questions = XMLParser(self.empty_file)
-        # No questions
-        self.assertIs(without_questions.parse_questions(), False)
-
+                # No questions
+                for question in self.empty_file.parse_questions():
+                    self.assertTrue(False)
+        except etree.XMLSyntaxError as err:
+            # The xml file is empty
+            self.assertTrue(True)
     def test_parse_questions_from_normal(self):
         """
             Test the normal case. When the xml file has one or more
             questions with one or more answers.
         """
-        parse_questions = XMLParser(self.normal_file)
+        with open(self.EMPTY_TO_PARSE_PATH, "rb") as v:
+            self.normal_file = XMLParser(v)
 
-
-        questions_parsed = parse_questions.parse_questions()
+            questions_parsed = list()
+            for question in self.normal_file.parse_questions():
+                questions_parsed.append(question)
 
         # Check how many questions are in the file
-        self.assertIs(len(questions_parsed), 3)
-
         data1 = questions_parsed[0]
         # Check the subject, topic and text question
-        self.assertIs(data1['subject'], "Algebra")
-        self.assertIs(data1['topic'], "subesp")
-        self.assertIs(data1['question'], "Cuanto es 2 mas 2?")
+        self.assertEquals(data1['subject'], "Algebra")
+        self.assertEquals(data1['topic'], "subesp")
+        self.assertEquals(data1['question'], "Cuanto es 2 mas 2?")
 
         # Check answers
-        # Check how many answers has the question
-        self.assertIs(len(data1['answers']), 5)
         # Check the correspondency with answers
         answer1 = data1['answers'][0]
-        self.assertIs(answer1['text'], "3")
-        self.assertIs(answer1['is_correct'], False)
+        self.assertEquals(answer1['text'], "3")
+        self.assertFalse(answer1['is_correct'])
 
         answer2 = data1['answers'][1]
-        self.assertIs(answer2['text'], "1")
-        self.assertIs(answer2['is_correct'], False)
+        self.assertEquals(answer2['text'], "1")
+        self.assertFalse(answer2['is_correct'])
 
         answer3 = data1['answers'][2]
-        self.assertIs(answer3['text'], "2")
-        self.assertIs(answer3['is_correct'], False)
+        self.assertEquals(answer3['text'], "2")
+        self.assertFalse(answer3['is_correct'])
 
         answer4 = data1['answers'][3]
-        self.assertIs(answer4['text'], "42")
-        self.assertIs(answer4['is_correct'], True)
+        self.assertEquals(answer4['text'], "42")
+        self.assertTrue(answer4['is_correct'])
 
         answer5 = data1['answers'][4]
-        self.assertIs(answer5['text'], "5")
-        self.assertIs(answer5['is_correct'], False)
-
+        self.assertEquals(answer5['text'], "5")
+        self.assertFalse(answer5['is_correct'])
 
         data2 = questions_parsed[1]
         # Check the subject, topic and text question
-        self.assertIs(data2['subject'], "AM2")
-        self.assertIs(data2['topic'], "Series de Taylor")
-        self.assertIs(data2['question'], "Todos los patos son de color rojo?")
+        self.assertEquals(data2['subject'], "AM2")
+        self.assertEquals(data2['topic'], "Series de Taylor")
+        self.assertEquals(data2['question'], "Todos los patos son de color rojo?")
 
         # Check answers
-        # Check how many answers has the question
-        self.assertIs(len(data2['answers']), 2)
         # Check the correspondency with answers
         answer1 = data2['answers'][0]
-        self.assertIs(answer1['text'], "No")
-        self.assertIs(answer1['is_correct'], True)
+        self.assertEquals(answer1['text'], "No")
+        self.assertTrue(answer1['is_correct'])
 
         answer2 = data2['answers'][1]
-        self.assertIs(answer2['text'], "Si")
-        self.assertIs(answer2['is_correct'], False)
-
+        self.assertEquals(answer2['text'], "Si")
+        self.assertFalse(answer2['is_correct'])
 
         data3 = questions_parsed[2]
         # Check the subject, topic and text question
-        self.assertIs(data2['subject'], "Probabilidad")
-        self.assertIs(data2['topic'], "Bayes")
-        self.assertIs(data2['question'], "Son estas respuestas correctas?")
+        self.assertEquals(data3['subject'], "Probabilidad")
+        self.assertEquals(data3['topic'], "Bayes")
+        self.assertEquals(data3['question'], "Son estas respuestas correctas?")
 
         # Check answers
-        # Check how many answers has the question
-        self.assertIs(len(data2['answers']), 2)
         # Check the correspondency with answers
-        answer1 = data2['answers'][0]
-        self.assertIs(answer1['text'], "Si")
-        self.assertIs(answer1['is_correct'], True)
+        answer1 = data3['answers'][0]
+        self.assertEquals(answer1['text'], "Si")
+        self.assertTrue(answer1['is_correct'])
 
-        answer2 = data2['answers'][1]
-        self.assertIs(answer2['text'], "Obvio que si")
-        self.assertIs(answer2['is_correct'], True)
-
+        answer2 = data3['answers'][1]
+        self.assertEquals(answer2['text'], "Obvio que sí")
+        self.assertTrue(answer2['is_correct'])
 
 class TestQuiz(TestCase):
     """
@@ -654,12 +643,12 @@ class TestQuiz(TestCase):
     - Como usuario quiero realizar un examen.
     """
     def setUp(self):
- """       self.factory = RequestFactory()
+        """       self.factory = RequestFactory()
         self.user = User.objects.create_user(username='test_user',
                                              email='bla@bla.com',
                                              password='testest',
                                             )
-    """
+        """
     def test_new_quiz(self):
         """request = self.factory.POST('/quiz/new')"""
         pass
