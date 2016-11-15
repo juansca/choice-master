@@ -433,7 +433,7 @@ class TestSimilarity(TestCase):
     """
 
     def setUp(self):
-        """ Set up for similarity testing"""
+        """Set up for similarity testing"""
 
         # It has two list of dicts, one for similar strings
         # and another that are not
@@ -450,14 +450,14 @@ class TestSimilarity(TestCase):
             self.not_similar.append({'fst': str1_not_similar, 'snd': str2_not_similar})
 
     def test_is_similar(self):
-        """Test the case where the strings are similar"""
+        """Test the case where the strings to compare are similar"""
         for i in range(1, 30):
             fst_similar = self.similar[i]['fst']
             snd_similar = self.similar[i]['snd']
             self.assertIs(is_similar(fst_similar, snd_similar), True)
 
     def test_is_not_similar(self):
-        """Test the case where the strings are not similar"""
+        """Test the case where the strings to compare are not similar"""
         for i in range(1, 30):
             fst_not_similar = self.not_similar[i]['fst']
             snd_not_similar = self.not_similar[i]['snd']
@@ -479,13 +479,19 @@ class TestXSD(TestCase):
     y un tema (topic) también tiene el texto que la describe y respuestas. Debe haber, al menos,
     una respuesta correcta.
     """
+    # XSD schema path to validate the xml
     SCHEMA_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'question.xml')
+    # XML file path with a valid question correspondingly with xsd schema defined
     VALID_XML_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'valid_question.xml')
+    # XML file path with a question does not have a topic attribute
     XML_WITHOUT_TOPIC_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'without_topic.xml')
+    # XML file path with a question does not have a subject attribute
     XML_WITHOUT_SUBJECT_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'without_subject.xml')
+    # XML file path with a question does not have a any correct answer
     XML_WITHOUT_CORRECT_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'without_correct.xml')
 
     def setUp(self):
+        """Set up for XSD schema validation testing"""
         with open(self.SCHEMA_PATH, "r") as f:
             xmlschema_doc = etree.parse(f)
         self.schema = etree.XMLSchema(xmlschema_doc)
@@ -546,16 +552,16 @@ class TestXMLParser(TestCase):
     y un tema (topic) también tiene el texto que la describe y respuestas. Debe haber, al menos,
     una respuesta correcta.
     """
-
-    EMPTY_NORMAL_TO_PARSE_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'empty_to_parse.xml')
-    EMPTY_TO_PARSE_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'normal_to_parse.xml')
+    # Empty xml file path
+    EMPTY_TO_PARSE_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'empty_to_parse.xml')
+    # xml file with a normal format: questions, answers, etc. path
+    NORMAL_TO_PARSE_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'normal_to_parse.xml')
 
     def test_parse_questions_from_empty(self):
         """Test the case where the xml file has not questions"""
         try:
-            with open(self.EMPTY_NORMAL_TO_PARSE_PATH, "rb") as f:
+            with open(self.EMPTY_TO_PARSE_PATH, "rb") as f:
                 self.empty_file = XMLParser(f)
-
                 # No questions
                 for question in self.empty_file.parse_questions():
                     self.assertTrue(False)
@@ -567,9 +573,9 @@ class TestXMLParser(TestCase):
             Test the normal case. When the xml file has one or more
             questions with one or more answers.
         """
-        with open(self.EMPTY_TO_PARSE_PATH, "rb") as v:
+        with open(self.NORMAL_TO_PARSE_PATH, "rb") as v:
             self.normal_file = XMLParser(v)
-
+            # We need a list of Questions for convinience
             questions_parsed = list()
             for question in self.normal_file.parse_questions():
                 questions_parsed.append(question)

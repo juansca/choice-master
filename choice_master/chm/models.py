@@ -162,6 +162,7 @@ class Question(models.Model):
             pass
 
     def to_json(self):
+        """"Converts a Question to json format"""
         return {
             'id': self.id,
             'text': self.text,
@@ -178,6 +179,7 @@ class Answer(models.Model):
     is_correct = models.BooleanField(default=False)
 
     def to_json(self):
+        """"Converts a Answer to json format"""
         return {
             'id': self.id,
             'text': self.text,
@@ -260,7 +262,10 @@ class Quiz(models.Model):
         return qq.values('state').annotate(total=Count('state'))
 
     def to_json(self, exclude_answered=False):
-
+        """"
+            Converts a Quiz to json format. Only save id and seconds to
+            use them later
+        """
         result = {
             'id': self.id,
             'seconds': self.seconds_per_question,
