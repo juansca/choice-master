@@ -134,6 +134,7 @@ class XMLFileAdmin(admin.ModelAdmin):
         else:
             raise Http404(_("Nothing to see here."))
 
+
 class AnswerInline(admin.TabularInline):
     extra = 1
     model = Answer

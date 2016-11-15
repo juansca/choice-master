@@ -20,6 +20,7 @@ from lxml import etree
 import random
 import string
 
+
 class Request():
     """
         A Request toy to use in load_questions
@@ -28,6 +29,7 @@ class Request():
     def __init__(self, sess=[]):
         self.session = dict()
         self.session['duplicates'] = sess
+
 
 # This function is defined here for convinience
 def random_string(length):
@@ -447,7 +449,10 @@ class TestSimilarity(TestCase):
             # Create two strings that we are sure that are not similar
             str1_not_similar = random_string(50)
             str2_not_similar = "bla" + str1_not_similar[5:10] + "maaaal"
-            self.not_similar.append({'fst': str1_not_similar, 'snd': str2_not_similar})
+            self.not_similar.append({
+                                    'fst': str1_not_similar,
+                                    'snd': str2_not_similar,
+                                    })
 
     def test_is_similar(self):
         """Test the case where the strings to compare are similar"""
@@ -468,27 +473,51 @@ class TestXSD(TestCase):
     """
     Testing XSD schema.
 
-    Como administrador quiero cargar preguntas al sistema a travéz de un documento XML,
-    debe adaptarse al schema xsd implementado. Lo último es lo que se testea aquí.
-    ===================================================================================
+    Como administrador quiero cargar preguntas al sistema a travéz de un
+    documento XML, debe adaptarse al schema xsd implementado. Lo último es
+    lo que se testea aquí.
+    =======================================================================
 
     Criterios de aceptación:
     ------------------------
 
-    - El archivo XML puede tener varias preguntas, cada una de ellas tiene una Materia (subject)
-    y un tema (topic) también tiene el texto que la describe y respuestas. Debe haber, al menos,
+    - El archivo XML puede tener varias preguntas, cada una de ellas tiene una
+    Materia (subject)
+    y un tema (topic) también tiene el texto que la describe y respuestas. Debe
+    haber, al menos,
     una respuesta correcta.
     """
     # XSD schema path to validate the xml
     SCHEMA_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'question.xml')
-    # XML file path with a valid question correspondingly with xsd schema defined
-    VALID_XML_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'valid_question.xml')
+    # XML file path with a valid question correspondingly with xsd schema
+    # defined
+    VALID_XML_PATH = path.join(
+                                BASE_DIR,
+                                'static',
+                                'xml_files',
+                                'test',
+                                'valid_question.xml')
     # XML file path with a question does not have a topic attribute
-    XML_WITHOUT_TOPIC_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'without_topic.xml')
+    XML_WITHOUT_TOPIC_PATH = path.join(
+                                        BASE_DIR,
+                                        'static',
+                                        'xml_files',
+                                        'test',
+                                        'without_topic.xml')
     # XML file path with a question does not have a subject attribute
-    XML_WITHOUT_SUBJECT_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'without_subject.xml')
+    XML_WITHOUT_SUBJECT_PATH = path.join(
+                                        BASE_DIR,
+                                        'static',
+                                        'xml_files',
+                                        'test',
+                                        'without_subject.xml')
     # XML file path with a question does not have a any correct answer
-    XML_WITHOUT_CORRECT_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'without_correct.xml')
+    XML_WITHOUT_CORRECT_PATH = path.join(
+                                        BASE_DIR,
+                                        'static',
+                                        'xml_files',
+                                        'test',
+                                        'without_correct.xml')
 
     def setUp(self):
         """Set up for XSD schema validation testing"""
@@ -525,37 +554,50 @@ class TestXSD(TestCase):
         Test the case where the xml file is invalid.
         The questions does not have subject.
         """
-        self.assertIs(self.schema.validate(self.without_subject_xml_file), False)
-
+        self.assertIs(
+                    self.schema.validate(self.without_subject_xml_file),
+                    False)
 
     def test_without_correct_from_xsd(self):
         """
         Test the case where the xml file is invalid.
         The questions does not have any correct answer.
         """
-        self.assertIs(self.schema.validate(self.without_correct_xml_file), False)
+        self.assertIs(
+                    self.schema.validate(self.without_correct_xml_file),
+                    False)
 
 
 class TestXMLParser(TestCase):
     """
     Testing XML Parser.
 
-    Como administrador quiero cargar preguntas al sistema a travéz de un documento XML,
-    debe adaptarse al schema xsd implementado. Aquí se testea que el documente sea
-    parseado correctamente.
-    ===================================================================================
+    Como administrador quiero cargar preguntas al sistema a travéz de un
+    documento XML, debe adaptarse al schema xsd implementado. Aquí se testea
+    que el documente sea parseado correctamente.
+    ==========================================================================
 
     Criterios de aceptación:
     ------------------------
 
-    - El archivo XML puede tener varias preguntas, cada una de ellas tiene una Materia (subject)
-    y un tema (topic) también tiene el texto que la describe y respuestas. Debe haber, al menos,
-    una respuesta correcta.
+    - El archivo XML puede tener varias preguntas, cada una de ellas tiene una
+    Materia (subject) y un tema (topic) también tiene el texto que la describe
+    y respuestas. Debe haber, al menos, una respuesta correcta.
     """
     # Empty xml file path
-    EMPTY_TO_PARSE_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'empty_to_parse.xml')
+    EMPTY_TO_PARSE_PATH = path.join(
+                                    BASE_DIR,
+                                    'static',
+                                    'xml_files',
+                                    'test',
+                                    'empty_to_parse.xml')
     # xml file with a normal format: questions, answers, etc. path
-    NORMAL_TO_PARSE_PATH = path.join(BASE_DIR, 'static', 'xml_files', 'test', 'normal_to_parse.xml')
+    NORMAL_TO_PARSE_PATH = path.join(
+                                    BASE_DIR,
+                                    'static',
+                                    'xml_files',
+                                    'test',
+                                    'normal_to_parse.xml')
 
     def test_parse_questions_from_empty(self):
         """Test the case where the xml file has not questions"""
@@ -568,6 +610,7 @@ class TestXMLParser(TestCase):
         except etree.XMLSyntaxError as err:
             # The xml file is empty
             self.assertTrue(True)
+
     def test_parse_questions_from_normal(self):
         """
             Test the normal case. When the xml file has one or more
@@ -613,7 +656,9 @@ class TestXMLParser(TestCase):
         # Check the subject, topic and text question
         self.assertEquals(data2['subject'], "AM2")
         self.assertEquals(data2['topic'], "Series de Taylor")
-        self.assertEquals(data2['question'], "Todos los patos son de color rojo?")
+        self.assertEquals(
+                        data2['question'],
+                        "Todos los patos son de color rojo?")
 
         # Check answers
         # Check the correspondency with answers
