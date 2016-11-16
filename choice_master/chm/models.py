@@ -34,6 +34,36 @@ class Subject(models.Model):
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=500)
 
+    def learning_coeff(self, user):
+        """Return user knowledge as a float in [0..10]"""
+
+        # get all topics, even if user didn't answer any questions yet
+        topics = self.topics.all()
+        try:
+            lc = sum([t.learning_coeff(user) for t in topics]) / topics.count()
+        except ZeroDivisionError:
+            lc = float()  # 0.0
+        return lc
+
+    def similar_exists(self):
+        """
+        Check if a subject in the database has the same name (ignoring case)
+        than the question.
+        :return: True only if a subject with the same name ignoring case exists
+        in the database
+        :rtype: bool
+        """
+        queryset = Subject.objects.exclude(pk=self.pk)
+
+        for q in queryset:
+            if self.name.lower() == q.name.lower():
+                return True
+        return False
+
+    def clean(self):
+        if self.similar_exists():
+            raise ValidationError(_('A similar subject already exists'))
+
     def __str__(self):
         return self.name
 
@@ -43,7 +73,47 @@ class Topic(models.Model):
     A specific topic related to the subject
     """
     name = models.CharField(max_length=200)
-    subject = models.ForeignKey('Subject')
+    subject = models.ForeignKey('Subject', related_name='topics')
+
+    def learning_coeff(self, user):
+        """Return user knowledge as a float in [0..10]"""
+        qoq = QuestionOnQuiz.objects.filter(
+            question__topic=self,
+            quiz__user=user,
+            quiz__state=Quiz.STATUS.finished,
+        ).exclude(state=QuestionOnQuiz.STATUS.not_answered)
+
+        correct = qoq.filter(state=QuestionOnQuiz.STATUS.right)
+        try:
+            lc = correct.count() / qoq.count()
+        except ZeroDivisionError:
+            lc = float()  # 0.0
+        return lc * 100
+
+    def similar_exists(self):
+        """
+        Check if a Topic in the database has the same name (ignoring case)
+        than the question.
+        :return: True only if a Topic with the same name ignoring case exists
+        in the database
+        :rtype: bool
+        """
+        queryset = Topic.objects.filter(
+            subject=self.subject
+        ).exclude(
+            pk=self.pk)
+
+        for q in queryset:
+            if self.name.lower() == q.name.lower():
+                return True
+        return False
+
+    def clean(self):
+        try:
+            if self.similar_exists():
+                raise ValidationError(_('A similar topic already exists'))
+        except Subject.DoesNotExist:
+            pass
 
     def __str__(self):
         return '{} ({})'.format(self.name, self.subject)
@@ -85,13 +155,14 @@ class Question(models.Model):
         return False
 
     def clean(self):
-        if self.is_repeated():
-            raise ValidationError(_('The question already exists'))
-
-        if self.similar_exists():
-            raise ValidationError(_('A similar question already exists'))
+        try:
+            if self.is_repeated():
+                raise ValidationError(_('The question already exists'))
+        except Topic.DoesNotExist:
+            pass
 
     def to_json(self):
+        """"Converts a Question to json format"""
         return {
             'id': self.id,
             'text': self.text,
@@ -108,6 +179,7 @@ class Answer(models.Model):
     is_correct = models.BooleanField(default=False)
 
     def to_json(self):
+        """"Converts a Answer to json format"""
         return {
             'id': self.id,
             'text': self.text,
@@ -174,11 +246,14 @@ class Quiz(models.Model):
                              default=STATUS.in_progress,
                              max_length=20)
 
-    def score(self):
+    def score(self, **kwargs):
         """Return float indicating ratio of correct answers"""
-        qq = QuestionOnQuiz.objects.filter(quiz=self)
+        qq = QuestionOnQuiz.objects.filter(quiz=self, **kwargs)
         correct = qq.filter(state=QuestionOnQuiz.STATUS.right)
-        score = correct.count() / float(qq.count())
+        try:
+            score = correct.count() / qq.count()
+        except ZeroDivisionError:
+            score = 0
         return score * 100
 
     def detailed_score(self):
@@ -186,13 +261,24 @@ class Quiz(models.Model):
         qq = QuestionOnQuiz.objects.filter(quiz=self)
         return qq.values('state').annotate(total=Count('state'))
 
-    def to_json(self):
+    def to_json(self, exclude_answered=False):
+        """"
+            Converts a Quiz to json format. Only save id and seconds to
+            use them later
+        """
         result = {
             'id': self.id,
             'seconds': self.seconds_per_question,
-            'questions': [qoq.question.to_json()
-                          for qoq in QuestionOnQuiz.objects.filter(quiz=self)]
         }
+
+        questions_qs = QuestionOnQuiz.objects.filter(quiz=self)
+
+        if exclude_answered:
+            questions_qs = questions_qs.filter(
+                state=QuestionOnQuiz.STATUS.not_answered
+            )
+
+        result['questions'] = [qoq.question.to_json() for qoq in questions_qs]
         return result
 
 

@@ -1,4 +1,4 @@
- {% extends "base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 <div class="page-header">
@@ -35,7 +35,7 @@
     $( document ).ready(function() {
 
         var quiz = {{ quiz | safe }}; {# this will dump quiz as a json object #}
-        var questions = quiz.questions
+        var questions = quiz.questions;
 
         // this will be the post data
         var result = {
@@ -204,9 +204,22 @@
             return myString
         }
 
-        function get_checked_items_id(name, list) {
+        function post_answer(name, list, question_id) {
+            var checked_answers = Array();
             $( "[name='" + name + "']:checked" ).each(function() {
-                list.push(remove_non_numeric_chars($(this).attr('id')));
+                checked_answers.push(remove_non_numeric_chars($(this).attr('id')));
+            });
+            $.ajax({
+                type: 'POST',
+                url: '{% url "answer_question" %}',
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: {
+                    'quiz_id': quiz.id,
+                    'question_id': question_id,
+                    'answers': JSON.stringify(checked_answers),
+                },
+                success: function (data) {console.log(data);},
+                fail: function () {alert('PANIC: failed to post answers');},
             });
         }
 
@@ -236,8 +249,7 @@
                 // refresh view
                 change_template(questions[i]);
                 clear_timer();
-                init_timer(CHECKBOX + questions[i].id,
-		           result.answers[i].answer_id);
+                init_timer(CHECKBOX + questions[i].id, result.answers[i].answer_id, questions[i].id);
 
                 $("#" + DUPLICATE.text + questions[i].id).click(function() {
                     clear_timer();
@@ -246,8 +258,7 @@
 
                 $("#" + OK.text + questions[i].id).click(function() {
                     // user pressed OK, collect selected answers
-                    get_checked_items_id(CHECKBOX + questions[i].id,
-                                         result.answers[i].answer_id);
+                    post_answer(CHECKBOX + questions[i].id, result.answers[i].answer_id, questions[i].id);
                     next_question();
                 });
             }
@@ -259,7 +270,7 @@
             $('.progress-bar').text(seconds);
         }
 
-        function init_timer(some_id, some_list) {
+        function init_timer(some_id, some_list, question_id) {
             var j = seconds;
             var ratio;
             timer_bar = setInterval(function () {
@@ -269,7 +280,7 @@
                     $('.progress-bar').css('width', j / seconds * 100 + '%');
                     $('.progress-bar').text(j);
                 } else {
-                    get_checked_items_id(some_id, some_list);
+                    post_answer(some_id, some_list, question_id);
                     next_question();
                 }
             }, 1000);

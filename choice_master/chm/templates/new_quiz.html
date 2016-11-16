@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block custom_css %}
     <link href="/static/admin/css/widgets.css" type="text/css" rel="stylesheet">
-	<link href="/static/css/overrides.css" type="text/css" rel="stylesheet">
+    <link href="/static/css/overrides.css" type="text/css" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -30,7 +30,7 @@
       {# number of quiestions #}
       <div class="form-group">
         <label class="control-label col-sm-4" for="nr_of_questions">Number of questions</label>
-	    <div class="col-sm-2">
+        <div class="col-sm-2">
           {{ form.nr_of_questions }}
         </div>
       </div>
@@ -38,7 +38,7 @@
       {# seconds between quiestions #}
       <div class="form-group">
         <label class="control-label col-sm-4" for="seconds_per_question">Seconds per question</label>
-    	<div class="col-sm-2">
+        <div class="col-sm-2">
           {{ form.seconds_per_question }}
         </div>
       </div>
@@ -56,12 +56,12 @@
         </div>
       </div>
 
-	  <hr />
+      <hr />
 
       {# Topics #}
       <div class="form-group">
         {% if form.topics.errors %}
-		<div class="row">
+        <div class="row">
           <div class="centered col-sm-1">
           </div>
           <div class="centered col-sm-10">
@@ -70,7 +70,7 @@
         </div>
        {% endif %}
 
-		<div class="row">
+        <div class="row">
           {# workarrownd to make it look centered #}
           <div class="centered col-sm-1">
           </div>
@@ -80,22 +80,84 @@
         </div>
       </div>
 
-	  <div class="form-group"> 
-	    <div class="col-sm-offset-10 col-sm-3">
-		  <button type="submit" class="btn btn-default">Submit</button>
-	    </div>
-	  </div>
+      <div class="form-group">
+        <div class="col-sm-offset-10 col-sm-3">
+          <button type="submit" class="btn btn-default">Submit</button>
+        </div>
+      </div>
     </form>
   </div>
   <div class="panel-footer">
   </div>
 </div>
+
+    {% if pending_quizes %}
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" data-keyboard="false">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">You have a pending quiz...</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Do you want to resume the quiz or would you like to discard it?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" onclick="resume(false)">Discard</button>
+                        <button type="button" class="btn btn-success" onclick="resume(true)">Resume</button>
+                    </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+    {% endif %}
 {% endblock %}
 
 {% block custom_js %}
-<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+<script type="text/javascript" src="/static/js/jsi18n.js"></script>
 <script type="text/javascript">
 django.jQuery = $;
+    {% if pending_quizes %}
+        function redirectPost(args) {
+			var field;
+			var url = "{% url 'resume_quiz' %}";
+			var form = $("<form action='" + url + "'> {% csrf_token %} </form>");
+
+			form.attr("method", "post");
+
+			$.each( args, function( key, value ) {
+				field = $('<input></input>');
+				field.attr("type", "hidden");
+				field.attr("name", key);
+				field.attr("value", value);
+
+				form.append(field);
+			});
+			$(form).appendTo('body').submit();
+		}
+        function resume(choice) {
+            if (!choice) { // user wants to discard previous pending quiz
+                // communicate that to the server
+                $.ajax({
+                    type: 'POST',
+                    url: "{% url 'discard_quiz' %}",
+                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                    data: {
+                        'quiz_id': {{ pending_quizes.first.pk }},
+                        'resume': choice,
+                    },
+                    success: function (data) {console.log(data);},
+                    fail: function () {alert('PANIC: failed to post answers');},
+                });
+                // close modal to allow user take a new quiz
+                $('#myModal').modal('hide');
+            } else { // user wants to resume
+				redirectPost({'quiz_id': {{ pending_quizes.first.pk }} });
+            }
+        }
+        $(document).ready(function () {
+            $('#myModal').modal({'backdrop': 'static'});
+            $('#myModal').modal('show');
+        });
+    {% endif %}
 </script>
 <script type="text/javascript" src="/static/admin/js/core.js"></script>
 <script type="text/javascript" src="/static/admin/js/SelectBox.js"></script>

@@ -1,8 +1,14 @@
+import json
+
 from django.conf.urls import url
 from django.contrib import admin
 from django.core.exceptions import ValidationError
+from django.http import Http404
+from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
+from lxml.etree import XMLSyntaxError
 
 from .forms import XMLFileForm
 from .messages import LoadQuestionsMessageManager
@@ -13,9 +19,13 @@ from .models import Question
 from .models import Subject
 from .models import Topic
 from .models import XMLFile
-
 from .xml import XMLParser
-from lxml.etree import XMLSyntaxError
+
+
+class SimilarQuestionError(Exception):
+    def __init__(self, msg, data):
+        self.msg = msg
+        self.data = data
 
 
 class XMLFileAdmin(admin.ModelAdmin):
@@ -38,11 +48,14 @@ class XMLFileAdmin(admin.ModelAdmin):
             url('^loadquestions/$',
                 self.admin_site.admin_view(self.load_questions_view),
                 name='chm_load_questions'),
+            url('^acceptsimilarquestion/$',
+                self.admin_site.admin_view(self.accept_similar_question_view),
+                name='chm_accept_similar_question'),
         ]
         return urls + super(XMLFileAdmin, self).get_urls()
 
     @staticmethod
-    def load_question(data, mm):
+    def load_question(data, mm, request, ignore_similar=False):
         """
         Parse the data, create all the instances of the corresponding models,
         validate them and then save them. Handle all the validation errors that
@@ -55,16 +68,23 @@ class XMLFileAdmin(admin.ModelAdmin):
 
             question = Question(text=data['question'], topic=topic)
             question.full_clean()
-            question.save()
-
+            answers = []
             for ans in data['answers']:
                 answer = Answer()
-                answer.question = question
                 answer.text = ans['text']
                 answer.is_correct = ans['is_correct']
-                answer.full_clean()
-                answer.save()
-            mm.added.append(question)
+                answers.append(answer)
+
+            if question.similar_exists() and not ignore_similar:
+                raise SimilarQuestionError(_("A similar question exists"),
+                                           data)
+            else:
+                question.save()
+                for answer in answers:
+                    answer.question = question
+                    answer.full_clean()
+                    answer.save()
+                mm.added.append(question)
 
         except Subject.DoesNotExist:
             mm.no_subject.append((data['subject'], data['question']))
@@ -75,12 +95,16 @@ class XMLFileAdmin(admin.ModelAdmin):
         except ValidationError as err:
             mm.validation_error.append((err, data['question']))
 
+        except SimilarQuestionError as err:
+            request.session['duplicates'].append(err.data)
+
     def load_questions_view(self, request):
         """
         Parse and load the questions and answers from the specified file into
         the database. Handle any validation error showing the corresponding
         message.
         """
+        request.session['duplicates'] = []
         mm = LoadQuestionsMessageManager()
         try:
             form = XMLFileForm(request.POST, request.FILES)
@@ -88,7 +112,7 @@ class XMLFileAdmin(admin.ModelAdmin):
                 xmlfile = request.FILES['file']
                 parser = XMLParser(xmlfile)
                 for data in parser.parse_questions():
-                    self.load_question(data, mm)
+                    self.load_question(data, mm, request)
             else:
                 mm.form_is_valid = False
                 mm.set_messages(request)
@@ -100,6 +124,15 @@ class XMLFileAdmin(admin.ModelAdmin):
 
         mm.set_messages(request)
         return redirect(reverse('admin:chm_question_changelist'))
+
+    def accept_similar_question_view(self, request):
+        if request.method == 'POST':
+            data = json.loads(request.POST['data'])
+            mm = LoadQuestionsMessageManager()
+            self.load_question(data, mm, request, ignore_similar=True)
+            return JsonResponse({'ok': True})
+        else:
+            raise Http404(_("Nothing to see here."))
 
 
 class AnswerInline(admin.TabularInline):
@@ -113,17 +146,32 @@ class QuestionAdmin(admin.ModelAdmin):
     inlines = (AnswerInline,)
     list_display = ['get_text', 'get_topic_name', 'get_subject_name']
 
+    change_list_template = 'change_question_list.html'
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+
+        extra_context['duplicates'] = request.session.pop('duplicates',
+                                                          False)
+
+        return super(QuestionAdmin, self).changelist_view(
+            request, extra_context=extra_context,
+        )
+
     def get_text(self, obj):
         return obj.text
+
     get_text.short_description = 'Question'
 
     def get_topic_name(self, obj):
         return obj.topic.name
+
     get_topic_name.admin_order_field = 'topic'
     get_topic_name.short_description = 'Topic'
 
     def get_subject_name(self, obj):
         return obj.topic.subject.name
+
     get_subject_name.short_description = 'Subject'
 
 
@@ -133,10 +181,12 @@ class TopicAdmin(admin.ModelAdmin):
 
     def get_name(self, obj):
         return obj.name
+
     get_name.short_description = 'Topic'
 
     def get_subject_name(self, obj):
         return obj.subject.name
+
     get_subject_name.admin_order_field = 'subject'
     get_subject_name.short_description = 'Subject'
 
@@ -150,6 +200,7 @@ class FlaggedQuestionAdmin(admin.ModelAdmin):
 
     def flags_count(self, request):
         return Question.objects.filter(flags__isnull=False).count()
+
     flags_count.short_description = 'Number of complains'
 
     def get_queryset(self, request):

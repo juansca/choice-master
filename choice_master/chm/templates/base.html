@@ -1,7 +1,7 @@
 {% load static %}
 {% load i18n %}
 <!DOCTYPE html>
-<!-- saved from url=(0048)http://getbootstrap.com/examples/non-responsive/ -->
+
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <!-- The above 2 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
@@ -16,13 +16,13 @@
 
     <!-- Custom styles for this template -->
     <link href="{% static 'css/non.responsive.css' %}" rel="stylesheet">
-    
+
     <!-- Custom styles for this template -->
     <link href="{% static 'css/quizform.css' %}" rel="stylesheet">
 
 
-	{% block custom_css %}
-	{% endblock %}
+  {% block custom_css %}
+  {% endblock %}
 
   </head>
 
@@ -30,8 +30,8 @@
 
     <!-- Fixed navbar -->
     <nav class="navbar navbar-default navbar-fixed-top">
-      <div class="container">
 
+      <div class="container">
 
         <div class="navbar-header">
           <p class="navbar-brand">Choice Master</p>
@@ -40,34 +40,25 @@
 
         <div id="navbar">
           <ul class="nav navbar-nav">
-
-            <!-- Home, About and Contact removed.
-
-            <li class="active"><a href="#">Home</a></li>
-             <li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li> -->
-
-
             {% if user.is_staff %}
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Administration Menu <span class="caret"></span></a>
-
               <ul class="dropdown-menu">
-
-				<li><a href="/admin">Admin</a></li>
+                <li><a href="/admin">Admin</a></li>
                 <li role="separator" class="divider"></li>
                 <li class="dropdown-header">Options</li>
                 <li><a href="/admin/chm/subject/">Subjects</a></li>
                 <li><a href="/admin/chm/topic/">Topics</a></li>
                 <li><a href="/admin/chm/question/">Questions</a></li>
                 <li><a href="/admin/chm/xmlfile/">Upload XML</a></li>
-                <li><a href="/admin/chm/flaggedquestion/">
-						Complains
-						{% if n_flagged_questions %}
-							<span class="label label-danger">{{ n_flagged_questions }}</span>
-						{% endif %}
-					</a></li>
-
+                <li>
+                  <a href="/admin/chm/flaggedquestion/">
+                    Complaints
+                    {% if n_flagged_questions %}
+                      <span class="label label-danger">{{ n_flagged_questions }}</span>
+                    {% endif %}
+                  </a>
+                </li>
               </ul>
             </li>
             {% endif %}
@@ -77,10 +68,14 @@
           <ul class="nav navbar-nav navbar-right">
             {% if user.is_authenticated %}
               <li class="active">
-                <a href="#">{{ user.username }}</a>
+
+                <a href="#"><span class="glyphicon glyphicon-user"></span> {{ user.username }}</a>
               </li>
               <li>
                 <a href="{% url 'new_quiz' %}">Take a quiz</a>
+              </li>
+              <li>
+                <a href="{% url 'show_stats' %}">My Stats</a>
               </li>
 
               <li>
@@ -98,13 +93,13 @@
 
     <div class="container">
 
-		{% if messages %}
-			<ul class="messages">
-				{% for message in messages %}
-				<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-				{% endfor %}
-			</ul>
-		{% endif %}
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
 
         {% block content %}
         {% endblock %}
@@ -118,7 +113,7 @@
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/csrf.js' %}"></script>
 
-	{% block custom_js %}
-	{% endblock %}
+  {% block custom_js %}
+  {% endblock %}
   </body>
 </html>

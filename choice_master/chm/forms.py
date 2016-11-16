@@ -31,6 +31,7 @@ RIGHT = QuestionOnQuiz.STATUS.right
 
 
 class XMLFileForm(forms.ModelForm):
+    """Provide a form to upload the XML file"""
     class Meta:
         model = XMLFile
         fields = ['file']

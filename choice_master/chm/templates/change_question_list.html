@@ -1,0 +1,35 @@
+{% extends "admin/change_list.html" %}
+{% load staticfiles%}
+{% load i18n %}
+
+{% block messages %}
+
+{% if messages %}
+
+<script src="{% static 'js/jquery.min.js' %}"></script>
+
+
+
+<ul class="messagelist">
+
+    {% if duplicates %}{% for duplicate in duplicates %}
+    <li class="warning">
+        A similar question already exists: {{ duplicate.question }}.
+
+        <a href="#">Add it anyway</a>
+
+        </li>
+    {% endfor %}{% endif %}
+
+    {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+            {{ message|capfirst }}
+        </li>
+    {% endfor %}
+
+</ul>
+{% endif %}
+
+
+{% endblock messages %}
+
