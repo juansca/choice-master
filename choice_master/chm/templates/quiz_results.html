@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% load chm_extras %}
+{% load static %}
 {% block custom_css %}
+    <link rel="stylesheet" href="{% static 'css/rating.css' %}"/>
 {% endblock %}
+
 
 {% block content %}
   <div class="page-header">
@@ -97,7 +100,15 @@
             <div class="media-body">
               <h4 class="media-heading">{{ qoq.question.text }}
                 <div class="pull-right">
+                    &emsp;
                     <a href="{% url 'flag' id=qoq.question.id %}" class="text-danger" target="_blank" title="Flag this question"><span class="glyphicon glyphicon-flag"></span></a>
+                </div>
+                <div class="pull-right" id="{{ qoq.question.id }}">
+                    <input type="radio" name="example" class="rating" value="1" />
+                    <input type="radio" name="example" class="rating" value="2" />
+                    <input type="radio" name="example" class="rating" value="3" />
+                    <input type="radio" name="example" class="rating" value="4" />
+                    <input type="radio" name="example" class="rating" value="5" />
                 </div>
               </h4>
               {{ qoq.state|humanize_status }}
@@ -110,4 +121,13 @@
 {% endblock %}
 
 {% block custom_js %}
+    <script src="{% static 'js/rating.js' %}"></script>
+    <script>
+        {% for qoq in quiz.questions.all %}
+        $(function(){
+            $('#{{ qoq.question.id }}').rating(); // Call the rating plugin
+
+        });
+        {% endfor %}
+    </script>
 {% endblock %}
