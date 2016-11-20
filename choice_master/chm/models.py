@@ -124,6 +124,20 @@ class Question(models.Model):
     """Question Model"""
     topic = models.ForeignKey('Topic')
     text = models.CharField(max_length=300)
+    number_ranked = models.IntegerField(default=0)
+    rank_score = models.IntegerField(default=0)
+
+    def round_down(n):
+        """Round down floating number n"""
+        if n - floor(n) == 0.5:
+            return floor(n)
+        return round(n)
+
+    def avg_rank(self):
+        """Return the answer's average ranking score"""
+        if self.rank_score == 0:
+            return 1
+        return self.round_down(self.usr_rank_score / self.number_ranked)
 
     def __str__(self):
         return self.text
@@ -178,20 +192,6 @@ class Answer(models.Model):
     text = models.CharField(max_length=300)
     question = models.ForeignKey('Question', related_name='answers')
     is_correct = models.BooleanField(default=False)
-    number_ranked = models.IntegerField(default=0)
-    rank_score = models.IntegerField(default=0)
-
-    def round_down(n):
-        """Round down floating number n"""
-        if n - floor(n) == 0.5:
-            return floor(n)
-        return round(n)
-
-    def avg_rank(self):
-        """Return the answer's average ranking score"""
-        if self.rank_score == 0:
-            return 1
-        return self.round_down(self.usr_rank_score / self.number_ranked)
 
     def to_json(self):
         """Converts a Answer to json format"""
