@@ -5,6 +5,7 @@ Models for app chm
 # python imports
 from allauth.account.signals import user_signed_up
 from model_utils import Choices
+from math import floor
 
 # django imports
 from django.db import models
@@ -177,9 +178,23 @@ class Answer(models.Model):
     text = models.CharField(max_length=300)
     question = models.ForeignKey('Question', related_name='answers')
     is_correct = models.BooleanField(default=False)
+    number_ranked = models.IntegerField(default=0)
+    rank_score = models.IntegerField(default=0)
+
+    def round_down(n):
+        """Round down floating number n"""
+        if n - floor(n) == 0.5:
+            return floor(n)
+        return round(n)
+
+    def avg_rank(self):
+        """Return the answer's average ranking score"""
+        if self.rank_score == 0:
+            return 1
+        return self.round_down(self.usr_rank_score / self.number_ranked)
 
     def to_json(self):
-        """"Converts a Answer to json format"""
+        """Converts a Answer to json format"""
         return {
             'id': self.id,
             'text': self.text,
