@@ -138,7 +138,7 @@ class Question(models.Model):
         """Return the answer's average ranking score"""
         if self.ranked_score == 0:
             return 1
-        return self.round_down(self.usr_ranked_score *
+        return self.round_down(self.ranked_score *
                                (number_ranked - 1) /
                                self.number_ranked)
 
