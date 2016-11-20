@@ -40,9 +40,11 @@ class XMLFileForm(forms.ModelForm):
 class QuizForm(forms.Form):
     """Provide form to configure quiz options"""
     RANDOM = '1'
-    HELP_IMPROVE = '2'
+    MIN_DIFFICULTY = '2'
+    HELP_IMPROVE = '3'
 
     SELECTION_ALGORITHMS = ((RANDOM, 'Random'),
+                            (MIN_DIFFICULTY, 'Select minimum difficulty'),
                             (HELP_IMPROVE, 'Based on previows errors'))
 
     topics = forms.ModelMultipleChoiceField(
@@ -55,11 +57,20 @@ class QuizForm(forms.Form):
         initial=4,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
     )
+
+    min_difficulty = forms.IntegerField(
+        min_value=1,
+        max_value=5,
+        initial=1,
+        widget=forms.NumberInput(attrs={'class': 'form-control'})
+    )
+
     seconds_per_question = forms.IntegerField(
         min_value=10,
         initial=10,
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
     )
+
     selection_algorithm = forms.ChoiceField(
         choices=SELECTION_ALGORITHMS,
         widget=forms.Select(attrs={'class': 'form-control'}),
@@ -87,12 +98,23 @@ class QuizForm(forms.Form):
         """ Make shure there are enough questions
         on the DDBB to satisfy user configuration"""
         cleaned_data = super(QuizForm, self).clean()
-        if self.candidates is not None:
-            if self.candidates.count() < cleaned_data['nr_of_questions']:
-                msg = ('There are {} questions for the chosen topics. '
-                       'Please choose fewer questions or '
-                       'provide more topics.'.format(len(self.candidates)))
-                raise forms.ValidationError(msg)
+        assert self.candidates is not None
+        if self.cleaned_data['selection_algorithm'] == self.MIN_DIFFICULTY:
+            self.candidates = self.candidates.filter(
+                ranked_score__gte=cleaned_data['min_difficulty']
+            )
+        if self.candidates.count() < cleaned_data['nr_of_questions']:
+            msg = ('{} questions meet the current criteria. '
+                   'You can try choosing fewer questions or more '
+                   'topics.'.format(len(self.candidates)))
+            if cleaned_data['selection_algorithm'] == self.MIN_DIFFICULTY:
+                if cleaned_data['min_difficulty'] > 1:
+                    msg += (' You could also try with a'
+                            ' lower minimum difficulty.')
+                else:
+                    msg += (' You could also try with a'
+                            ' different selection algorithm.')
+            raise forms.ValidationError(msg)
         return cleaned_data
 
     def make_quiz(self):
@@ -117,18 +139,12 @@ class QuizForm(forms.Form):
         assert self.is_valid()
         selection_algorithm = self.cleaned_data['selection_algorithm']
 
-        if selection_algorithm == QuizForm.RANDOM:
-            candidates = list(Question.objects.filter(
-                topic__in=self.cleaned_data['topics']
-            ))
+        if selection_algorithm in [QuizForm.RANDOM, QuizForm.MIN_DIFFICULTY]:
+            candidates = list(self.candidates)
             random.shuffle(candidates)
         elif selection_algorithm == QuizForm.HELP_IMPROVE:
-
             # order by amount of previous errors
-            candidates = Question.objects.filter(
-                # questions must match the specified topics
-                topic__in=self.cleaned_data['topics']
-            ).annotate(
+            candidates = self.candidates.annotate(
 
                 # we'll add column with some 'score' to order the questions
                 score=Sum(

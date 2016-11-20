@@ -147,7 +147,7 @@ class Question(models.Model):
 
     def is_repeated(self):
         """
-        Check if a identical question exists in the database.
+        Check if an identical question exists in the database.
         :return: True only if an identical question exists in the database
         :rtype: bool
         """
