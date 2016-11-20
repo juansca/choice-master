@@ -125,8 +125,9 @@ class Question(models.Model):
     topic = models.ForeignKey('Topic')
     text = models.CharField(max_length=300)
     number_ranked = models.IntegerField(default=0)
-    rank_score = models.IntegerField(default=0)
+    ranked_score = models.IntegerField(default=0)
 
+    @staticmethod
     def round_down(n):
         """Round down floating number n"""
         if n - floor(n) == 0.5:
@@ -135,9 +136,11 @@ class Question(models.Model):
 
     def avg_rank(self):
         """Return the answer's average ranking score"""
-        if self.rank_score == 0:
+        if self.ranked_score == 0:
             return 1
-        return self.round_down(self.usr_rank_score / self.number_ranked)
+        return self.round_down(self.usr_ranked_score *
+                               (number_ranked - 1) /
+                               self.number_ranked)
 
     def __str__(self):
         return self.text
