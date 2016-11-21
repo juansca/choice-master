@@ -13,7 +13,6 @@
     $(document).ready(function () {
         dup_json = '{{ dup_json | safe }}';
         duplicates = JSON.parse(dup_json);
-        console.log(duplicates);
         var url = "{% url 'admin:chm_accept_similar_question' %}";
 
         {% if duplicates %}{% for duplicate in duplicates %}
