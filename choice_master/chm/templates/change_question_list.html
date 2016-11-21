@@ -11,9 +11,24 @@
 
 <script>
     $(document).ready(function () {
-        q = '{{ dup_json | safe }}';
-        q = JSON.parse(q);
-        console.log(q);
+        dup_json = '{{ dup_json | safe }}';
+        duplicates = JSON.parse(dup_json);
+        console.log(duplicates);
+        var url = "{% url 'admin:chm_accept_similar_question' %}";
+
+        {% if duplicates %}{% for duplicate in duplicates %}
+        $('#addit{{forloop.counter}}').click(function () {
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {data: JSON.stringify(duplicates[{{forloop.counter}}])},
+                success:function(data) {
+                    $('#divaddit{{forloop.counter}}').html('Added!');
+                }
+            });
+        });
+        {% endfor %}{% endif %}
+
     });
 </script>
 
@@ -23,7 +38,9 @@
     <li class="warning">
         A similar question already exists: {{ duplicate.question }}.
 
-        <a href="#">Add it anyway</a>
+        <div id="divaddit{{forloop.counter}}">
+            <button id="addit{{forloop.counter}}" class="default">Add it anyway</button>
+        </div>
 
         </li>
     {% endfor %}{% endif %}

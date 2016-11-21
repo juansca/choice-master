@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.csrf import csrf_exempt
 from lxml.etree import XMLSyntaxError
 
 from .forms import XMLFileForm
@@ -125,6 +126,7 @@ class XMLFileAdmin(admin.ModelAdmin):
         mm.set_messages(request)
         return redirect(reverse('admin:chm_question_changelist'))
 
+    @csrf_exempt
     def accept_similar_question_view(self, request):
         if request.method == 'POST':
             data = json.loads(request.POST['data'])
