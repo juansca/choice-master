@@ -156,6 +156,9 @@ class QuestionAdmin(admin.ModelAdmin):
         extra_context['duplicates'] = request.session.pop('duplicates',
                                                           False)
 
+
+        extra_context['dup_json'] = json.dumps(extra_context['duplicates'])
+
         return super(QuestionAdmin, self).changelist_view(
             request, extra_context=extra_context,
         )

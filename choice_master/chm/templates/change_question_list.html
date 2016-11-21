@@ -9,6 +9,13 @@
 <script src="{% static 'js/jquery.min.js' %}"></script>
 
 
+<script>
+    $(document).ready(function () {
+        q = '{{ dup_json | safe }}';
+        q = JSON.parse(q);
+        console.log(q);
+    });
+</script>
 
 <ul class="messagelist">
 
