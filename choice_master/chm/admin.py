@@ -145,8 +145,10 @@ class QuestionAdmin(admin.ModelAdmin):
     model = Question
     inlines = (AnswerInline,)
     list_display = ['get_text', 'get_topic_name', 'get_subject_name']
+    fields = ['topic', 'text']
 
     change_list_template = 'change_question_list.html'
+
 
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
