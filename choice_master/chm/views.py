@@ -1,7 +1,3 @@
-"""
-Views for app chm
-"""
-
 from allauth.account.views import login
 import json
 
