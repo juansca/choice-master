@@ -36,7 +36,11 @@ class Subject(models.Model):
     description = models.CharField(max_length=500)
 
     def learning_coeff(self, user):
-        """Return user knowledge as a float in [0..10]"""
+        """
+        Return user knowledge as a float in [0..10]
+        :return: The user learning coefficient
+        :rtype: float
+        """
 
         # get all topics, even if user didn't answer any questions yet
         topics = self.topics.all()
@@ -77,7 +81,11 @@ class Topic(models.Model):
     subject = models.ForeignKey('Subject', related_name='topics')
 
     def learning_coeff(self, user):
-        """Return user knowledge as a float in [0..10]"""
+        """
+        Return user knowledge as a float in [0..10]
+        :return: The user learning coefficient
+        :rtype: float
+        """
         qoq = QuestionOnQuiz.objects.filter(
             question__topic=self,
             quiz__user=user,
@@ -130,7 +138,12 @@ class Question(models.Model):
 
     @staticmethod
     def round_down(n):
-        """Round down floating number n"""
+        """
+        Round down floating number n
+        :param n: The number to apply the rounding down
+        :return: The number rounded down
+        :rtype: int | float
+        """
         if n - floor(n) == 0.5:
             return floor(n)
         return round(n)
@@ -184,7 +197,11 @@ class Question(models.Model):
             pass
 
     def to_json(self):
-        """"Converts a Question to json format"""
+        """"
+        Converts a Question to json format
+        :return: A question formated as a dictionary
+        :rtype: dict[string, T]
+        """
         return {
             'id': self.id,
             'text': self.text,
@@ -204,7 +221,11 @@ class Answer(models.Model):
     is_correct = models.BooleanField(default=False)
 
     def to_json(self):
-        """Converts a Answer to json format"""
+        """
+        Converts an Answer to json format
+        :return: An answer formated as a dictionary
+        :rtype: dict[string, T]
+        """
         return {
             'id': self.id,
             'text': self.text,
@@ -272,7 +293,11 @@ class Quiz(models.Model):
                              max_length=20)
 
     def score(self, **kwargs):
-        """Return float indicating ratio of correct answers"""
+        """
+        Return float indicating ratio of correct answers
+        :return: The ratio of correct answers
+        :rtype: float
+        """
         qq = QuestionOnQuiz.objects.filter(quiz=self, **kwargs)
         correct = qq.filter(state=QuestionOnQuiz.STATUS.right)
         try:
@@ -282,14 +307,20 @@ class Quiz(models.Model):
         return score * 100
 
     def detailed_score(self):
-        """Return queryset detailing total amount of answers in each state"""
+        """
+        Return queryset detailing total amount of answers in each state
+        :return: The total amount of answers in each state
+        :rtype: QuerySet
+        """
         qq = QuestionOnQuiz.objects.filter(quiz=self)
         return qq.values('state').annotate(total=Count('state'))
 
     def to_json(self, exclude_answered=False):
         """"
-            Converts a Quiz to json format. Only save id and seconds to
-            use them later
+        Converts a Quiz to json format. Only save id and seconds to
+        use them later.
+        :return: An quiz formated as a dictionary
+        :rtype: dict[string, T]
         """
         result = {
             'id': self.id,

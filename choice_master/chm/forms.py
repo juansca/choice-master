@@ -1,7 +1,3 @@
-"""
-Forms for app chm
-"""
-
 # python import
 import random
 
@@ -21,9 +17,6 @@ from chm.models import QuestionOnQuiz
 from chm.models import Quiz
 from chm.models import Topic
 from chm.models import XMLFile
-
-
-# some constants
 
 NOT_ANSWERED = QuestionOnQuiz.STATUS.not_answered
 WRONG = QuestionOnQuiz.STATUS.wrong
@@ -82,21 +75,23 @@ class QuizForm(forms.Form):
         css = {'all': ('/static/admin/css/widgets.css',)}
 
     def __init__(self, *args, **kwargs):
-        """ Add custom attribute to hold candidates questions"""
+        """Add custom attribute to hold candidates questions"""
         self.candidates = None
         self.user = kwargs.pop('user', None)
         super(QuizForm, self).__init__(*args, **kwargs)
 
     def clean_topics(self):
-        """ Use the oportunity to populate `candidates` attribute"""
+        """Use the oportunity to populate `candidates` attribute"""
         self.candidates = Question.objects.filter(
             topic__in=self.cleaned_data['topics']
         )
         return self.cleaned_data['topics']
 
     def clean(self):
-        """ Make shure there are enough questions
-        on the DDBB to satisfy user configuration"""
+        """
+        Make shure there are enough questions on the DDBB to satisfy
+        user configuration
+        """
         cleaned_data = super(QuizForm, self).clean()
         assert self.candidates is not None
         if self.cleaned_data['selection_algorithm'] == self.MIN_DIFFICULTY:
@@ -135,7 +130,11 @@ class QuizForm(forms.Form):
         return quiz
 
     def choose_questions(self):
-        """ Chose questions based on topics and selection method"""
+        """
+        Chose questions based on topics and selection method
+        :return: The selected questions
+        :rtype: list[Question]
+        """
         assert self.is_valid()
         selection_algorithm = self.cleaned_data['selection_algorithm']
 
