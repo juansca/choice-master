@@ -1,6 +1,3 @@
-"""
-Tests for app chm
-"""
 from unittest import TestCase
 from os import path
 
@@ -13,7 +10,6 @@ from . import models
 from choice_master.settings import BASE_DIR
 
 from django.contrib.auth.models import User
-from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from lxml import etree
 
