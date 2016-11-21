@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
@@ -93,10 +94,27 @@ def correct_quiz(request):
 @login_required
 def quiz_results(request, id):
     """Show results obtained in quiz"""
-    quiz = get_object_or_404(Quiz, id=id)
-    if quiz.user != request.user:
-        raise PermissionDenied
-    return render(request, 'quiz_results.html', {'quiz': quiz})
+    if request.method == 'POST':
+        try:
+            difficulty = int(request.POST['difficulty'])
+            qid = int(request.POST['qid'])
+        except ValueError:
+            return Http404(_("Wrong difficulty or question ID"))
+        print('-' * 20)
+        print("difficulty {0}".format(difficulty))
+        print("qid {0}".format(qid))
+        print('-' * 20)
+
+        question = get_object_or_404(Question, id=qid)
+        question.vote(difficulty)
+
+        question.save()
+        return JsonResponse({'ok': True})
+    else:
+        quiz = get_object_or_404(Quiz, id=id)
+        if quiz.user != request.user:
+            raise PermissionDenied
+        return render(request, 'quiz_results.html', {'quiz': quiz})
 
 
 @login_required

@@ -123,11 +123,22 @@
 {% block custom_js %}
     <script src="{% static 'js/rating.js' %}"></script>
     <script>
-        {% for qoq in quiz.questions.all %}
+    var tick = '<span class="text-success glyphicon glyphicon-ok"></span>';
+    {% for qoq in quiz.questions.all %}
         $(function(){
-            $('#{{ qoq.question.id }}').rating(); // Call the rating plugin
+            $('#{{ qoq.question.id }}').rating(function(vote, event){
 
+                $.ajax({
+                    type: "POST",
+                    data: {difficulty: vote, qid: {{ qoq.question.id }}},
+                    success:function(data) {
+                        console.log(data.ok);
+                        $('#{{ qoq.question.id }}').html("Vos sí sos unx soldadx del campo popular, compañerx! " + tick);
+                    }
+                });
+
+            });
         });
-        {% endfor %}
+    {% endfor %}
     </script>
 {% endblock %}

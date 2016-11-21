@@ -141,10 +141,10 @@ class Question(models.Model):
         :param difficulty: The voted difficulty
         :type difficulty: int
         """
-        self.real_difficulty = (real_difficulty * number_ranked +
-                                difficulty) / (number_ranked + 1)
+        self.real_difficulty = (self.real_difficulty * self.number_ranked +
+                                self.difficulty) / (self.number_ranked + 1)
         self.number_ranked += 1
-        self.difficulty = round_down(self.real_difficulty)
+        self.difficulty = self.round_down(self.real_difficulty)
 
     def is_repeated(self):
         """
