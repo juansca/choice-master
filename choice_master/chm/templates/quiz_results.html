@@ -87,12 +87,14 @@
   </div><!-- end panel success -->
 
 
+
   <div class="panel panel-success">
     <div class="panel-heading">
       Detailed result
     </div>
     <div class="panel-body">
         {% for qoq in quiz.questions.all %}
+        {% if  qoq.question.difficulty == 1  %}
           <div class="media">
             <div class="media-left">
               <p><span class="glyphicon {{ qoq|glyphicon }}" aria-hidden="true"></span> </p>
@@ -114,31 +116,37 @@
               {{ qoq.state|humanize_status }}
             </div>
           </div>
+          {% endif %}
         {% endfor %}
     </div><!-- end panel body-->
   </div><!-- end panel success -->
 
 {% endblock %}
 
+
+
 {% block custom_js %}
     <script src="{% static 'js/rating.js' %}"></script>
     <script>
     var tick = '<span class="text-success glyphicon glyphicon-ok"></span>';
     {% for qoq in quiz.questions.all %}
+        
         $(function(){
+            
             $('#{{ qoq.question.id }}').rating(function(vote, event){
 
                 $.ajax({
                     type: "POST",
                     data: {difficulty: vote, qid: {{ qoq.question.id }}},
                     success:function(data) {
-                        console.log(data.ok);
-                        $('#{{ qoq.question.id }}').html("Vos sí sos unx soldadx del campo popular, compañerx! " + tick);
+                        
+                        $('#{{ qoq.question.id }}').html("Thank you for your feedback! " + tick);
                     }
                 });
 
             });
         });
+   
     {% endfor %}
     </script>
 {% endblock %}

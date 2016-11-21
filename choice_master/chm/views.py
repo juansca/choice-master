@@ -100,10 +100,13 @@ def quiz_results(request, id):
         print("difficulty {0}".format(difficulty))
         print("qid {0}".format(qid))
         print('-' * 20)
-
+        difficulty = "difficulty {0}".format(difficulty)
+        
+        difficulty = str.split(difficulty)
         question = get_object_or_404(Question, id=qid)
-        question.vote(difficulty)
-
+            
+        question.difficulty = (difficulty[1])
+        print (question.difficulty)
         question.save()
         return JsonResponse({'ok': True})
     else:
