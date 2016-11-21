@@ -29,8 +29,8 @@ from chm.models import Topic
 
 def index(request):
     """
-        If the user is authenticated redirect to login,
-        otherwise display index page.
+    If the user is authenticated redirect to login,
+    otherwise display index page.
     """
 
     if not request.user.is_authenticated:
@@ -40,7 +40,7 @@ def index(request):
 
 @login_required
 def new_quiz(request):
-    """ User wants to start an exam."""
+    """User wants to start an exam."""
 
     if request.method == 'POST':
         form = QuizForm(request.POST, user=request.user)
@@ -70,7 +70,7 @@ def new_quiz(request):
 
 @login_required
 def correct_quiz(request):
-    """ Verify user answers """
+    """Verify user answers"""
 
     if request.method == 'POST':
         data = json.loads(request.POST['json'])
@@ -120,9 +120,9 @@ def quiz_results(request, id):
 @login_required
 def duplicate_question(request):
     """
-        Given a duplicate question proivded by a POST request
-        return a json object containing a new question that is not
-        contained in neither the quiz questions.
+    Given a duplicate question proivded by a POST request
+    return a json object containing a new question that is not
+    contained in neither the quiz questions.
     """
     if request.method == 'POST':
         data = json.loads(request.POST['data'])
@@ -266,7 +266,7 @@ def resume_quiz(request):
 
 @login_required
 def show_stats(request):
-    """ Show user stats"""
+    """Show user stats"""
     # produce a bunch of data for the UI to consume
     context = {}
     subjects_id = QuestionOnQuiz.objects.filter(
@@ -282,7 +282,7 @@ def show_stats(request):
 
 @login_required
 def stats_detail(request, id):
-    """ Show user stats for specific subject"""
+    """Show user stats for specific subject"""
     # produce a bunch of data for the UI to consume
     subject = get_object_or_404(Subject, id=id)
     subject.learning_coeff = subject.learning_coeff(request.user)

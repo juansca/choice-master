@@ -23,8 +23,8 @@ import string
 
 class Request():
     """
-        A Request toy to use in load_questions
-        Note that load_question only needs a session duplicates list
+    A Request toy to use in load_questions
+    Note that load_question only needs a session duplicates list
     """
     def __init__(self, sess=[]):
         self.session = dict()

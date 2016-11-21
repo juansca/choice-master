@@ -24,6 +24,7 @@ from .xml import XMLParser
 
 
 class SimilarQuestionError(Exception):
+    """When two questions are similar raise this error"""
     def __init__(self, msg, data):
         self.msg = msg
         self.data = data
@@ -41,10 +42,6 @@ class XMLFileAdmin(admin.ModelAdmin):
         return super(XMLFileAdmin, self).add_view(request, form_url)
 
     def get_urls(self):
-        """
-        Associate the url with name "admin:chm_load_questions" with the view
-        "load_questions_view".
-        """
         urls = [
             url('^loadquestions/$',
                 self.admin_site.admin_view(self.load_questions_view),
@@ -61,7 +58,15 @@ class XMLFileAdmin(admin.ModelAdmin):
         Parse the data, create all the instances of the corresponding models,
         validate them and then save them. Handle all the validation errors that
         might be raised in the validation process by using the given
-        MessageManager.
+        MessageManager
+        :param data: The data to be parsed
+        :param mm: A message manager to handle messages
+        :param request: The request
+        :param ignore_similar: load the questions regarless of the existence
+                               of similar questions
+        :type data: dict[string, T]
+        :type mm: messages.LoadQuestionsMessageManager
+        :type ignore_similar: bool
         """
         try:
             subject = Subject.objects.get(name=data['subject'])
@@ -104,6 +109,8 @@ class XMLFileAdmin(admin.ModelAdmin):
         Parse and load the questions and answers from the specified file into
         the database. Handle any validation error showing the corresponding
         message.
+        :param request: The request
+        :return: The response
         """
         request.session['duplicates'] = []
         mm = LoadQuestionsMessageManager()
@@ -128,6 +135,12 @@ class XMLFileAdmin(admin.ModelAdmin):
 
     @csrf_exempt
     def accept_similar_question_view(self, request):
+        """
+        Save the given question in the POST request ignoring if a similar
+        one exists
+        :param request: The request
+        :return: The response
+        """
         if request.method == 'POST':
             data = json.loads(request.POST['data'])
             mm = LoadQuestionsMessageManager()
@@ -151,13 +164,11 @@ class QuestionAdmin(admin.ModelAdmin):
 
     change_list_template = 'change_question_list.html'
 
-
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
 
         extra_context['duplicates'] = request.session.pop('duplicates',
                                                           False)
-
 
         extra_context['dup_json'] = json.dumps(extra_context['duplicates'])
 
