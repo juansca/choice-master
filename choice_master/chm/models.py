@@ -125,7 +125,8 @@ class Question(models.Model):
     topic = models.ForeignKey('Topic')
     text = models.CharField(max_length=300)
     number_ranked = models.IntegerField(default=0)
-    ranked_score = models.IntegerField(default=0)
+    real_difficulty = models.FloatField(default=1.0)
+    difficulty = models.IntegerField(default=1)
 
     @staticmethod
     def round_down(n):
@@ -134,16 +135,16 @@ class Question(models.Model):
             return floor(n)
         return round(n)
 
-    def avg_rank(self):
-        """Return the answer's average ranking score"""
-        if self.ranked_score == 0:
-            return 1
-        return self.round_down(self.ranked_score *
-                               (number_ranked - 1) /
-                               self.number_ranked)
-
-    def __str__(self):
-        return self.text
+    def vote(self, difficulty):
+        """
+        Vote the difficulty of the question. This method does not save.
+        :param difficulty: The voted difficulty
+        :type difficulty: int
+        """
+        self.real_difficulty = (real_difficulty * number_ranked +
+                                difficulty) / (number_ranked + 1)
+        self.number_ranked += 1
+        self.difficulty = round_down(self.real_difficulty)
 
     def is_repeated(self):
         """
@@ -173,6 +174,9 @@ class Question(models.Model):
         return False
 
     def clean(self):
+        if self.difficulty != self.round_down(self.real_difficulty):
+            raise ValidationError(_('The question has an inconsistent'
+                                    'difficulty'))
         try:
             if self.is_repeated():
                 raise ValidationError(_('The question already exists'))
@@ -188,6 +192,9 @@ class Question(models.Model):
             'topic_id': self.topic.pk,
             'answers': [a.to_json() for a in self.answers.all()]
         }
+
+    def __str__(self):
+        return self.text
 
 
 class Answer(models.Model):
