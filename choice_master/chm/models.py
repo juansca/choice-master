@@ -136,6 +136,10 @@ class Question(models.Model):
     real_difficulty = models.FloatField(default=1.0)
     difficulty = models.IntegerField(default=1)
 
+    @staticmethod
+    def round_down(n):
+        return int(n + 0.49)
+        
     def vote(self, difficulty):
         """
         Vote the difficulty of the question. This method does not save.
