@@ -12,15 +12,17 @@
 <script>
     $(document).ready(function () {
         dup_json = '{{ dup_json | safe }}';
-        duplicates = JSON.parse(dup_json);
+        dup = JSON.parse(dup_json);
+
         var url = "{% url 'admin:chm_accept_similar_question' %}";
 
         {% if duplicates %}{% for duplicate in duplicates %}
         $('#addit{{forloop.counter}}').click(function () {
+            var index = {{forloop.counter}} - 1;
             $.ajax({
                 url: url,
                 type: "POST",
-                data: {data: JSON.stringify(duplicates[{{forloop.counter}}])},
+                data: {data: JSON.stringify(dup[index])},
                 success:function(data) {
                     $('#divaddit{{forloop.counter}}').html('Added!');
                 }
@@ -55,4 +57,3 @@
 
 
 {% endblock messages %}
-
