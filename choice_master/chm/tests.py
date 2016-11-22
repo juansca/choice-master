@@ -681,38 +681,3 @@ class TestXMLParser(TestCase):
         answer2 = data3['answers'][1]
         self.assertEquals(answer2['text'], "Obvio que sí")
         self.assertTrue(answer2['is_correct'])
-
-
-class TestVotingOneVote(TestCase):
-    """Test voting funcionality"""
-
-    def setUp(self):
-        subject = models.Subject.objects.create(name='S')
-        topic = models.Topic.objects.create(name='T', subject=subject)
-        self.question = models.Question.objects.create(text='?', topic=topic)
-
-    def test_vote_one(self):
-        self.assertEqual(self.question.difficulty, 1)
-        self.question.vote(1)
-        self.question.save()
-        self.assertEqual(self.question.difficulty, 1)
-
-    def test_vote_two(self):
-        self.question.vote(2)
-        self.question.save()
-        self.assertEqual(self.question.difficulty, 2)
-
-    def test_vote_three(self):
-        self.question.vote(3)
-        self.question.save()
-        self.assertEqual(self.question.difficulty, 3)
-
-    def test_vote_four(self):
-        self.question.vote(4)
-        self.question.save()
-        self.assertEqual(self.question.difficulty, 4)
-
-    def test_vote_five(self):
-        self.question.vote(5)
-        self.question.save()
-        self.assertEqual(self.question.difficulty, 5)
