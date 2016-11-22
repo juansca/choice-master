@@ -86,15 +86,12 @@
     </div><!-- end panel body-->
   </div><!-- end panel success -->
 
-
-
   <div class="panel panel-success">
     <div class="panel-heading">
       Detailed result
     </div>
     <div class="panel-body">
         {% for qoq in quiz.questions.all %}
-        {% if  qoq.question.difficulty == 1  %}
           <div class="media">
             <div class="media-left">
               <p><span class="glyphicon {{ qoq|glyphicon }}" aria-hidden="true"></span> </p>
@@ -102,51 +99,48 @@
             <div class="media-body">
               <h4 class="media-heading">{{ qoq.question.text }}
                 <div class="pull-right">
-                    &emsp;
-                    <a href="{% url 'flag' id=qoq.question.id %}" class="text-danger" target="_blank" title="Flag this question"><span class="glyphicon glyphicon-flag"></span></a>
+                  &emsp;
+                  <a href="{% url 'flag' id=qoq.question.id %}" class="text-danger" target="_blank" title="Flag this question"><span class="glyphicon glyphicon-flag"></span></a>
                 </div>
-                <div class="pull-right" id="{{ qoq.question.id }}">
+                {% if  allow_rating  %}
+                  <div class="pull-right" id="{{ qoq.question.id }}">
                     <input type="radio" name="example" class="rating" value="1" />
                     <input type="radio" name="example" class="rating" value="2" />
                     <input type="radio" name="example" class="rating" value="3" />
                     <input type="radio" name="example" class="rating" value="4" />
                     <input type="radio" name="example" class="rating" value="5" />
-                </div>
+                  </div>
+                {% endif %}
               </h4>
               {{ qoq.state|humanize_status }}
             </div>
           </div>
-          {% endif %}
         {% endfor %}
     </div><!-- end panel body-->
   </div><!-- end panel success -->
 
 {% endblock %}
 
-
-
 {% block custom_js %}
-    <script src="{% static 'js/rating.js' %}"></script>
-    <script>
+  {% if allow_rating %}
+    <script type="text/javascript" src="{% static 'js/rating.js' %}"></script>
+    <script type="text/javascript">
     var tick = '<span class="text-success glyphicon glyphicon-ok"></span>';
-    {% for qoq in quiz.questions.all %}
-        
+      {% for qoq in quiz.questions.all %}
         $(function(){
-            
-            $('#{{ qoq.question.id }}').rating(function(vote, event){
-
-                $.ajax({
-                    type: "POST",
-                    data: {difficulty: vote, qid: {{ qoq.question.id }}},
-                    success:function(data) {
-                        
-                        $('#{{ qoq.question.id }}').html("Thank you for your feedback! " + tick);
-                    }
-                });
-
+          $('#{{ qoq.question.id }}').rating(function(vote, event){
+            $.ajax({
+              type: "POST",
+              url: '{% url "rate_question" %}',
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              data: {difficulty: vote, qid: {{ qoq.question.id }}},
+              success:function(data) {
+                $('#{{ qoq.question.id }}').html("Thank you for your feedback! " + tick);
+              }
             });
+          });
         });
-   
-    {% endfor %}
+      {% endfor %}
     </script>
+  {% endif %}
 {% endblock %}

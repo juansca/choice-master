@@ -145,7 +145,6 @@
                                 recieved_question_ok = false;
                                 alert_substitute_not_found();
                             } else {
-                                console.log(data.question)
                                 questions[current_question] = data.question};
                             },
                         dataType: "json",
@@ -218,7 +217,6 @@
                     'question_id': question_id,
                     'answers': JSON.stringify(checked_answers),
                 },
-                success: function (data) {console.log(data);},
                 fail: function () {alert('PANIC: failed to post answers');},
             });
         }

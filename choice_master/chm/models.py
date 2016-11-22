@@ -136,18 +136,6 @@ class Question(models.Model):
     real_difficulty = models.FloatField(default=1.0)
     difficulty = models.IntegerField(default=1)
 
-    @staticmethod
-    def round_down(n):
-        """
-        Round down floating number n
-        :param n: The number to apply the rounding down
-        :return: The number rounded down
-        :rtype: int | float
-        """
-        if n - floor(n) == 0.5:
-            return floor(n)
-        return round(n)
-
     def vote(self, difficulty):
         """
         Vote the difficulty of the question. This method does not save.
@@ -155,9 +143,9 @@ class Question(models.Model):
         :type difficulty: int
         """
         self.real_difficulty = (self.real_difficulty * self.number_ranked +
-                                self.difficulty) / (self.number_ranked + 1)
+                                difficulty) / (self.number_ranked + 1)
         self.number_ranked += 1
-        self.difficulty = self.round_down(self.real_difficulty)
+        self.difficulty = int(self.real_difficulty + 0.49999999999999)
 
     def is_repeated(self):
         """

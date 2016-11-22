@@ -82,38 +82,56 @@ def correct_quiz(request):
         # set quiz as finished, since user answered last question
         quiz.state = Quiz.STATUS.finished
         quiz.save()
-        return redirect(reverse('quiz_results', kwargs={'id': quiz.id}))
+        return quiz_immediate_results(request, quiz.id)
     else:
         return redirect(login)
 
 
 @login_required
-def quiz_results(request, id):
-    """Show results obtained in quiz"""
+def rate_question(request):
+    """ Rate question"""
     if request.method == 'POST':
         try:
             difficulty = int(request.POST['difficulty'])
             qid = int(request.POST['qid'])
         except ValueError:
             return Http404(_("Wrong difficulty or question ID"))
-        print('-' * 20)
-        print("difficulty {0}".format(difficulty))
-        print("qid {0}".format(qid))
-        print('-' * 20)
-        difficulty = "difficulty {0}".format(difficulty)
-        
-        difficulty = str.split(difficulty)
         question = get_object_or_404(Question, id=qid)
-            
-        question.difficulty = (difficulty[1])
-        print (question.difficulty)
+        question.vote(difficulty)
         question.save()
         return JsonResponse({'ok': True})
-    else:
-        quiz = get_object_or_404(Quiz, id=id)
-        if quiz.user != request.user:
-            raise PermissionDenied
-        return render(request, 'quiz_results.html', {'quiz': quiz})
+    return JsonResponse({'ok': False})
+
+
+def quiz_immediate_results(request, id):
+    """Show results obtained in quiz"""
+    quiz = get_object_or_404(Quiz, id=id)
+    if quiz.user != request.user:
+        raise PermissionDenied
+
+    context = {
+        'quiz': quiz,
+        'allow_rating': True,
+    }
+
+    return render(request, 'quiz_results.html', context)
+
+
+def quiz_results(request, id):
+    """Show results obtained in quiz.
+    This quiz was not just taken. Do nota allow user
+    to re-rate questions of this quiz"""
+
+    quiz = get_object_or_404(Quiz, id=id)
+    if quiz.user != request.user:
+        raise PermissionDenied
+
+    context = {
+        'quiz': quiz,
+        'allow_rating': False,
+    }
+
+    return render(request, 'quiz_results.html', context)
 
 
 @login_required
@@ -130,12 +148,11 @@ def duplicate_question(request):
         question = get_object_or_404(Question, pk=data['question_id'])
         duplicate = get_object_or_404(Question, pk=data['duplicate_id'])
         topic = get_object_or_404(Topic, pk=data['topic_id'])
-        qoq = get_object_or_404(QuestionOnQuiz,
-                                quiz=quiz,
-                                question=question)
+        qoq = get_object_or_404(QuestionOnQuiz, quiz=quiz, question=question)
 
-        questions_on_quiz = QuestionOnQuiz.objects.filter(quiz=quiz
-                                                          ).values('question')
+        questions_on_quiz = QuestionOnQuiz.objects.filter(
+            quiz=quiz
+        ).values('question')
         new_question = Question.objects.filter(
             topic=topic
         ).exclude(

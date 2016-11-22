@@ -96,7 +96,7 @@ class QuizForm(forms.Form):
         assert self.candidates is not None
         if self.cleaned_data['selection_algorithm'] == self.MIN_DIFFICULTY:
             self.candidates = self.candidates.filter(
-                ranked_score__gte=cleaned_data['min_difficulty']
+                difficulty__gte=cleaned_data['min_difficulty']
             )
         if self.candidates.count() < cleaned_data['nr_of_questions']:
             msg = ('{} questions meet the current criteria. '
