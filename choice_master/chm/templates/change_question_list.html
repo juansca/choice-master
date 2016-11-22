@@ -22,6 +22,7 @@
             $.ajax({
                 url: url,
                 type: "POST",
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
                 data: {data: JSON.stringify(dup[index])},
                 success:function(data) {
                     $('#divaddit{{forloop.counter}}').html('Added!');

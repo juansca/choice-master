@@ -133,7 +133,6 @@ class XMLFileAdmin(admin.ModelAdmin):
         mm.set_messages(request)
         return redirect(reverse('admin:chm_question_changelist'))
 
-    @csrf_exempt
     def accept_similar_question_view(self, request):
         """
         Save the given question in the POST request ignoring if a similar
