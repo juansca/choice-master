@@ -9,6 +9,30 @@
 <script src="{% static 'js/jquery.min.js' %}"></script>
 
 
+<script>
+    $(document).ready(function () {
+        dup_json = '{{ dup_json | safe }}';
+        dup = JSON.parse(dup_json);
+
+        var url = "{% url 'admin:chm_accept_similar_question' %}";
+
+        {% if duplicates %}{% for duplicate in duplicates %}
+        $('#addit{{forloop.counter}}').click(function () {
+            var index = {{forloop.counter}} - 1;
+            $.ajax({
+                url: url,
+                type: "POST",
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                data: {data: JSON.stringify(dup[index])},
+                success:function(data) {
+                    $('#divaddit{{forloop.counter}}').html('Added!');
+                }
+            });
+        });
+        {% endfor %}{% endif %}
+
+    });
+</script>
 
 <ul class="messagelist">
 
@@ -16,7 +40,9 @@
     <li class="warning">
         A similar question already exists: {{ duplicate.question }}.
 
-        <a href="#">Add it anyway</a>
+        <div id="divaddit{{forloop.counter}}">
+            <button id="addit{{forloop.counter}}" class="default">Add it anyway</button>
+        </div>
 
         </li>
     {% endfor %}{% endif %}
@@ -32,4 +58,3 @@
 
 
 {% endblock messages %}
-

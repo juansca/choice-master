@@ -27,7 +27,7 @@
     <form class="form-horizontal" action="{% url 'new_quiz' %}" method="POST">
       {% csrf_token %}
 
-      {# number of quiestions #}
+      {# number of questions #}
       <div class="form-group">
         <label class="control-label col-sm-4" for="nr_of_questions">Number of questions</label>
         <div class="col-sm-2">
@@ -35,7 +35,7 @@
         </div>
       </div>
 
-      {# seconds between quiestions #}
+      {# seconds between questions #}
       <div class="form-group">
         <label class="control-label col-sm-4" for="seconds_per_question">Seconds per question</label>
         <div class="col-sm-2">
@@ -53,6 +53,14 @@
         <label class="control-label col-sm-4" for="selection_algorithm">Selection algorithm</label>
         <div class="col-sm-4">
           {{ form.selection_algorithm }}
+        </div>
+      </div>
+
+      {# minimum difficulty #}
+      <div class="form-group" id="min_difficulty">
+        <label class="control-label col-sm-4" for="min_difficulty">Minimum difficulty</label>
+        <div class="col-sm-2">
+          {{ form.min_difficulty }}
         </div>
       </div>
 
@@ -114,10 +122,10 @@
 {% block custom_js %}
 <script type="text/javascript" src="/static/js/jsi18n.js"></script>
 <script type="text/javascript">
-django.jQuery = $;
-    {% if pending_quizes %}
-        function redirectPost(args) {
-			var field;
+  django.jQuery = $;
+  {% if pending_quizes %}
+    function redirectPost(args) {
+  		var field;
 			var url = "{% url 'resume_quiz' %}";
 			var form = $("<form action='" + url + "'> {% csrf_token %} </form>");
 
@@ -133,33 +141,46 @@ django.jQuery = $;
 			});
 			$(form).appendTo('body').submit();
 		}
-        function resume(choice) {
-            if (!choice) { // user wants to discard previous pending quiz
-                // communicate that to the server
-                $.ajax({
-                    type: 'POST',
-                    url: "{% url 'discard_quiz' %}",
-                    headers: {'X-CSRFToken': '{{ csrf_token }}'},
-                    data: {
-                        'quiz_id': {{ pending_quizes.first.pk }},
-                        'resume': choice,
-                    },
-                    success: function (data) {console.log(data);},
-                    fail: function () {alert('PANIC: failed to post answers');},
-                });
-                // close modal to allow user take a new quiz
-                $('#myModal').modal('hide');
-            } else { // user wants to resume
-				redirectPost({'quiz_id': {{ pending_quizes.first.pk }} });
-            }
-        }
-        $(document).ready(function () {
-            $('#myModal').modal({'backdrop': 'static'});
-            $('#myModal').modal('show');
+    function resume(choice) {
+      if (!choice) { // user wants to discard previous pending quiz
+        // communicate that to the server
+        $.ajax({
+          type: 'POST',
+          url: "{% url 'discard_quiz' %}",
+          headers: {'X-CSRFToken': '{{ csrf_token }}'},
+          data: {
+            'quiz_id': {{ pending_quizes.first.pk }},
+            'resume': choice,
+          },
+          success: function (data) {console.log(data);},
+          fail: function () {alert('PANIC: failed to post answers');},
         });
-    {% endif %}
+        // close modal to allow user take a new quiz
+        $('#myModal').modal('hide');
+      } else { // user wants to resume
+				redirectPost({'quiz_id': {{ pending_quizes.first.pk }} });
+      }
+    }
+    $(document).ready(function () {
+      $('#myModal').modal({'backdrop': 'static'});
+      $('#myModal').modal('show');
+    });
+  {% endif %}
 </script>
 <script type="text/javascript" src="/static/admin/js/core.js"></script>
 <script type="text/javascript" src="/static/admin/js/SelectBox.js"></script>
 <script type="text/javascript" src="/static/admin/js/SelectFilter2.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+      $('#min_difficulty').hide();
+  });
+  $(document).on('change', '#id_selection_algorithm', function(event) {
+    if ($(this).find("option:selected").attr('value') == '{{ form.MIN_DIFFICULTY }}') {
+      $('#min_difficulty').show();
+    } else {
+      $('#min_difficulty').hide();
+    }
+  });
+</script>
 {% endblock %}

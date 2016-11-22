@@ -5,6 +5,7 @@ Models for app chm
 # python imports
 from allauth.account.signals import user_signed_up
 from model_utils import Choices
+from math import floor
 
 # django imports
 from django.db import models
@@ -35,7 +36,11 @@ class Subject(models.Model):
     description = models.CharField(max_length=500)
 
     def learning_coeff(self, user):
-        """Return user knowledge as a float in [0..10]"""
+        """
+        Return user knowledge as a float in [0..10]
+        :return: The user learning coefficient
+        :rtype: float
+        """
 
         # get all topics, even if user didn't answer any questions yet
         topics = self.topics.all()
@@ -76,7 +81,11 @@ class Topic(models.Model):
     subject = models.ForeignKey('Subject', related_name='topics')
 
     def learning_coeff(self, user):
-        """Return user knowledge as a float in [0..10]"""
+        """
+        Return user knowledge as a float in [0..10]
+        :return: The user learning coefficient
+        :rtype: float
+        """
         qoq = QuestionOnQuiz.objects.filter(
             question__topic=self,
             quiz__user=user,
@@ -123,13 +132,28 @@ class Question(models.Model):
     """Question Model"""
     topic = models.ForeignKey('Topic')
     text = models.CharField(max_length=300)
+    number_ranked = models.IntegerField(default=0)
+    real_difficulty = models.FloatField(default=1.0)
+    difficulty = models.IntegerField(default=1)
 
-    def __str__(self):
-        return self.text
+    @staticmethod
+    def round_down(n):
+        return int(n + 0.49)
+        
+    def vote(self, difficulty):
+        """
+        Vote the difficulty of the question. This method does not save.
+        :param difficulty: The voted difficulty
+        :type difficulty: int
+        """
+        self.real_difficulty = (self.real_difficulty * self.number_ranked +
+                                difficulty) / (self.number_ranked + 1)
+        self.number_ranked += 1
+        self.difficulty = int(self.real_difficulty + 0.49999999999999)
 
     def is_repeated(self):
         """
-        Check if a identical question exists in the database.
+        Check if an identical question exists in the database.
         :return: True only if an identical question exists in the database
         :rtype: bool
         """
@@ -155,6 +179,9 @@ class Question(models.Model):
         return False
 
     def clean(self):
+        if self.difficulty != self.round_down(self.real_difficulty):
+            raise ValidationError(_('The question has an inconsistent'
+                                    'difficulty'))
         try:
             if self.is_repeated():
                 raise ValidationError(_('The question already exists'))
@@ -162,7 +189,11 @@ class Question(models.Model):
             pass
 
     def to_json(self):
-        """"Converts a Question to json format"""
+        """"
+        Converts a Question to json format
+        :return: A question formated as a dictionary
+        :rtype: dict[string, T]
+        """
         return {
             'id': self.id,
             'text': self.text,
@@ -170,6 +201,9 @@ class Question(models.Model):
             'topic_id': self.topic.pk,
             'answers': [a.to_json() for a in self.answers.all()]
         }
+
+    def __str__(self):
+        return self.text
 
 
 class Answer(models.Model):
@@ -179,7 +213,11 @@ class Answer(models.Model):
     is_correct = models.BooleanField(default=False)
 
     def to_json(self):
-        """"Converts a Answer to json format"""
+        """
+        Converts an Answer to json format
+        :return: An answer formated as a dictionary
+        :rtype: dict[string, T]
+        """
         return {
             'id': self.id,
             'text': self.text,
@@ -247,7 +285,11 @@ class Quiz(models.Model):
                              max_length=20)
 
     def score(self, **kwargs):
-        """Return float indicating ratio of correct answers"""
+        """
+        Return float indicating ratio of correct answers
+        :return: The ratio of correct answers
+        :rtype: float
+        """
         qq = QuestionOnQuiz.objects.filter(quiz=self, **kwargs)
         correct = qq.filter(state=QuestionOnQuiz.STATUS.right)
         try:
@@ -257,14 +299,20 @@ class Quiz(models.Model):
         return score * 100
 
     def detailed_score(self):
-        """Return queryset detailing total amount of answers in each state"""
+        """
+        Return queryset detailing total amount of answers in each state
+        :return: The total amount of answers in each state
+        :rtype: QuerySet
+        """
         qq = QuestionOnQuiz.objects.filter(quiz=self)
         return qq.values('state').annotate(total=Count('state'))
 
     def to_json(self, exclude_answered=False):
         """"
-            Converts a Quiz to json format. Only save id and seconds to
-            use them later
+        Converts a Quiz to json format. Only save id and seconds to
+        use them later.
+        :return: An quiz formated as a dictionary
+        :rtype: dict[string, T]
         """
         result = {
             'id': self.id,

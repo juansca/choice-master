@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 {% load chm_extras %}
+{% load static %}
 {% block custom_css %}
+    <link rel="stylesheet" href="{% static 'css/rating.css' %}"/>
 {% endblock %}
+
 
 {% block content %}
   <div class="page-header">
@@ -83,7 +86,6 @@
     </div><!-- end panel body-->
   </div><!-- end panel success -->
 
-
   <div class="panel panel-success">
     <div class="panel-heading">
       Detailed result
@@ -97,8 +99,18 @@
             <div class="media-body">
               <h4 class="media-heading">{{ qoq.question.text }}
                 <div class="pull-right">
-                    <a href="{% url 'flag' id=qoq.question.id %}" class="text-danger" target="_blank" title="Flag this question"><span class="glyphicon glyphicon-flag"></span></a>
+                  &emsp;
+                  <a href="{% url 'flag' id=qoq.question.id %}" class="text-danger" target="_blank" title="Flag this question"><span class="glyphicon glyphicon-flag"></span></a>
                 </div>
+                {% if  allow_rating  %}
+                  <div class="pull-right" id="{{ qoq.question.id }}">
+                    <input type="radio" name="example" class="rating" value="1" />
+                    <input type="radio" name="example" class="rating" value="2" />
+                    <input type="radio" name="example" class="rating" value="3" />
+                    <input type="radio" name="example" class="rating" value="4" />
+                    <input type="radio" name="example" class="rating" value="5" />
+                  </div>
+                {% endif %}
               </h4>
               {{ qoq.state|humanize_status }}
             </div>
@@ -110,4 +122,25 @@
 {% endblock %}
 
 {% block custom_js %}
+  {% if allow_rating %}
+    <script type="text/javascript" src="{% static 'js/rating.js' %}"></script>
+    <script type="text/javascript">
+    var tick = '<span class="text-success glyphicon glyphicon-ok"></span>';
+      {% for qoq in quiz.questions.all %}
+        $(function(){
+          $('#{{ qoq.question.id }}').rating(function(vote, event){
+            $.ajax({
+              type: "POST",
+              url: '{% url "rate_question" %}',
+              headers: {'X-CSRFToken': '{{ csrf_token }}'},
+              data: {difficulty: vote, qid: {{ qoq.question.id }}},
+              success:function(data) {
+                $('#{{ qoq.question.id }}').html("Thank you for your feedback! " + tick);
+              }
+            });
+          });
+        });
+      {% endfor %}
+    </script>
+  {% endif %}
 {% endblock %}

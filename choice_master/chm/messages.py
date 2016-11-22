@@ -27,6 +27,8 @@ class LoadQuestionsMessageManager():
         """
         Set all the messages using django.contrib.messages.
         Call this function once every question has been processed.
+        :param request: The request
+        :type request: HttpRequest
         """
         if self.added:
             messages.success(request, self.ADDED.format(len(self.added)))

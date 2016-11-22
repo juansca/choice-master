@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'quiz/corrected/$', views.correct_quiz, name='correct_quiz'),
     url(r'question/(?P<id>\d+)/flag/$', views.flag_question, name='flag'),
     url(r'question/answer/$', views.answer_question, name='answer_question'),
+    url(r'question/rate/$', views.rate_question, name='rate_question'),
     url(r'quiz/discard/$', views.discard_quiz, name='discard_quiz'),
     url(r'quiz/resume/$', views.resume_quiz, name='resume_quiz'),
     url(r'stats/$', views.show_stats, name='show_stats'),
