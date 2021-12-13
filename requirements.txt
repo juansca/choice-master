@@ -8,7 +8,7 @@ fake-factory==0.7.2
 ipdb==0.10.1
 ipython==5.1.0
 ipython-genutils==0.1.0
-lxml==3.6.4
+lxml==4.6.5
 oauthlib==2.0.0
 pep8==1.7.0
 pexpect==4.2.1
